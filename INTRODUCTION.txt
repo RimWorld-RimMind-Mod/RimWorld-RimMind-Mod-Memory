@@ -1,0 +1,75 @@
+[h1]RimMind - Memory[/h1]
+三层记忆系统，让 AI 拥有"往事历历"的时间感知能力。自动采集游戏事件生成记忆条目，通过 AI 凝练为长期印象，为其他 RimMind 模组提供上下文支持。
+
+[h2] RimMind 是什么 [/h2]
+RimMind 是一套 AI 驱动的 RimWorld 模组套件，通过接入大语言模型 (LLM)，让殖民者拥有人格、记忆、对话和自主决策能力。
+
+[h2] 子模组列表与依赖关系 [/h2]
+[table][tr][td][b] 模组 [/b][/td][td][b] 职责 [/b][/td][td][b] 依赖 [/b][/td][td][b] GitHub [/b][/td][/tr][tr][td] RimMind-Core [/td][td] API 客户端、请求调度、上下文打包 [/td][td] Harmony [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Core] 链接 [/url][/td][/tr][tr][td] RimMind-Actions [/td][td] AI 控制小人的动作执行库 [/td][td] Core [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Actions] 链接 [/url][/td][/tr][tr][td] RimMind-Advisor [/td][td] AI 扮演小人做出工作决策 [/td][td] Core, Actions [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Advisor] 链接 [/url][/td][/tr][tr][td] RimMind-Dialogue [/td][td] AI 驱动的对话系统 [/td][td] Core [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Dialogue] 链接 [/url][/td][/tr][tr][td][b] RimMind-Memory [/b][/td][td] 记忆采集与上下文注入 [/td][td] Core [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Memory] 链接 [/url][/td][/tr][tr][td] RimMind-Personality [/td][td] AI 生成人格与想法 [/td][td] Core [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Personality] 链接 [/url][/td][/tr][tr][td] RimMind-Storyteller [/td][td] AI 叙事者，智能选择事件 [/td][td] Core [/td][td][url=https://github.com/mcocdaa/RimWorld-RimMind-Mod-Storyteller] 链接 [/url][/td][/tr][/table]
+[code]Core ── Actions ── Advisor
+  ├── Dialogue
+  ├── Memory
+  ├── Personality
+  └── Storyteller[/code]
+
+[h2] 核心能力 [/h2]
+[b] 活跃记忆 (Active) [/b] - 最近发生的重要事件，完整保留细节，随时可供 AI 查询。
+[b] 归档记忆 (Archive) [/b] - 较久之前的事件，保留核心信息但精简细节，平衡信息量与 Token 消耗。
+[b] 深层记忆 (Dark) [/b] - 永久保留的关键印象（AI 每日凝练生成），随时间沉淀但不会遗忘。条数由设置项 darkCount 控制，代码与 prompt 双重保障。
+[b] 工作会话聚合 [/b] - 将连续的同类工作（如"挖矿 3 小时"）聚合成一条记忆，避免信息爆炸。最小聚合次数和空闲间隔阈值均可配置。
+[b] 重要性衰减 [/b] - 模拟真实记忆，普通琐事随时间淡化（每游戏日按比例衰减），重大事件长久留存。
+[b] 上下文注入 [/b] - 记忆自动注入 AI Prompt，让所有 RimMind 模块都能参考殖民者的历史。Pawn 和叙事者的注入比例均可独立配置。
+
+[h2] 记录内容 [/h2]
+[list]
+[*] 工作会话（搬运、建造、种植等连续工作）
+[*] 击杀记录（谁杀死了什么）
+[*] 关系变化（成为恋人、分手、宿敌）
+[*] 技能升级里程碑
+[*] 健康问题（疾病、受伤）
+[*] 精神崩溃事件
+[*] 殖民地级别事件（袭击、商队等）
+[*] 自定义手动记录
+[/list]
+
+[h2] 核心功能 [/h2]
+[b] 三层存储结构 [/b]
+每个殖民者和叙事者都有三层记忆：
+[list]
+[*] [b]活跃记忆[/b]：近期事件，按时间排序，有容量上限
+[*] [b]存档记忆[/b]：按重要度排序，容量满时淘汰低重要度条目
+[*] [b]长期印象（暗记忆）[/b]：AI 每日生成，凝练为 50 字以内的摘要，永久保留
+[/list]
+
+[b] 记忆采集 [/b]
+自动监听多种游戏事件：
+[table][tr][td][b] 事件类型 [/b][/td][td][b] 重要度 [/b][/td][td][b] 说明 [/b][/td][/tr][tr][td] 工作会话 [/td][td] 0.4~0.5 [/td][td] 连续工作聚合成单条记忆 [/td][/tr][tr][td] 重要工作 [/td][td] 0.5~0.9 [/td][td] 救援、攻击等直接单独记录 [/td][/tr][tr][td] 受伤/患病 [/td][td] 0.5~0.9 [/td][td] 致命伤最高 0.9 [/td][/tr][tr][td] 精神崩溃 [/td][td] 0.7~0.95 [/td][td] 狂暴最高 0.95 [/td][/tr][tr][td] 亲近者死亡 [/td][td] 0.85~1.0 [/td][td] 有关系者 1.0 [/td][/tr][tr][td] 技能升级 [/td][td] 0.5~0.7 [/td][td] 高等级技能更重要 [/td][/tr][tr][td] 关系建立 [/td][td] 0.6~0.95 [/td][td] 配偶/恋人最高 0.95 [/td][/tr][tr][td] 叙事者事件 [/td][td] 0.3~1.0 [/td][td] 袭击 0.9，婚礼 0.85 [/td][/tr][/table]
+Pawn 记忆重要度 >= 0.8 时自动同步到叙事者记忆。
+
+[b] 工作会话聚合 [/b]
+将连续同类工作聚合成单条记忆，例如"搬运 x12 约4.8游戏时"，避免记忆列表被细粒度 Job 刷屏。
+
+[b] 暗记忆生成 [/b]
+每日调用 AI 将当日记忆凝练为长期印象。暗记忆只读展示，用于 AI 理解人物的长期状态和性格演变。
+
+[b] 上下文注入 [/b]
+通过 RimMind-Core 的 Provider 机制，将记忆自动注入 AI Prompt，让所有子模块都能参考殖民者的历史。
+
+[h2] 设置项 [/h2]
+[table][tr][td][b] 设置 [/b][/td][td][b] 默认值 [/b][/td][td][b] 说明 [/b][/td][/tr][tr][td] 启用记忆系统 [/td][td] 开启 [/td][td] 总开关 [/td][/tr][tr][td] 工作会话 [/td][td] 开启 [/td][td] 采集工作相关记忆 [/td][/tr][tr][td] 受伤/患病 [/td][td] 开启 [/td][td] 采集健康相关记忆 [/td][/tr][tr][td] 精神崩溃 [/td][td] 开启 [/td][td] 采集精神事件 [/td][/tr][tr][td] 亲近者死亡 [/td][td] 开启 [/td][td] 采集死亡事件 [/td][/tr][tr][td] 技能升级 [/td][td] 开启 [/td][td] 采集技能提升 [/td][/tr][tr][td] 关系变化 [/td][td] 开启 [/td][td] 采集关系建立 [/td][/tr][tr][td] 活跃记忆上限 [/td][td] 30 [/td][td] 每人近期记忆条数 [/td][/tr][tr][td] 存档记忆上限 [/td][td] 50 [/td][td] 每人存档记忆条数 [/td][/tr][tr][td] 暗记忆条数 [/td][td] 3 [/td][td] AI 生成的长期印象条数（代码+prompt 双重限制） [/td][/tr][tr][td] 活跃叙事上限 [/td][td] 30 [/td][td] 叙事者活跃叙事条数 [/td][/tr][tr][td] 存档叙事上限 [/td][td] 10 [/td][td] 叙事者存档叙事条数 [/td][/tr][tr][td] 暗叙事条数 [/td][td] 10 [/td][td] 叙事者 AI 压缩长期叙事条数 [/td][/tr][tr][td] 活跃注入比例 [/td][td] 50% [/td][td] Pawn 活跃记忆注入 Prompt 的比例 [/td][/tr][tr][td] 存档注入比例 [/td][td] 50% [/td][td] Pawn 存档记忆注入 Prompt 的比例 [/td][/tr][tr][td] 叙事者活跃注入比例 [/td][td] 50% [/td][td] 叙事者活跃叙事注入 Prompt 的比例 [/td][/tr][tr][td] 叙事者存档注入比例 [/td][td] 50% [/td][td] 叙事者存档叙事注入 Prompt 的比例 [/td][/tr][tr][td] 最小聚合次数 [/td][td] 2 [/td][td] 同类工作达到此次数后才聚合为一条记忆 [/td][/tr][tr][td] 空闲间隔阈值 [/td][td] 2.4 游戏时 [/td][td] 间隔超过此时长记录为休息/待机 [/td][/tr][tr][td] 启用重要度衰减 [/td][td] 关闭 [/td][td] 记忆重要度随时间降低 [/td][/tr][tr][td] 衰减速率 [/td][td] 2%/天 [/td][td] 每游戏日重要度降低的百分比 [/td][/tr][tr][td] 最低阈值 [/td][td] 0.05 [/td][td] 低于此阈值的记忆自动归档 [/td][/tr][tr][td] 叙事者事件阈值 [/td][td] 0.2 [/td][td] 事件重要度达到此阈值才被叙事者记录 [/td][/tr][tr][td] 小人→叙事者阈值 [/td][td] 0.8 [/td][td] Pawn 记忆重要度达到此阈值才同步到叙事者 [/td][/tr][tr][td] 请求过期 [/td][td] 0.5 游戏天 [/td][td] 暗记忆生成请求超时自动取消 [/td][/tr][/table]
+
+[h2] 常见问题 [/h2]
+[b] Q: 记忆会占用很多 Token 吗？ [/b]
+A: 注入比例可调。默认只注入 50% 的活跃和存档记忆，暗记忆条数也有限制（默认 3 条）。可根据 API 费用调整。
+
+[b] Q: 记忆随存档保存吗？ [/b]
+A: 是的。所有记忆通过 WorldComponent 随存档序列化，载入存档后自动恢复。
+
+[b] Q: 可以手动添加记忆吗？ [/b]
+A: 可以。在记忆日志窗口中可手动添加自定义记忆条目。
+
+[b] Q: 暗记忆可以编辑吗？ [/b]
+A: 暗记忆由 AI 生成，只读展示。你可以固定（Pin）活跃记忆防止被淘汰。
+
+[b] Q: 配合其他模块效果如何？ [/b]
+A: Memory 为所有 AI 评估提供历史上下文。配合 Personality、Advisor、Dialogue 使用时，AI 决策会更连贯。

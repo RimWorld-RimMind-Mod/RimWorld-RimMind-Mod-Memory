@@ -106,6 +106,29 @@ namespace RimMind.Memory
             listing.Label("  " + "RimMind.Memory.Settings.ArchiveInjectRatio.Desc".Translate());
             GUI.color = Color.white;
             Settings.archiveInjectRatio = listing.Slider(Settings.archiveInjectRatio, 0f, 1f);
+            listing.Label("RimMind.Memory.Settings.NarratorActiveInjectRatio".Translate($"{Settings.narratorActiveInjectRatio:F2}"));
+            GUI.color = Color.gray;
+            listing.Label("  " + "RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc".Translate());
+            GUI.color = Color.white;
+            Settings.narratorActiveInjectRatio = listing.Slider(Settings.narratorActiveInjectRatio, 0f, 1f);
+            listing.Label("RimMind.Memory.Settings.NarratorArchiveInjectRatio".Translate($"{Settings.narratorArchiveInjectRatio:F2}"));
+            GUI.color = Color.gray;
+            listing.Label("  " + "RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc".Translate());
+            GUI.color = Color.white;
+            Settings.narratorArchiveInjectRatio = listing.Slider(Settings.narratorArchiveInjectRatio, 0f, 1f);
+
+            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Aggregation".Translate());
+            listing.Label("RimMind.Memory.Settings.MinAggregationCount".Translate(Settings.minAggregationCount));
+            GUI.color = Color.gray;
+            listing.Label("  " + "RimMind.Memory.Settings.MinAggregationCount.Desc".Translate());
+            GUI.color = Color.white;
+            Settings.minAggregationCount = (int)listing.Slider(Settings.minAggregationCount, 1, 10);
+            listing.Label("RimMind.Memory.Settings.IdleGapThreshold".Translate($"{Settings.idleGapThresholdTicks / 2500f:F1}"));
+            GUI.color = Color.gray;
+            listing.Label("  " + "RimMind.Memory.Settings.IdleGapThreshold.Desc".Translate());
+            GUI.color = Color.white;
+            Settings.idleGapThresholdTicks = (int)listing.Slider(Settings.idleGapThresholdTicks, 1500f, 30000f);
+            Settings.idleGapThresholdTicks = (Settings.idleGapThresholdTicks / 500) * 500;
 
             SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Decay".Translate());
             listing.CheckboxLabeled("RimMind.Memory.Settings.EnableDecay".Translate(), ref Settings.enableDecay,
@@ -191,9 +214,13 @@ namespace RimMind.Memory
                 Settings.narratorDarkCount = 10;
                 Settings.activeInjectRatio = 0.5f;
                 Settings.archiveInjectRatio = 0.5f;
+                Settings.narratorActiveInjectRatio = 0.5f;
+                Settings.narratorArchiveInjectRatio = 0.5f;
                 Settings.enableDecay = false;
                 Settings.decayRate = 0.02f;
                 Settings.minImportanceThreshold = 0.05f;
+                Settings.minAggregationCount = 2;
+                Settings.idleGapThresholdTicks = 6000;
                 Settings.narratorEventThreshold = 0.2f;
                 Settings.pawnToNarratorThreshold = 0.8f;
                 Settings.requestExpireTicks = 30000;
@@ -209,7 +236,7 @@ namespace RimMind.Memory
             h += 24f + 24f * 6;
             h += 24f + 24f + 32f + 24f + 32f + 24f + 32f;
             h += 24f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f;
+            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f + 24f + 32f;
             h += 24f + 24f + 32f;
             if (Settings.enableDecay)
                 h += 24f + 32f + 24f + 32f;

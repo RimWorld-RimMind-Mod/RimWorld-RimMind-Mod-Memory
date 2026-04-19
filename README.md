@@ -126,14 +126,27 @@ cd RimWorld-RimMind-Mod-Memory
 | 关系变化 | 开启 | 采集关系建立 |
 | 活跃记忆上限 | 30 | 每人近期记忆条数 |
 | 存档记忆上限 | 50 | 每人存档记忆条数 |
-| 暗记忆条数 | 3 | AI 生成的长期印象条数 |
-| 活跃注入比例 | 50% | 活跃记忆注入 Prompt 的比例 |
-| 存档注入比例 | 50% | 存档记忆注入 Prompt 的比例 |
+| 暗记忆条数 | 3 | AI 生成的长期印象条数（代码+prompt 双重限制） |
+| 活跃叙事上限 | 30 | 叙事者活跃叙事条数 |
+| 存档叙事上限 | 10 | 叙事者存档叙事条数 |
+| 暗叙事条数 | 10 | 叙事者 AI 压缩长期叙事条数 |
+| 活跃注入比例 | 50% | Pawn 活跃记忆注入 Prompt 的比例 |
+| 存档注入比例 | 50% | Pawn 存档记忆注入 Prompt 的比例 |
+| 叙事者活跃注入比例 | 50% | 叙事者活跃叙事注入 Prompt 的比例 |
+| 叙事者存档注入比例 | 50% | 叙事者存档叙事注入 Prompt 的比例 |
+| 最小聚合次数 | 2 | 同类工作达到此次数后才聚合为一条记忆 |
+| 空闲间隔阈值 | 2.4 游戏时 | 间隔超过此时长记录为休息/待机 |
+| 启用重要度衰减 | 关闭 | 记忆重要度随时间降低 |
+| 衰减速率 | 2%/天 | 每游戏日重要度降低的百分比 |
+| 最低阈值 | 0.05 | 低于此阈值的记忆自动归档 |
+| 叙事者事件阈值 | 0.2 | 事件重要度达到此阈值才被叙事者记录 |
+| 小人→叙事者阈值 | 0.8 | Pawn 记忆重要度达到此阈值才同步到叙事者 |
+| 请求过期 | 0.5 游戏天 | 暗记忆生成请求超时自动取消 |
 
 ## 常见问题
 
 **Q: 记忆会占用很多 Token 吗？**
-A: 注入比例可调。默认只注入 50% 的活跃和存档记忆，暗记忆条数也有限制（默认 3 条）。可根据 API 费用调整。
+A: 注入比例可调。默认只注入 50% 的活跃和存档记忆，暗记忆条数也有限制（默认 3 条，代码+prompt 双重保障）。叙事者注入比例可独立调节。可根据 API 费用调整。
 
 **Q: 记忆随存档保存吗？**
 A: 是的。所有记忆通过 WorldComponent 随存档序列化，载入存档后自动恢复。
@@ -235,7 +248,7 @@ cd RimWorld-RimMind-Mod-Memory
 ## FAQ
 
 **Q: Will memories use too many tokens?**
-A: Injection ratios are adjustable. Default is 50% for active/archive, and dark memory is limited (default: 3 entries). Adjust based on API costs.
+A: Injection ratios are adjustable. Default is 50% for active/archive, and dark memory is limited (default: 3 entries, dual-enforced by code and prompt). Narrator injection ratios are independently configurable. Adjust based on API costs.
 
 **Q: Are memories saved with the save file?**
 A: Yes. All memories are serialized via WorldComponent and restored when loading saves.

@@ -102,12 +102,13 @@ namespace RimMind.Memory.DarkMemory
             {
                 SystemPrompt = StructuredPromptBuilder.FromKeyPrefix("RimMind.Memory.Prompt.System")
                     .Build(),
-                UserPrompt = sb.ToString(),
+                UserPrompt = PromptSanitizer.Sanitize(sb.ToString()),
                 MaxTokens = 200,
                 Temperature = 0.5f,
                 RequestId = $"DarkMemory_Pawn_{pawn.ThingID}",
                 ModId = "DarkMemory",
                 ExpireAtTicks = Find.TickManager.TicksGame + settings.requestExpireTicks,
+                Priority = AIRequestPriority.Low,
             };
 
             RimMindAPI.RequestAsync(request, response =>
@@ -144,12 +145,13 @@ namespace RimMind.Memory.DarkMemory
             {
                 SystemPrompt = StructuredPromptBuilder.FromKeyPrefix("RimMind.Memory.Prompt.NarratorSystem")
                     .Build(),
-                UserPrompt = sb.ToString(),
+                UserPrompt = PromptSanitizer.Sanitize(sb.ToString()),
                 MaxTokens = 300,
                 Temperature = 0.5f,
                 RequestId = "DarkMemory_Narrator",
                 ModId = "DarkMemory",
                 ExpireAtTicks = Find.TickManager.TicksGame + settings.requestExpireTicks,
+                Priority = AIRequestPriority.Low,
             };
 
             RimMindAPI.RequestAsync(request, response =>
@@ -167,10 +169,13 @@ namespace RimMind.Memory.DarkMemory
                 if (result?.dark == null) return;
 
                 store.dark.Clear();
+                int added = 0;
                 foreach (var text in result.dark)
                 {
                     if (string.IsNullOrEmpty(text)) continue;
+                    if (added >= darkCount) break;
                     store.dark.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
+                    added++;
                 }
             }
             catch (Exception ex)
@@ -187,10 +192,13 @@ namespace RimMind.Memory.DarkMemory
                 if (result?.dark == null) return;
 
                 store.dark.Clear();
+                int added = 0;
                 foreach (var text in result.dark)
                 {
                     if (string.IsNullOrEmpty(text)) continue;
+                    if (added >= darkCount) break;
                     store.dark.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
+                    added++;
                 }
             }
             catch (Exception ex)

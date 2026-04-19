@@ -85,8 +85,8 @@
     <RimMind.Memory.Prompt.System.Goal>[目标] 将今日记忆合并到现有长期印象中，保持简洁且信息完整。</RimMind.Memory.Prompt.System.Goal>
     <RimMind.Memory.Prompt.System.Process>[流程]\n1. 阅读今日发生的所有记忆\n2. 阅读现有的长期印象\n3. 将今日记忆的关键信息融入现有印象（更新/合并/新增）\n4. 移除最不相关的旧印象以保持数量限制\n5. 确保每条印象包含时间或场景定位</RimMind.Memory.Prompt.System.Process>
     <RimMind.Memory.Prompt.System.Constraint>[约束]\n- 保持指定条数，不多不少\n- 每条 ≤50 字\n- 优先保留高重要性记忆\n- 合并相似主题的印象\n- 每条应包含时间/场景定位词</RimMind.Memory.Prompt.System.Constraint>
-    <RimMind.Memory.Prompt.System.Example>[示例]\n输入：今日记忆=["采矿6小时","被海盗袭击受伤","与Alex聊天"]，现有印象=["擅长采矿","与Alex关系好"]\n输出：{"dark":["资深矿工，经常长时间采矿","上个月被海盗袭击受伤，对袭击保持警惕","与Alex关系亲密，经常聊天"]}</RimMind.Memory.Prompt.System.Example>
-    <RimMind.Memory.Prompt.System.Output>[输出] 只返回以下 JSON 格式：\n{"dark":["...","..."]}</RimMind.Memory.Prompt.System.Output>
+    <RimMind.Memory.Prompt.System.Example>[示例]\n输入：今日记忆=["采矿6小时","被海盗袭击受伤","与Alex聊天"]，现有印象=["擅长采矿","与Alex关系好"]\n输出：{{"dark":["资深矿工，经常长时间采矿","上个月被海盗袭击受伤，对袭击保持警惕","与Alex关系亲密，经常聊天"]}}</RimMind.Memory.Prompt.System.Example>
+    <RimMind.Memory.Prompt.System.Output>[输出] 只返回以下 JSON 格式：\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.System.Output>
     <RimMind.Memory.Prompt.System.Fallback>[兜底] 如果无法合并，返回现有印象不变。</RimMind.Memory.Prompt.System.Fallback>
 
     <!-- Five-section System Prompt - Narrator Dark Memory -->
@@ -94,8 +94,8 @@
     <RimMind.Memory.Prompt.NarratorSystem.Goal>[目标] 将今日事件合并到现有长期叙事中，保持简洁且信息完整。</RimMind.Memory.Prompt.NarratorSystem.Goal>
     <RimMind.Memory.Prompt.NarratorSystem.Process>[流程]\n1. 阅读今日殖民地发生的所有事件\n2. 阅读现有的长期叙事\n3. 将今日事件的关键信息融入现有叙事\n4. 移除最不相关的旧叙事以保持数量限制\n5. 确保每条叙事包含时间或场景定位</RimMind.Memory.Prompt.NarratorSystem.Process>
     <RimMind.Memory.Prompt.NarratorSystem.Constraint>[约束]\n- 保持指定条数，不多不少\n- 每条 ≤50 字\n- 优先保留高重要性事件\n- 合并相似主题的叙事\n- 每条应包含时间/场景定位词</RimMind.Memory.Prompt.NarratorSystem.Constraint>
-    <RimMind.Memory.Prompt.NarratorSystem.Example>[示例]\n输入：今日事件=["海盗袭击","商人来访","新殖民者加入"]，现有叙事=["殖民地刚建立"]\n输出：{"dark":["殖民地建立初期，经历了海盗袭击","曾有商人来访，建立了贸易联系","最近有新殖民者加入，壮大了队伍"]}</RimMind.Memory.Prompt.NarratorSystem.Example>
-    <RimMind.Memory.Prompt.NarratorSystem.Output>[输出] 只返回以下 JSON 格式：\n{"dark":["...","..."]}</RimMind.Memory.Prompt.NarratorSystem.Output>
+    <RimMind.Memory.Prompt.NarratorSystem.Example>[示例]\n输入：今日事件=["海盗袭击","商人来访","新殖民者加入"]，现有叙事=["殖民地刚建立"]\n输出：{{"dark":["殖民地建立初期，经历了海盗袭击","曾有商人来访，建立了贸易联系","最近有新殖民者加入，壮大了队伍"]}}</RimMind.Memory.Prompt.NarratorSystem.Example>
+    <RimMind.Memory.Prompt.NarratorSystem.Output>[输出] 只返回以下 JSON 格式：\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.NarratorSystem.Output>
     <RimMind.Memory.Prompt.NarratorSystem.Fallback>[兜底] 如果无法合并，返回现有叙事不变。</RimMind.Memory.Prompt.NarratorSystem.Fallback>
 
     <!-- MemoryContextProvider.cs - Context -->
@@ -144,16 +144,25 @@
     <RimMind.Memory.Settings.ActiveInjectRatio.Desc>活跃记忆注入 AI 上下文的比例。1.0 = 全部注入，0.5 = 注入一半。</RimMind.Memory.Settings.ActiveInjectRatio.Desc>
     <RimMind.Memory.Settings.ArchiveInjectRatio>存档注入比例：{0}</RimMind.Memory.Settings.ArchiveInjectRatio>
     <RimMind.Memory.Settings.ArchiveInjectRatio.Desc>存档记忆注入 AI 上下文的比例。存档记忆较多时，降低比例可节省 Token。</RimMind.Memory.Settings.ArchiveInjectRatio.Desc>
+    <RimMind.Memory.Settings.NarratorActiveInjectRatio>叙事者活跃注入比例：{0}</RimMind.Memory.Settings.NarratorActiveInjectRatio>
+    <RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>叙事者活跃叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>
+    <RimMind.Memory.Settings.NarratorArchiveInjectRatio>叙事者存档注入比例：{0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
+    <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>叙事者存档叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
     <RimMind.Memory.Settings.Section.Decay>记忆衰减</RimMind.Memory.Settings.Section.Decay>
     <RimMind.Memory.Settings.Section.Request>请求设置</RimMind.Memory.Settings.Section.Request>
     <RimMind.Memory.Settings.RequestExpire>请求过期：{0} 游戏天</RimMind.Memory.Settings.RequestExpire>
     <RimMind.Memory.Settings.RequestExpire.Desc>暗记忆生成请求超过此时间未获得响应则自动取消。</RimMind.Memory.Settings.RequestExpire.Desc>
     <RimMind.Memory.Settings.EnableDecay>启用重要度衰减</RimMind.Memory.Settings.EnableDecay>
     <RimMind.Memory.Settings.EnableDecay.Desc>开启后，记忆的重要度会随时间降低，低于阈值时自动归档。</RimMind.Memory.Settings.EnableDecay.Desc>
-    <RimMind.Memory.Settings.DecayRate>衰减速率：{0}%/次</RimMind.Memory.Settings.DecayRate>
-    <RimMind.Memory.Settings.DecayRate.Desc>每次衰减时重要度降低的百分比。数值越大，记忆越快被归档。</RimMind.Memory.Settings.DecayRate.Desc>
+    <RimMind.Memory.Settings.DecayRate>衰减速率：{0}%/天</RimMind.Memory.Settings.DecayRate>
+    <RimMind.Memory.Settings.DecayRate.Desc>每个游戏日重要度降低的百分比。数值越大，记忆越快被归档。</RimMind.Memory.Settings.DecayRate.Desc>
     <RimMind.Memory.Settings.MinThreshold>最低阈值：{0}</RimMind.Memory.Settings.MinThreshold>
     <RimMind.Memory.Settings.MinThreshold.Desc>重要度低于此阈值的记忆会被自动归档。</RimMind.Memory.Settings.MinThreshold.Desc>
+    <RimMind.Memory.Settings.Section.Aggregation>工作会话聚合</RimMind.Memory.Settings.Section.Aggregation>
+    <RimMind.Memory.Settings.MinAggregationCount>最小聚合次数：{0}</RimMind.Memory.Settings.MinAggregationCount>
+    <RimMind.Memory.Settings.MinAggregationCount.Desc>同类工作达到此次数后才聚合为一条记忆。数值越低记录越细粒度。</RimMind.Memory.Settings.MinAggregationCount.Desc>
+    <RimMind.Memory.Settings.IdleGapThreshold>空闲间隔阈值：{0} 游戏时</RimMind.Memory.Settings.IdleGapThreshold>
+    <RimMind.Memory.Settings.IdleGapThreshold.Desc>两次有意义工作之间的间隔超过此时长，记录为休息/待机。</RimMind.Memory.Settings.IdleGapThreshold.Desc>
     <RimMind.Memory.Settings.CollectionControl>采集控制</RimMind.Memory.Settings.CollectionControl>
     <RimMind.Memory.Settings.NarratorEventThreshold>叙事者事件阈值：{0}</RimMind.Memory.Settings.NarratorEventThreshold>
     <RimMind.Memory.Settings.NarratorEventThreshold.Desc>事件重要度达到此阈值才会被叙事者记录。</RimMind.Memory.Settings.NarratorEventThreshold.Desc>

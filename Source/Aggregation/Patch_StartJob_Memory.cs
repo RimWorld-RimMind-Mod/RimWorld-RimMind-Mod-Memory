@@ -20,7 +20,8 @@ namespace RimMind.Memory.Aggregation
             WorkSessionAggregator.Instance?.OnJobStarted(
                 pawn, newJob,
                 settings.maxActive, settings.maxArchive,
-                settings.idleGapThresholdTicks);
+                settings.idleGapThresholdTicks,
+                settings.minAggregationCount);
         }
     }
 }
