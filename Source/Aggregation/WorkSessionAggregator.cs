@@ -16,14 +16,13 @@ namespace RimMind.Memory.Aggregation
         private readonly Dictionary<int, PawnSession> _sessions = new Dictionary<int, PawnSession>();
 
         private const int SessionTimeoutTicks = 2500;
-        private const int MinCountForAggregation = 2;
 
         public WorkSessionAggregator(Game game) { _instance = this; }
 
         public override void StartedNewGame() { _sessions.Clear(); }
         public override void LoadedGame()     { _sessions.Clear(); }
 
-        public void OnJobStarted(Pawn pawn, Job job, int maxActive, int maxArchive, int idleGapThresholdTicks)
+        public void OnJobStarted(Pawn pawn, Job job, int maxActive, int maxArchive, int idleGapThresholdTicks, int minAggregationCount)
         {
             if (pawn == null || job == null) return;
             int now = Find.TickManager.TicksGame;
@@ -57,18 +56,18 @@ namespace RimMind.Memory.Aggregation
             if (session.currentJobDef != null && session.currentJobDef == jobDefName
                 && session.totalTicks >= SessionTimeoutTicks)
             {
-                FlushSession(pawn, session, now, maxActive, maxArchive);
+                FlushSession(pawn, session, now, maxActive, maxArchive, minAggregationCount);
             }
 
             if (session.currentJobDef != null && session.currentJobDef != jobDefName)
             {
-                FlushSession(pawn, session, now, maxActive, maxArchive);
+                FlushSession(pawn, session, now, maxActive, maxArchive, minAggregationCount);
             }
 
             if (session.currentJobDef == null || now - session.lastJobTick > SessionTimeoutTicks)
             {
                 if (session.currentJobDef != null)
-                    FlushSession(pawn, session, now, maxActive, maxArchive);
+                    FlushSession(pawn, session, now, maxActive, maxArchive, minAggregationCount);
                 session.currentJobDef = jobDefName;
                 session.startTick = now;
                 session.count = 0;
@@ -82,10 +81,10 @@ namespace RimMind.Memory.Aggregation
             UpdateLastMeaningfulJob(pawnId, now);
         }
 
-        private void FlushSession(Pawn pawn, PawnSession session, int now, int maxActive, int maxArchive)
+        private void FlushSession(Pawn pawn, PawnSession session, int now, int maxActive, int maxArchive, int minAggregationCount)
         {
             if (session.currentJobDef == null) return;
-            if (session.count < MinCountForAggregation) { session.Reset(); return; }
+            if (session.count < minAggregationCount) { session.Reset(); return; }
 
             float hours = session.totalTicks / 2500f;
             float importance = session.totalTicks > 15000 ? 0.5f : 0.4f;

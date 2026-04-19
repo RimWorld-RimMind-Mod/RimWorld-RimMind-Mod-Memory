@@ -85,8 +85,8 @@
     <RimMind.Memory.Prompt.System.Goal>[Goal] Merge today's memories into existing long-term impressions, keeping them concise yet informative.</RimMind.Memory.Prompt.System.Goal>
     <RimMind.Memory.Prompt.System.Process>[Process]\n1. Read all memories from today\n2. Read existing long-term impressions\n3. Merge key information from today's memories into existing impressions (update/merge/add)\n4. Remove least relevant old impressions to maintain count limit\n5. Ensure each impression includes temporal or situational context</RimMind.Memory.Prompt.System.Process>
     <RimMind.Memory.Prompt.System.Constraint>[Constraint]\n- Maintain the specified count, no more no less\n- Each entry ≤50 chars\n- Prioritize high-importance memories\n- Merge similar-themed impressions\n- Each entry should include temporal/situational context words</RimMind.Memory.Prompt.System.Constraint>
-    <RimMind.Memory.Prompt.System.Example>[Example]\nInput: Today's memories=["mining 6h","injured by pirate raid","chatting with Alex"], Existing impressions=["skilled miner","good relation with Alex"]\nOutput: {"dark":["Veteran miner, frequently mines for long hours","Injured in pirate raid last month, stays alert for raids","Close relationship with Alex, often chats"]}</RimMind.Memory.Prompt.System.Example>
-    <RimMind.Memory.Prompt.System.Output>[Output] Only return the following JSON format:\n{"dark":["...","..."]}</RimMind.Memory.Prompt.System.Output>
+    <RimMind.Memory.Prompt.System.Example>[Example]\nInput: Today's memories=["mining 6h","injured by pirate raid","chatting with Alex"], Existing impressions=["skilled miner","good relation with Alex"]\nOutput: {{"dark":["Veteran miner, frequently mines for long hours","Injured in pirate raid last month, stays alert for raids","Close relationship with Alex, often chats"]}}</RimMind.Memory.Prompt.System.Example>
+    <RimMind.Memory.Prompt.System.Output>[Output] Only return the following JSON format:\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.System.Output>
     <RimMind.Memory.Prompt.System.Fallback>[Fallback] If unable to merge, return existing impressions unchanged.</RimMind.Memory.Prompt.System.Fallback>
 
     <!-- Five-section System Prompt - Narrator Dark Memory -->
@@ -94,8 +94,8 @@
     <RimMind.Memory.Prompt.NarratorSystem.Goal>[Goal] Merge today's events into existing long-term narratives, keeping them concise yet informative.</RimMind.Memory.Prompt.NarratorSystem.Goal>
     <RimMind.Memory.Prompt.NarratorSystem.Process>[Process]\n1. Read all colony events from today\n2. Read existing long-term narratives\n3. Merge key information from today's events into existing narratives\n4. Remove least relevant old narratives to maintain count limit\n5. Ensure each narrative includes temporal or situational context</RimMind.Memory.Prompt.NarratorSystem.Process>
     <RimMind.Memory.Prompt.NarratorSystem.Constraint>[Constraint]\n- Maintain the specified count, no more no less\n- Each entry ≤50 chars\n- Prioritize high-importance events\n- Merge similar-themed narratives\n- Each entry should include temporal/situational context words</RimMind.Memory.Prompt.NarratorSystem.Constraint>
-    <RimMind.Memory.Prompt.NarratorSystem.Example>[Example]\nInput: Today's events=["pirate raid","trader visit","new colonist joined"], Existing narratives=["colony just established"]\nOutput: {"dark":["Colony experienced pirate raid in early days","Trader visited, established trade connections","New colonist joined recently, growing the team"]}</RimMind.Memory.Prompt.NarratorSystem.Example>
-    <RimMind.Memory.Prompt.NarratorSystem.Output>[Output] Only return the following JSON format:\n{"dark":["...","..."]}</RimMind.Memory.Prompt.NarratorSystem.Output>
+    <RimMind.Memory.Prompt.NarratorSystem.Example>[Example]\nInput: Today's events=["pirate raid","trader visit","new colonist joined"], Existing narratives=["colony just established"]\nOutput: {{"dark":["Colony experienced pirate raid in early days","Trader visited, established trade connections","New colonist joined recently, growing the team"]}}</RimMind.Memory.Prompt.NarratorSystem.Example>
+    <RimMind.Memory.Prompt.NarratorSystem.Output>[Output] Only return the following JSON format:\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.NarratorSystem.Output>
     <RimMind.Memory.Prompt.NarratorSystem.Fallback>[Fallback] If unable to merge, return existing narratives unchanged.</RimMind.Memory.Prompt.NarratorSystem.Fallback>
 
     <!-- MemoryContextProvider.cs - Context -->
@@ -144,16 +144,25 @@
     <RimMind.Memory.Settings.ActiveInjectRatio.Desc>Ratio of active memories injected into AI context. 1.0 = all, 0.5 = half.</RimMind.Memory.Settings.ActiveInjectRatio.Desc>
     <RimMind.Memory.Settings.ArchiveInjectRatio>Archive Injection Ratio: {0}</RimMind.Memory.Settings.ArchiveInjectRatio>
     <RimMind.Memory.Settings.ArchiveInjectRatio.Desc>Ratio of archive memories injected into AI context. Lower values save tokens when archive is large.</RimMind.Memory.Settings.ArchiveInjectRatio.Desc>
+    <RimMind.Memory.Settings.NarratorActiveInjectRatio>Narrator Active Injection Ratio: {0}</RimMind.Memory.Settings.NarratorActiveInjectRatio>
+    <RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>Ratio of active narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>
+    <RimMind.Memory.Settings.NarratorArchiveInjectRatio>Narrator Archive Injection Ratio: {0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
+    <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>Ratio of archived narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
     <RimMind.Memory.Settings.Section.Decay>Memory Decay</RimMind.Memory.Settings.Section.Decay>
     <RimMind.Memory.Settings.Section.Request>Request Settings</RimMind.Memory.Settings.Section.Request>
     <RimMind.Memory.Settings.RequestExpire>Request expiry: {0} game days</RimMind.Memory.Settings.RequestExpire>
     <RimMind.Memory.Settings.RequestExpire.Desc>Dark memory generation requests that don't receive a response within this time are automatically cancelled.</RimMind.Memory.Settings.RequestExpire.Desc>
     <RimMind.Memory.Settings.EnableDecay>Enable Importance Decay</RimMind.Memory.Settings.EnableDecay>
     <RimMind.Memory.Settings.EnableDecay.Desc>When enabled, memory importance decreases over time and memories below the threshold are auto-archived.</RimMind.Memory.Settings.EnableDecay.Desc>
-    <RimMind.Memory.Settings.DecayRate>Decay Rate: {0}%/tick</RimMind.Memory.Settings.DecayRate>
-    <RimMind.Memory.Settings.DecayRate.Desc>Percentage of importance reduction per decay tick. Higher values mean faster archiving.</RimMind.Memory.Settings.DecayRate.Desc>
+    <RimMind.Memory.Settings.DecayRate>Decay Rate: {0}%/day</RimMind.Memory.Settings.DecayRate>
+    <RimMind.Memory.Settings.DecayRate.Desc>Percentage of importance reduction per game day. Higher values mean faster archiving.</RimMind.Memory.Settings.DecayRate.Desc>
     <RimMind.Memory.Settings.MinThreshold>Minimum Threshold: {0}</RimMind.Memory.Settings.MinThreshold>
     <RimMind.Memory.Settings.MinThreshold.Desc>Memories with importance below this threshold are automatically archived.</RimMind.Memory.Settings.MinThreshold.Desc>
+    <RimMind.Memory.Settings.Section.Aggregation>Work Session Aggregation</RimMind.Memory.Settings.Section.Aggregation>
+    <RimMind.Memory.Settings.MinAggregationCount>Min Aggregation Count: {0}</RimMind.Memory.Settings.MinAggregationCount>
+    <RimMind.Memory.Settings.MinAggregationCount.Desc>Minimum number of same-type jobs before aggregating into a single memory. Lower values record more granularly.</RimMind.Memory.Settings.MinAggregationCount.Desc>
+    <RimMind.Memory.Settings.IdleGapThreshold>Idle Gap Threshold: {0} game hours</RimMind.Memory.Settings.IdleGapThreshold>
+    <RimMind.Memory.Settings.IdleGapThreshold.Desc>Gaps between meaningful jobs exceeding this duration are recorded as idle time.</RimMind.Memory.Settings.IdleGapThreshold.Desc>
     <RimMind.Memory.Settings.CollectionControl>Collection Control</RimMind.Memory.Settings.CollectionControl>
     <RimMind.Memory.Settings.NarratorEventThreshold>Narrator Event Threshold: {0}</RimMind.Memory.Settings.NarratorEventThreshold>
     <RimMind.Memory.Settings.NarratorEventThreshold.Desc>Events must reach this importance threshold to be recorded by the narrator.</RimMind.Memory.Settings.NarratorEventThreshold.Desc>
