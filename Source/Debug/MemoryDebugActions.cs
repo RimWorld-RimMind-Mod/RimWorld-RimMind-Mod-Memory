@@ -22,9 +22,8 @@ namespace RimMind.Memory.Debug
             if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var settings = RimMindMemoryMod.Settings;
-            var store = wc.GetOrCreatePawnStore(pawn);
             int now = Find.TickManager.TicksGame;
-            store.AddActive(
+            wc.AddPawnMemory(pawn,
                 MemoryEntry.Create("[Debug] Test memory entry", MemoryType.Manual, now, 0.6f),
                 settings.maxActive, settings.maxArchive);
 
@@ -81,13 +80,12 @@ namespace RimMind.Memory.Debug
             if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var settings = RimMindMemoryMod.Settings;
-            var store = wc.NarratorStore;
             int now = Find.TickManager.TicksGame;
-            store.AddActive(
+            wc.AddNarratorMemory(
                 MemoryEntry.Create("[Debug] Test narrator entry", MemoryType.Event, now, 0.7f),
                 settings.narratorMaxActive, settings.narratorMaxArchive);
 
-            Log.Message($"[RimMind-Memory] Added test narrator memory. Active count: {store.active.Count}");
+            Log.Message($"[RimMind-Memory] Added test narrator memory. Active count: {wc.NarratorStore.active.Count}");
         }
 
         [DebugAction("RimMind Memory", "Show Narrator Memory", actionType = DebugActionType.Action)]

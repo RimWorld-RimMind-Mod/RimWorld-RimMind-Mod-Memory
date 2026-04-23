@@ -107,6 +107,7 @@
     <RimMind.Memory.Context.NarratorDark>\n[长期叙事（AI生成）]</RimMind.Memory.Context.NarratorDark>
     <RimMind.Memory.Context.Map>[地图]</RimMind.Memory.Context.Map>
     <RimMind.Memory.Context.FromFaction>（{0}来自{1}）</RimMind.Memory.Context.FromFaction>
+    <RimMind.Memory.Context.WorkingMemory>[工作记忆 - {0}]</RimMind.Memory.Context.WorkingMemory>
 
     <!-- RimMindMemoryMod.cs - Settings UI -->
     <RimMind.Memory.Settings.TabLabel>记忆</RimMind.Memory.Settings.TabLabel>
@@ -132,6 +133,8 @@
     <RimMind.Memory.Settings.MaxArchive.Desc>存档记忆是重要度降低后归档的旧记忆，按比例注入上下文。</RimMind.Memory.Settings.MaxArchive.Desc>
     <RimMind.Memory.Settings.DarkCount>暗记忆条数：{0}</RimMind.Memory.Settings.DarkCount>
     <RimMind.Memory.Settings.DarkCount.Desc>暗记忆是 AI 将每日记忆压缩后的长期印象，每条不超过50字。</RimMind.Memory.Settings.DarkCount.Desc>
+    <RimMind.Memory.Settings.WorkingMemoryCapacity>工作记忆容量：{0}</RimMind.Memory.Settings.WorkingMemoryCapacity>
+    <RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>工作记忆是当前正在发生的短期记忆，会被注入 AI 上下文。容量越大，短期上下文越丰富，但消耗更多 Token。</RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>
     <RimMind.Memory.Settings.NarratorCapacity>叙事者记忆容量</RimMind.Memory.Settings.NarratorCapacity>
     <RimMind.Memory.Settings.NarratorMaxActive>活跃叙事上限：{0}</RimMind.Memory.Settings.NarratorMaxActive>
     <RimMind.Memory.Settings.NarratorMaxActive.Desc>叙事者的活跃事件记录上限。</RimMind.Memory.Settings.NarratorMaxActive.Desc>
@@ -149,9 +152,6 @@
     <RimMind.Memory.Settings.NarratorArchiveInjectRatio>叙事者存档注入比例：{0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
     <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>叙事者存档叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
     <RimMind.Memory.Settings.Section.Decay>记忆衰减</RimMind.Memory.Settings.Section.Decay>
-    <RimMind.Memory.Settings.Section.Request>请求设置</RimMind.Memory.Settings.Section.Request>
-    <RimMind.Memory.Settings.RequestExpire>请求过期：{0} 游戏天</RimMind.Memory.Settings.RequestExpire>
-    <RimMind.Memory.Settings.RequestExpire.Desc>暗记忆生成请求超过此时间未获得响应则自动取消。</RimMind.Memory.Settings.RequestExpire.Desc>
     <RimMind.Memory.Settings.EnableDecay>启用重要度衰减</RimMind.Memory.Settings.EnableDecay>
     <RimMind.Memory.Settings.EnableDecay.Desc>开启后，记忆的重要度会随时间降低，低于阈值时自动归档。</RimMind.Memory.Settings.EnableDecay.Desc>
     <RimMind.Memory.Settings.DecayRate>衰减速率：{0}%/天</RimMind.Memory.Settings.DecayRate>
@@ -213,10 +213,4 @@
     <RimMind.Memory.UI.Cancel>取消</RimMind.Memory.UI.Cancel>
     <RimMind.Memory.UI.MemoryAdded>[RimMind] 已为 {0} 添加记忆</RimMind.Memory.UI.MemoryAdded>
 
-    <!-- NarratorSettingsTab.cs - UI -->
-    <RimMind.Memory.UI.NotInitialized>记忆系统未初始化（需要载入游戏）</RimMind.Memory.UI.NotInitialized>
-    <RimMind.Memory.UI.NarratorMemory>殖民地叙事者记忆</RimMind.Memory.UI.NarratorMemory>
-    <RimMind.Memory.UI.LongTermNarrative>长期叙事（只读，AI 生成）：</RimMind.Memory.UI.LongTermNarrative>
-    <RimMind.Memory.UI.ActiveNarrative>活跃叙事（{0}/{1}）</RimMind.Memory.UI.ActiveNarrative>
-    <RimMind.Memory.UI.ClearAll>全部清空</RimMind.Memory.UI.ClearAll>
 </LanguageData>

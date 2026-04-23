@@ -33,8 +33,7 @@ namespace RimMind.Memory
         public int idleGapThresholdTicks = 6000;
         public float narratorEventThreshold = 0.2f;
         public float pawnToNarratorThreshold = 0.8f;
-
-        public int requestExpireTicks = 30000;
+        public int workingMemoryCapacity = 10;
 
         public override void ExposeData()
         {
@@ -64,7 +63,7 @@ namespace RimMind.Memory
             Scribe_Values.Look(ref idleGapThresholdTicks,     "idleGapThresholdTicks",     6000);
             Scribe_Values.Look(ref narratorEventThreshold,    "narratorEventThreshold",    0.2f);
             Scribe_Values.Look(ref pawnToNarratorThreshold,   "pawnToNarratorThreshold",   0.8f);
-            Scribe_Values.Look(ref requestExpireTicks,        "requestExpireTicks",        30000);
+            Scribe_Values.Look(ref workingMemoryCapacity,     "workingMemoryCapacity",     10);
         }
     }
 }

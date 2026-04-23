@@ -29,11 +29,11 @@ namespace RimMind.Memory
 
             if (pawn == null) return false;
 
-            var store = RimMindMemoryWorldComponent.Instance?.GetOrCreatePawnStore(pawn);
-            if (store == null) return false;
+            var wc = RimMindMemoryWorldComponent.Instance;
+            if (wc == null) return false;
 
             var settings = RimMindMemoryMod.Settings;
-            store.AddActive(
+            wc.AddPawnMemory(pawn,
                 MemoryEntry.Create(content, type, tick, importance),
                 settings?.maxActive ?? 30,
                 settings?.maxArchive ?? 50);

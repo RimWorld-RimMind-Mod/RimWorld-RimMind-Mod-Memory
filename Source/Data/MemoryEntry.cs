@@ -6,6 +6,8 @@ namespace RimMind.Memory.Data
 
     public class MemoryEntry : IExposable
     {
+        private static int _nextSeq;
+
         public string  id = string.Empty;
         public string  content     = string.Empty;
         public MemoryType type;
@@ -13,7 +15,6 @@ namespace RimMind.Memory.Data
         public float   importance;
         public bool    isPinned;
         public string? pawnId;
-        public string? notes;
 
         public MemoryEntry() { }
 
@@ -21,7 +22,7 @@ namespace RimMind.Memory.Data
         {
             return new MemoryEntry
             {
-                id = $"mem-{tick}",
+                id = $"mem-{tick}-{System.Threading.Interlocked.Increment(ref _nextSeq)}",
                 content = content,
                 type = type,
                 tick = tick,
@@ -41,7 +42,6 @@ namespace RimMind.Memory.Data
             Scribe_Values.Look(ref importance, "importance");
             Scribe_Values.Look(ref isPinned,   "isPinned");
             Scribe_Values.Look(ref pawnId,     "pawnId",     null);
-            Scribe_Values.Look(ref notes,      "notes",      null);
 #pragma warning restore CS8601
         }
     }

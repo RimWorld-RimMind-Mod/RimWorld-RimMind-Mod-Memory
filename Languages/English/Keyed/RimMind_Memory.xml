@@ -107,6 +107,7 @@
     <RimMind.Memory.Context.NarratorDark>\n[Long-term Narratives (AI-generated)]</RimMind.Memory.Context.NarratorDark>
     <RimMind.Memory.Context.Map>[Map]</RimMind.Memory.Context.Map>
     <RimMind.Memory.Context.FromFaction>({0} from {1})</RimMind.Memory.Context.FromFaction>
+    <RimMind.Memory.Context.WorkingMemory>[Working Memory - {0}]</RimMind.Memory.Context.WorkingMemory>
 
     <!-- RimMindMemoryMod.cs - Settings UI -->
     <RimMind.Memory.Settings.TabLabel>Memory</RimMind.Memory.Settings.TabLabel>
@@ -132,6 +133,8 @@
     <RimMind.Memory.Settings.MaxArchive.Desc>Archive memories are older memories with reduced importance, injected proportionally.</RimMind.Memory.Settings.MaxArchive.Desc>
     <RimMind.Memory.Settings.DarkCount>Dark Memory Count: {0}</RimMind.Memory.Settings.DarkCount>
     <RimMind.Memory.Settings.DarkCount.Desc>Dark memories are AI-compressed long-term impressions, each no more than 50 characters.</RimMind.Memory.Settings.DarkCount.Desc>
+    <RimMind.Memory.Settings.WorkingMemoryCapacity>Working Memory Capacity: {0}</RimMind.Memory.Settings.WorkingMemoryCapacity>
+    <RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>Working memory is short-term memory of current events, injected into AI context. Larger capacity provides richer context but consumes more tokens.</RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>
     <RimMind.Memory.Settings.NarratorCapacity>Narrator Memory Capacity</RimMind.Memory.Settings.NarratorCapacity>
     <RimMind.Memory.Settings.NarratorMaxActive>Active Narrative Limit: {0}</RimMind.Memory.Settings.NarratorMaxActive>
     <RimMind.Memory.Settings.NarratorMaxActive.Desc>Maximum active event records for the narrator.</RimMind.Memory.Settings.NarratorMaxActive.Desc>
@@ -149,9 +152,6 @@
     <RimMind.Memory.Settings.NarratorArchiveInjectRatio>Narrator Archive Injection Ratio: {0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
     <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>Ratio of archived narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
     <RimMind.Memory.Settings.Section.Decay>Memory Decay</RimMind.Memory.Settings.Section.Decay>
-    <RimMind.Memory.Settings.Section.Request>Request Settings</RimMind.Memory.Settings.Section.Request>
-    <RimMind.Memory.Settings.RequestExpire>Request expiry: {0} game days</RimMind.Memory.Settings.RequestExpire>
-    <RimMind.Memory.Settings.RequestExpire.Desc>Dark memory generation requests that don't receive a response within this time are automatically cancelled.</RimMind.Memory.Settings.RequestExpire.Desc>
     <RimMind.Memory.Settings.EnableDecay>Enable Importance Decay</RimMind.Memory.Settings.EnableDecay>
     <RimMind.Memory.Settings.EnableDecay.Desc>When enabled, memory importance decreases over time and memories below the threshold are auto-archived.</RimMind.Memory.Settings.EnableDecay.Desc>
     <RimMind.Memory.Settings.DecayRate>Decay Rate: {0}%/day</RimMind.Memory.Settings.DecayRate>
@@ -213,10 +213,5 @@
     <RimMind.Memory.UI.Cancel>Cancel</RimMind.Memory.UI.Cancel>
     <RimMind.Memory.UI.MemoryAdded>[RimMind] Memory added for {0}</RimMind.Memory.UI.MemoryAdded>
 
-    <!-- NarratorSettingsTab.cs - UI -->
-    <RimMind.Memory.UI.NotInitialized>Memory system not initialized (load a game first)</RimMind.Memory.UI.NotInitialized>
-    <RimMind.Memory.UI.NarratorMemory>Colony Narrator Memory</RimMind.Memory.UI.NarratorMemory>
-    <RimMind.Memory.UI.LongTermNarrative>Long-term Narratives (Read-only, AI-generated):</RimMind.Memory.UI.LongTermNarrative>
-    <RimMind.Memory.UI.ActiveNarrative>Active Narratives ({0}/{1})</RimMind.Memory.UI.ActiveNarrative>
-    <RimMind.Memory.UI.ClearAll>Clear All</RimMind.Memory.UI.ClearAll>
+
 </LanguageData>

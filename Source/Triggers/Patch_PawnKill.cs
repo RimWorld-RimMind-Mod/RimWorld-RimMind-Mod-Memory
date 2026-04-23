@@ -35,8 +35,7 @@ namespace RimMind.Memory.Triggers
 
                         float importance = relation != null ? 1.0f : 0.85f;
 
-                        var store = wc.GetOrCreatePawnStore(colonist);
-                        store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
+                        wc.AddPawnMemory(colonist, MemoryEntry.Create(content, MemoryType.Event, now, importance),
                             settings.maxActive, settings.maxArchive);
                     }
                     catch { }
@@ -55,7 +54,7 @@ namespace RimMind.Memory.Triggers
                         : (!inst.Label.NullOrEmpty() ? "RimMind.Memory.Trigger.KilledBy".Translate(inst.Label) : "");
                 }
 
-                wc.NarratorStore.AddActive(
+                wc.AddNarratorMemory(
                     MemoryEntry.Create(narratorContent + attackerStr, MemoryType.Event, now, 1.0f,
                         __instance != null ? __instance.ThingID.ToString() : null),
                     settings.narratorMaxActive, settings.narratorMaxArchive);
@@ -69,10 +68,17 @@ namespace RimMind.Memory.Triggers
         private static IEnumerable<Pawn> GetRelatedColonists(Pawn? dead)
         {
             if (dead == null) yield break;
-            var map = dead.Map;
-            if (map == null) yield break;
-            foreach (var pawn in map.mapPawns.FreeColonists)
+
+            foreach (var pawn in Find.Maps.SelectMany(m => m.mapPawns.FreeColonists))
             {
+                if (pawn == dead) continue;
+                if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
+                    yield return pawn;
+            }
+
+            foreach (var pawn in Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>())
+            {
+                if (!pawn.IsFreeNonSlaveColonist) continue;
                 if (pawn == dead) continue;
                 if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
                     yield return pawn;

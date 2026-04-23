@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using RimMind.Core;
 using RimMind.Core.Client;
+using RimMind.Core.Context;
 using RimMind.Core.Prompt;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
@@ -16,7 +17,7 @@ namespace RimMind.Memory.DarkMemory
         private static DarkMemoryUpdater? _instance;
         public static DarkMemoryUpdater Instance => _instance!;
 
-        private readonly int _narratorOffset;
+        private int _narratorOffset;
         private const int DailyInterval = 60000;
         private const int JitterRange = 3000;
 
@@ -46,16 +47,19 @@ namespace RimMind.Memory.DarkMemory
 
             var settings = RimMindMemoryMod.Settings;
 
-            foreach (var pawn in Find.CurrentMap?.mapPawns.FreeColonists ?? Enumerable.Empty<Pawn>())
+            foreach (var map in Find.Maps)
             {
-                int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
-                if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
-                TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
-
-                if (settings.enableDecay)
+                foreach (var pawn in map.mapPawns.FreeColonists)
                 {
-                    var store = wc.GetOrCreatePawnStore(pawn);
-                    ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                    int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
+                    if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
+                    TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
+
+                    if (settings.enableDecay)
+                    {
+                        var store = wc.GetOrCreatePawnStore(pawn);
+                        ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                    }
                 }
             }
 
@@ -71,6 +75,7 @@ namespace RimMind.Memory.DarkMemory
         public override void ExposeData()
         {
             base.ExposeData();
+            Scribe_Values.Look(ref _narratorOffset, "narratorOffset", 0);
             Scribe_Collections.Look(ref _pawnJitter, "pawnJitter", LookMode.Value, LookMode.Value);
             _pawnJitter ??= new Dictionary<int, int>();
         }
@@ -98,20 +103,20 @@ namespace RimMind.Memory.DarkMemory
             sb.AppendLine("RimMind.Memory.Prompt.MergeInstruction".Translate(settings.darkCount));
             sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
 
-            var request = new AIRequest
+            var npcId = $"NPC-{pawn.ThingID}";
+            var ctxRequest = new ContextRequest
             {
-                SystemPrompt = StructuredPromptBuilder.FromKeyPrefix("RimMind.Memory.Prompt.System")
-                    .Build(),
-                UserPrompt = PromptSanitizer.Sanitize(sb.ToString()),
+                NpcId = npcId,
+                Scenario = ScenarioIds.Personality,
+                Budget = 0.4f,
+                CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
                 MaxTokens = 200,
                 Temperature = 0.5f,
-                RequestId = $"DarkMemory_Pawn_{pawn.ThingID}",
-                ModId = "DarkMemory",
-                ExpireAtTicks = Find.TickManager.TicksGame + settings.requestExpireTicks,
-                Priority = AIRequestPriority.Low,
             };
 
-            RimMindAPI.RequestAsync(request, response =>
+            var schema = "{\"type\":\"object\",\"properties\":{\"dark\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"dark\"]}";
+
+            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
                 if (!response.Success) return;
                 ApplyPawnDarkMemory(response.Content, store, settings.darkCount, now);
@@ -141,20 +146,19 @@ namespace RimMind.Memory.DarkMemory
             sb.AppendLine("RimMind.Memory.Prompt.MergeNarrativeInstruction".Translate(settings.narratorDarkCount));
             sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
 
-            var request = new AIRequest
+            var ctxRequest = new ContextRequest
             {
-                SystemPrompt = StructuredPromptBuilder.FromKeyPrefix("RimMind.Memory.Prompt.NarratorSystem")
-                    .Build(),
-                UserPrompt = PromptSanitizer.Sanitize(sb.ToString()),
+                NpcId = "NPC-storyteller",
+                Scenario = ScenarioIds.Storyteller,
+                Budget = 0.4f,
+                CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
                 MaxTokens = 300,
                 Temperature = 0.5f,
-                RequestId = "DarkMemory_Narrator",
-                ModId = "DarkMemory",
-                ExpireAtTicks = Find.TickManager.TicksGame + settings.requestExpireTicks,
-                Priority = AIRequestPriority.Low,
             };
 
-            RimMindAPI.RequestAsync(request, response =>
+            var schema = "{\"type\":\"object\",\"properties\":{\"dark\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"dark\"]}";
+
+            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
                 if (!response.Success) return;
                 ApplyNarratorDarkMemory(response.Content, store, settings.narratorDarkCount, now);

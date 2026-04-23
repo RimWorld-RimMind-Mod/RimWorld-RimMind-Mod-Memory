@@ -65,13 +65,19 @@ namespace RimMind.Memory.UI
                     "RimMind.Memory.UI.DarkMemoryReadonly".Translate());
                 y += 22f;
                 Text.WordWrap = true;
-                foreach (var d in store.dark)
+                try
                 {
-                    float textH = Text.CalcHeight(d.content, w - 16f);
-                    Widgets.Label(new Rect(8f, y, w - 16f, textH), d.content);
-                    y += textH + 2f;
+                    foreach (var d in store.dark)
+                    {
+                        float textH = Text.CalcHeight(d.content, w - 16f);
+                        Widgets.Label(new Rect(8f, y, w - 16f, textH), d.content);
+                        y += textH + 2f;
+                    }
                 }
-                Text.WordWrap = false;
+                finally
+                {
+                    Text.WordWrap = false;
+                }
                 y += 6f;
             }
 
@@ -171,9 +177,13 @@ namespace RimMind.Memory.UI
                 !_inputText.Trim().NullOrEmpty())
             {
                 int now = Find.TickManager.TicksGame;
-                _store.AddActive(
-                    MemoryEntry.Create(_inputText.Trim(), MemoryType.Manual, now, 0.6f),
-                    _settings.maxActive, _settings.maxArchive);
+                var wc = RimMindMemoryWorldComponent.Instance;
+                if (wc != null)
+                {
+                    wc.AddPawnMemory(_pawn,
+                        MemoryEntry.Create(_inputText.Trim(), MemoryType.Manual, now, 0.6f),
+                        _settings.maxActive, _settings.maxArchive);
+                }
                 Messages.Message(
                     "RimMind.Memory.UI.MemoryAdded".Translate(_pawn.LabelShort),
                     MessageTypeDefOf.SilentInput, historical: false);

@@ -94,8 +94,7 @@ namespace RimMind.Memory.Aggregation
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) { session.Reset(); return; }
 
-            var store = wc.GetOrCreatePawnStore(pawn);
-            store.AddActive(MemoryEntry.Create(content, MemoryType.Work, now, importance), maxActive, maxArchive);
+            wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, importance), maxActive, maxArchive);
 
             TryUpgradeToNarrator(pawn, content, now, importance, wc);
 
@@ -110,8 +109,7 @@ namespace RimMind.Memory.Aggregation
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
 
-            var store = wc.GetOrCreatePawnStore(pawn);
-            store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance), maxActive, maxArchive);
+            wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Event, now, importance), maxActive, maxArchive);
 
             TryUpgradeToNarrator(pawn, content, now, importance, wc);
         }
@@ -129,8 +127,7 @@ namespace RimMind.Memory.Aggregation
                 var wc = RimMindMemoryWorldComponent.Instance;
                 if (wc != null)
                 {
-                    var store = wc.GetOrCreatePawnStore(pawn);
-                    store.AddActive(MemoryEntry.Create(content, MemoryType.Work, now, 0.3f), maxActive, maxArchive);
+                    wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, 0.3f), maxActive, maxArchive);
                 }
                 session.lastMeaningfulJobTick = now;
             }
@@ -148,7 +145,7 @@ namespace RimMind.Memory.Aggregation
             if (importance >= settings.pawnToNarratorThreshold)
             {
                 string narratorContent = $"[{pawn.Name.ToStringShort}] {content}";
-                wc.NarratorStore.AddActive(
+                wc.AddNarratorMemory(
                     MemoryEntry.Create(narratorContent, MemoryType.Event, now, importance, pawn.ThingID),
                     settings.narratorMaxActive, settings.narratorMaxArchive);
             }
