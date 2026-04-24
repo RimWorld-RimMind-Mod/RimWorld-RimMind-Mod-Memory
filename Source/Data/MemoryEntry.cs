@@ -8,12 +8,12 @@ namespace RimMind.Memory.Data
     {
         private static int _nextSeq;
 
-        public string  id = string.Empty;
-        public string  content     = string.Empty;
+        public string id = string.Empty;
+        public string content = string.Empty;
         public MemoryType type;
-        public int     tick;
-        public float   importance;
-        public bool    isPinned;
+        public int tick;
+        public float importance;
+        public bool isPinned;
         public string? pawnId;
 
         public MemoryEntry() { }
@@ -35,13 +35,13 @@ namespace RimMind.Memory.Data
         public void ExposeData()
         {
 #pragma warning disable CS8601
-            Scribe_Values.Look(ref id,         "id");
-            Scribe_Values.Look(ref content,    "content",    string.Empty);
-            Scribe_Values.Look(ref type,       "type");
-            Scribe_Values.Look(ref tick,       "tick");
+            Scribe_Values.Look(ref id, "id");
+            Scribe_Values.Look(ref content, "content", string.Empty);
+            Scribe_Values.Look(ref type, "type");
+            Scribe_Values.Look(ref tick, "tick");
             Scribe_Values.Look(ref importance, "importance");
-            Scribe_Values.Look(ref isPinned,   "isPinned");
-            Scribe_Values.Look(ref pawnId,     "pawnId",     null);
+            Scribe_Values.Look(ref isPinned, "isPinned");
+            Scribe_Values.Look(ref pawnId, "pawnId", null);
 #pragma warning restore CS8601
         }
     }

@@ -6,9 +6,9 @@ namespace RimMind.Memory.Data
 {
     public class PawnMemoryStore : IExposable
     {
-        public List<MemoryEntry> active  = new List<MemoryEntry>();
+        public List<MemoryEntry> active = new List<MemoryEntry>();
         public List<MemoryEntry> archive = new List<MemoryEntry>();
-        public List<MemoryEntry> dark    = new List<MemoryEntry>();
+        public List<MemoryEntry> dark = new List<MemoryEntry>();
 
         public void AddActive(MemoryEntry e, int maxActive, int maxArchive)
         {
@@ -40,12 +40,12 @@ namespace RimMind.Memory.Data
 
         public void ExposeData()
         {
-            Scribe_Collections.Look(ref active,  "active",  LookMode.Deep);
+            Scribe_Collections.Look(ref active, "active", LookMode.Deep);
             Scribe_Collections.Look(ref archive, "archive", LookMode.Deep);
-            Scribe_Collections.Look(ref dark,    "dark",    LookMode.Deep);
-            active  ??= new List<MemoryEntry>();
+            Scribe_Collections.Look(ref dark, "dark", LookMode.Deep);
+            active ??= new List<MemoryEntry>();
             archive ??= new List<MemoryEntry>();
-            dark    ??= new List<MemoryEntry>();
+            dark ??= new List<MemoryEntry>();
         }
     }
 }

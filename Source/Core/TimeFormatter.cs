@@ -6,7 +6,7 @@ namespace RimMind.Memory.Core
     public static class TimeFormatter
     {
         private const int TicksPerHour = 2500;
-        private const int TicksPerDay  = 60000;
+        private const int TicksPerDay = 60000;
 
         public static string FormatTimeAgo(int eventTick, int nowTick)
         {

@@ -20,7 +20,7 @@ namespace RimMind.Memory.Aggregation
         public WorkSessionAggregator(Game game) { _instance = this; }
 
         public override void StartedNewGame() { _sessions.Clear(); }
-        public override void LoadedGame()     { _sessions.Clear(); }
+        public override void LoadedGame() { _sessions.Clear(); }
 
         public void OnJobStarted(Pawn pawn, Job job, int maxActive, int maxArchive, int idleGapThresholdTicks, int minAggregationCount)
         {
