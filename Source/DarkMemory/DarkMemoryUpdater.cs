@@ -114,7 +114,7 @@ namespace RimMind.Memory.DarkMemory
                 Temperature = 0.5f,
             };
 
-            var schema = "{\"type\":\"object\",\"properties\":{\"dark\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"dark\"]}";
+            var schema = RimMind.Core.Context.SchemaRegistry.DarkMemoryOutput;
 
             RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
@@ -156,7 +156,7 @@ namespace RimMind.Memory.DarkMemory
                 Temperature = 0.5f,
             };
 
-            var schema = "{\"type\":\"object\",\"properties\":{\"dark\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"dark\"]}";
+            var schema = RimMind.Core.Context.SchemaRegistry.DarkMemoryOutput;
 
             RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
