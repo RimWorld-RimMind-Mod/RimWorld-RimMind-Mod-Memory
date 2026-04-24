@@ -25,6 +25,15 @@ namespace RimMind.Memory
                         if (pawn != null) break;
                     }
                 }
+                if (pawn == null)
+                {
+                    foreach (var caravan in Find.WorldObjects.Caravans)
+                    {
+                        pawn = caravan.PawnsListForReading
+                            .FirstOrDefault(p => p.ThingID == pawnId);
+                        if (pawn != null) break;
+                    }
+                }
             }
 
             if (pawn == null) return false;

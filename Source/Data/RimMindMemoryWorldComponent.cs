@@ -95,6 +95,7 @@ namespace RimMind.Memory.Data
         public override void ExposeData()
         {
             base.ExposeData();
+            MemoryEntry.ExposeNextSeq();
             Scribe_Collections.Look(ref _pawnStores, "pawnStores", LookMode.Value, LookMode.Deep);
             _pawnStores ??= new Dictionary<int, PawnMemoryStore>();
             Scribe_Deep.Look(ref _narratorStore, "narratorStore");

@@ -131,10 +131,17 @@ namespace RimMind.Memory.UI
                 h += 22f;
                 foreach (var d in store.dark)
                 {
-                    Text.WordWrap = true;
-                    float textH = Text.CalcHeight(d.content, 520f);
-                    Text.WordWrap = false;
-                    h += textH + 2f;
+                    bool prevWrap = Text.WordWrap;
+                    try
+                    {
+                        Text.WordWrap = true;
+                        float textH = Text.CalcHeight(d.content, 520f);
+                        h += textH + 2f;
+                    }
+                    finally
+                    {
+                        Text.WordWrap = prevWrap;
+                    }
                 }
                 h += 6f;
             }

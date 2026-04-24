@@ -232,13 +232,14 @@ namespace RimMind.Memory
             float h = 30f;
             h += 24f;
             h += 24f + 24f * 6;
-            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f;
+            h += 24f + 80f * 4;
+            h += 24f + 80f * 3;
+            h += 24f + 80f * 4;
+            h += 24f + 80f * 2;
+            h += 24f + 24f;
             if (Settings.enableDecay)
-                h += 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f;
+                h += 80f * 2;
+            h += 24f + 80f * 2;
 
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc != null)

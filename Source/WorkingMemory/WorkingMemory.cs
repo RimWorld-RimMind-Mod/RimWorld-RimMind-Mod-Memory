@@ -8,7 +8,7 @@ namespace RimMind.Memory.WorkingMemory
         public const int DefaultCapacity = 10;
 
         private List<WorkingMemoryEntry> _entries = new List<WorkingMemoryEntry>();
-        private readonly int _capacity;
+        private int _capacity;
 
         public int Capacity => _capacity;
         public IReadOnlyList<WorkingMemoryEntry> Entries => _entries;
@@ -46,6 +46,7 @@ namespace RimMind.Memory.WorkingMemory
 
         public void ExposeData()
         {
+            Scribe_Values.Look(ref _capacity, "capacity", DefaultCapacity);
             Scribe_Collections.Look(ref _entries, "entries", LookMode.Deep);
             _entries ??= new List<WorkingMemoryEntry>();
         }

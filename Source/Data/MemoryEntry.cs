@@ -44,5 +44,10 @@ namespace RimMind.Memory.Data
             Scribe_Values.Look(ref pawnId, "pawnId", null);
 #pragma warning restore CS8601
         }
+
+        public static void ExposeNextSeq()
+        {
+            Scribe_Values.Look(ref _nextSeq, "memoryNextSeq", 0);
+        }
     }
 }

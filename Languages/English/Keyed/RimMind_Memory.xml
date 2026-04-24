@@ -70,27 +70,9 @@
   <RimMind.Memory.Prompt.ExistingImpression>Existing long-term impressions (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingImpression>
   <RimMind.Memory.Prompt.MergeInstruction>Merge today's memories into existing impressions, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeInstruction>
   <RimMind.Memory.Prompt.JsonTemplate>{{"dark":["...","..."]}}</RimMind.Memory.Prompt.JsonTemplate>
-  <RimMind.Memory.Prompt.DarkMemorySystem>You are a RimWorld colony memory summarizer. Merge daily memories into long-term impressions, keep concise. Output JSON only.</RimMind.Memory.Prompt.DarkMemorySystem>
   <RimMind.Memory.Prompt.ColonyTodayEvents>Colony events today:</RimMind.Memory.Prompt.ColonyTodayEvents>
   <RimMind.Memory.Prompt.ExistingNarrative>Existing long-term narratives (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingNarrative>
   <RimMind.Memory.Prompt.MergeNarrativeInstruction>Merge today's events into existing narratives, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeNarrativeInstruction>
-  <RimMind.Memory.Prompt.DarkNarrativeSystem>You are a RimWorld colony narrative summarizer. Merge daily events into long-term narratives, keep concise. Output JSON only.</RimMind.Memory.Prompt.DarkNarrativeSystem>
-  <!-- Five-section System Prompt - Pawn Dark Memory -->
-  <RimMind.Memory.Prompt.System.Role>[Role] You are a RimWorld colony memory summarizer, responsible for merging colonist daily memories into long-term impressions.</RimMind.Memory.Prompt.System.Role>
-  <RimMind.Memory.Prompt.System.Goal>[Goal] Merge today's memories into existing long-term impressions, keeping them concise yet informative.</RimMind.Memory.Prompt.System.Goal>
-  <RimMind.Memory.Prompt.System.Process>[Process]\n1. Read all memories from today\n2. Read existing long-term impressions\n3. Merge key information from today's memories into existing impressions (update/merge/add)\n4. Remove least relevant old impressions to maintain count limit\n5. Ensure each impression includes temporal or situational context</RimMind.Memory.Prompt.System.Process>
-  <RimMind.Memory.Prompt.System.Constraint>[Constraint]\n- Maintain the specified count, no more no less\n- Each entry ≤50 chars\n- Prioritize high-importance memories\n- Merge similar-themed impressions\n- Each entry should include temporal/situational context words</RimMind.Memory.Prompt.System.Constraint>
-  <RimMind.Memory.Prompt.System.Example>[Example]\nInput: Today's memories=["mining 6h","injured by pirate raid","chatting with Alex"], Existing impressions=["skilled miner","good relation with Alex"]\nOutput: {{"dark":["Veteran miner, frequently mines for long hours","Injured in pirate raid last month, stays alert for raids","Close relationship with Alex, often chats"]}}</RimMind.Memory.Prompt.System.Example>
-  <RimMind.Memory.Prompt.System.Output>[Output] Only return the following JSON format:\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.System.Output>
-  <RimMind.Memory.Prompt.System.Fallback>[Fallback] If unable to merge, return existing impressions unchanged.</RimMind.Memory.Prompt.System.Fallback>
-  <!-- Five-section System Prompt - Narrator Dark Memory -->
-  <RimMind.Memory.Prompt.NarratorSystem.Role>[Role] You are a RimWorld colony narrative summarizer, responsible for merging daily events into long-term narratives.</RimMind.Memory.Prompt.NarratorSystem.Role>
-  <RimMind.Memory.Prompt.NarratorSystem.Goal>[Goal] Merge today's events into existing long-term narratives, keeping them concise yet informative.</RimMind.Memory.Prompt.NarratorSystem.Goal>
-  <RimMind.Memory.Prompt.NarratorSystem.Process>[Process]\n1. Read all colony events from today\n2. Read existing long-term narratives\n3. Merge key information from today's events into existing narratives\n4. Remove least relevant old narratives to maintain count limit\n5. Ensure each narrative includes temporal or situational context</RimMind.Memory.Prompt.NarratorSystem.Process>
-  <RimMind.Memory.Prompt.NarratorSystem.Constraint>[Constraint]\n- Maintain the specified count, no more no less\n- Each entry ≤50 chars\n- Prioritize high-importance events\n- Merge similar-themed narratives\n- Each entry should include temporal/situational context words</RimMind.Memory.Prompt.NarratorSystem.Constraint>
-  <RimMind.Memory.Prompt.NarratorSystem.Example>[Example]\nInput: Today's events=["pirate raid","trader visit","new colonist joined"], Existing narratives=["colony just established"]\nOutput: {{"dark":["Colony experienced pirate raid in early days","Trader visited, established trade connections","New colonist joined recently, growing the team"]}}</RimMind.Memory.Prompt.NarratorSystem.Example>
-  <RimMind.Memory.Prompt.NarratorSystem.Output>[Output] Only return the following JSON format:\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.NarratorSystem.Output>
-  <RimMind.Memory.Prompt.NarratorSystem.Fallback>[Fallback] If unable to merge, return existing narratives unchanged.</RimMind.Memory.Prompt.NarratorSystem.Fallback>
   <!-- MemoryContextProvider.cs - Context -->
   <RimMind.Memory.Context.RecentMemory>[{0} Recent Memories]</RimMind.Memory.Context.RecentMemory>
   <RimMind.Memory.Context.ArchiveMemory>[{0} Archived Memories (by importance)]</RimMind.Memory.Context.ArchiveMemory>

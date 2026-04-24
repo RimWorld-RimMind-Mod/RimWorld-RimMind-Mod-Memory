@@ -63,6 +63,20 @@ namespace RimMind.Memory.DarkMemory
                 }
             }
 
+            foreach (var pawn in Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>())
+            {
+                if (!pawn.IsFreeNonSlaveColonist) continue;
+                int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
+                if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
+                TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
+
+                if (settings.enableDecay)
+                {
+                    var store = wc.GetOrCreatePawnStore(pawn);
+                    ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                }
+            }
+
             if ((Find.TickManager.TicksGame + _narratorOffset) % DailyInterval == 0)
             {
                 TriggerNarratorDarkMemoryUpdate(wc, settings);

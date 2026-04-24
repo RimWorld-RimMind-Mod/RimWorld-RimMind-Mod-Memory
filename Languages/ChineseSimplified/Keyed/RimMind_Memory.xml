@@ -70,27 +70,9 @@
   <RimMind.Memory.Prompt.ExistingImpression>现有长期印象（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingImpression>
   <RimMind.Memory.Prompt.MergeInstruction>请将今日记忆融入已有印象，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeInstruction>
   <RimMind.Memory.Prompt.JsonTemplate>{{"dark":["...","..."]}}</RimMind.Memory.Prompt.JsonTemplate>
-  <RimMind.Memory.Prompt.DarkMemorySystem>你是一个RimWorld殖民地的记忆摘要器。将每日记忆融入长期印象，保持简洁。只输出JSON。</RimMind.Memory.Prompt.DarkMemorySystem>
   <RimMind.Memory.Prompt.ColonyTodayEvents>殖民地今天的事件：</RimMind.Memory.Prompt.ColonyTodayEvents>
   <RimMind.Memory.Prompt.ExistingNarrative>现有长期叙事（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingNarrative>
   <RimMind.Memory.Prompt.MergeNarrativeInstruction>请将今日事件融入已有叙事，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeNarrativeInstruction>
-  <RimMind.Memory.Prompt.DarkNarrativeSystem>你是RimWorld殖民地的叙事摘要器。将每日事件融入长期叙事，保持简洁。只输出JSON。</RimMind.Memory.Prompt.DarkNarrativeSystem>
-  <!-- Five-section System Prompt - Pawn Dark Memory -->
-  <RimMind.Memory.Prompt.System.Role>[角色] 你是 RimWorld 殖民地的记忆摘要师，负责将小人的日常记忆合并为长期印象。</RimMind.Memory.Prompt.System.Role>
-  <RimMind.Memory.Prompt.System.Goal>[目标] 将今日记忆合并到现有长期印象中，保持简洁且信息完整。</RimMind.Memory.Prompt.System.Goal>
-  <RimMind.Memory.Prompt.System.Process>[流程]\n1. 阅读今日发生的所有记忆\n2. 阅读现有的长期印象\n3. 将今日记忆的关键信息融入现有印象（更新/合并/新增）\n4. 移除最不相关的旧印象以保持数量限制\n5. 确保每条印象包含时间或场景定位</RimMind.Memory.Prompt.System.Process>
-  <RimMind.Memory.Prompt.System.Constraint>[约束]\n- 保持指定条数，不多不少\n- 每条 ≤50 字\n- 优先保留高重要性记忆\n- 合并相似主题的印象\n- 每条应包含时间/场景定位词</RimMind.Memory.Prompt.System.Constraint>
-  <RimMind.Memory.Prompt.System.Example>[示例]\n输入：今日记忆=["采矿6小时","被海盗袭击受伤","与Alex聊天"]，现有印象=["擅长采矿","与Alex关系好"]\n输出：{{"dark":["资深矿工，经常长时间采矿","上个月被海盗袭击受伤，对袭击保持警惕","与Alex关系亲密，经常聊天"]}}</RimMind.Memory.Prompt.System.Example>
-  <RimMind.Memory.Prompt.System.Output>[输出] 只返回以下 JSON 格式：\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.System.Output>
-  <RimMind.Memory.Prompt.System.Fallback>[兜底] 如果无法合并，返回现有印象不变。</RimMind.Memory.Prompt.System.Fallback>
-  <!-- Five-section System Prompt - Narrator Dark Memory -->
-  <RimMind.Memory.Prompt.NarratorSystem.Role>[角色] 你是 RimWorld 殖民地的叙事摘要师，负责将每日事件合并为长期叙事。</RimMind.Memory.Prompt.NarratorSystem.Role>
-  <RimMind.Memory.Prompt.NarratorSystem.Goal>[目标] 将今日事件合并到现有长期叙事中，保持简洁且信息完整。</RimMind.Memory.Prompt.NarratorSystem.Goal>
-  <RimMind.Memory.Prompt.NarratorSystem.Process>[流程]\n1. 阅读今日殖民地发生的所有事件\n2. 阅读现有的长期叙事\n3. 将今日事件的关键信息融入现有叙事\n4. 移除最不相关的旧叙事以保持数量限制\n5. 确保每条叙事包含时间或场景定位</RimMind.Memory.Prompt.NarratorSystem.Process>
-  <RimMind.Memory.Prompt.NarratorSystem.Constraint>[约束]\n- 保持指定条数，不多不少\n- 每条 ≤50 字\n- 优先保留高重要性事件\n- 合并相似主题的叙事\n- 每条应包含时间/场景定位词</RimMind.Memory.Prompt.NarratorSystem.Constraint>
-  <RimMind.Memory.Prompt.NarratorSystem.Example>[示例]\n输入：今日事件=["海盗袭击","商人来访","新殖民者加入"]，现有叙事=["殖民地刚建立"]\n输出：{{"dark":["殖民地建立初期，经历了海盗袭击","曾有商人来访，建立了贸易联系","最近有新殖民者加入，壮大了队伍"]}}</RimMind.Memory.Prompt.NarratorSystem.Example>
-  <RimMind.Memory.Prompt.NarratorSystem.Output>[输出] 只返回以下 JSON 格式：\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.NarratorSystem.Output>
-  <RimMind.Memory.Prompt.NarratorSystem.Fallback>[兜底] 如果无法合并，返回现有叙事不变。</RimMind.Memory.Prompt.NarratorSystem.Fallback>
   <!-- MemoryContextProvider.cs - Context -->
   <RimMind.Memory.Context.RecentMemory>[{0} 近期记忆]</RimMind.Memory.Context.RecentMemory>
   <RimMind.Memory.Context.ArchiveMemory>[{0} 存档记忆（按重要度）]</RimMind.Memory.Context.ArchiveMemory>
