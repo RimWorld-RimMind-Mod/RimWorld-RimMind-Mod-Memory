@@ -51,8 +51,6 @@ cd RimWorld-RimMind-Mod-Memory
 3. 安装 RimMind-Memory
 4. 在模组管理器中确保加载顺序：Harmony → Core → Memory
 
-<!-- ![安装步骤](images/install-steps.png) -->
-
 ## 快速开始
 
 ### 填写 API Key
@@ -69,14 +67,6 @@ cd RimWorld-RimMind-Mod-Memory
 2. 打开 Bio 页面，点击顶部的 **"记忆"** 按钮
 3. 查看活跃记忆、存档记忆和长期印象
 
-<!-- ![记忆界面](images/screenshot-memory-bio.png) -->
-
-## 截图展示
-
-<!-- ![记忆日志窗口](images/screenshot-memory-log.png) -->
-<!-- ![三层记忆结构](images/screenshot-memory-layers.png) -->
-<!-- ![叙事者记忆](images/screenshot-narrator-memory.png) -->
-
 ## 核心功能
 
 ### 三层存储结构
@@ -91,15 +81,18 @@ cd RimWorld-RimMind-Mod-Memory
 
 自动监听多种游戏事件：
 
-| 事件类型 | 说明 |
-|---------|------|
-| 工作会话 | 搬运、建造、种植等连续工作聚合成单条记忆 |
-| 受伤/患病 | 记录受伤来源和部位 |
-| 精神崩溃 | 记录崩溃类型 |
-| 亲近者死亡 | 有关系的小人会记录 |
-| 技能升级 | 高等级技能升级更重要 |
-| 关系建立 | 配偶、恋人、家人等重要关系 |
-| 叙事者事件 | 袭击、婚礼、商队等殖民地级别事件 |
+| 事件类型 | 重要度 | 说明 |
+|---------|--------|------|
+| 工作会话 | 0.4~0.5 | 连续工作聚合成单条记忆 |
+| 重要工作 | 0.5~0.9 | 救援、攻击等直接单独记录 |
+| 受伤/患病 | 0.5~0.9 | 致命伤最高 0.9 |
+| 精神崩溃 | 0.7~0.95 | 狂暴最高 0.95 |
+| 亲近者死亡 | 0.85~1.0 | 有关系者 1.0 |
+| 技能升级 | 0.5~0.7 | 高等级技能更重要 |
+| 关系建立 | 0.6~0.95 | 配偶/恋人最高 0.95 |
+| 叙事者事件 | 0.3~1.0 | 袭击 0.9，婚礼 0.85 |
+
+Pawn 记忆重要度 >= 0.8 时自动同步到叙事者记忆。
 
 ### 工作会话聚合
 
@@ -108,6 +101,10 @@ cd RimWorld-RimMind-Mod-Memory
 ### 暗记忆生成
 
 每日调用 AI 将当日记忆凝练为长期印象。暗记忆只读展示，用于 AI 理解人物的长期状态和性格演变。
+
+### 工作记忆
+
+短期滚动缓冲区，记录当前正在发生的上下文，以最高优先级注入 AI Prompt。
 
 ### 上下文注入
 
@@ -130,6 +127,7 @@ cd RimWorld-RimMind-Mod-Memory
 | 活跃叙事上限 | 30 | 叙事者活跃叙事条数 |
 | 存档叙事上限 | 10 | 叙事者存档叙事条数 |
 | 暗叙事条数 | 10 | 叙事者 AI 压缩长期叙事条数 |
+| 工作记忆容量 | 10 | 短期工作记忆条数 |
 | 活跃注入比例 | 50% | Pawn 活跃记忆注入 Prompt 的比例 |
 | 存档注入比例 | 50% | Pawn 存档记忆注入 Prompt 的比例 |
 | 叙事者活跃注入比例 | 50% | 叙事者活跃叙事注入 Prompt 的比例 |
@@ -141,7 +139,6 @@ cd RimWorld-RimMind-Mod-Memory
 | 最低阈值 | 0.05 | 低于此阈值的记忆自动归档 |
 | 叙事者事件阈值 | 0.2 | 事件重要度达到此阈值才被叙事者记录 |
 | 小人→叙事者阈值 | 0.8 | Pawn 记忆重要度达到此阈值才同步到叙事者 |
-| 请求过期 | 0.5 游戏天 | 暗记忆生成请求超时自动取消 |
 
 ## 常见问题
 
@@ -242,8 +239,39 @@ cd RimWorld-RimMind-Mod-Memory
 - **Three-Layer Storage**: Active (recent), Archive (by importance), Dark (AI-generated long-term impressions)
 - **Auto Collection**: Monitors work sessions, injuries, mental breaks, deaths, skill ups, relationships, and narrator events
 - **Work Session Aggregation**: Groups continuous similar work into single entries (e.g., "Hauling x12, ~4.8 game hours")
+- **Working Memory**: Short-term rolling buffer for current context, injected at highest priority
 - **Dark Memory**: AI distills daily memories into permanent 50-char summaries
 - **Context Injection**: Automatically injects memories into AI prompts for all sub-modules
+
+## Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| Enable Memory System | On | Master switch |
+| Work Session | On | Collect work-related memories |
+| Injury / Illness | On | Collect health-related memories |
+| Mental Break | On | Collect mental break events |
+| Close One Died | On | Collect death events |
+| Skill Level Up | On | Collect skill improvements |
+| Relationship Change | On | Collect relationship events |
+| Active Memory Limit | 30 | Per-pawn recent memory count |
+| Archive Memory Limit | 50 | Per-pawn archive memory count |
+| Dark Memory Count | 3 | AI-generated long-term impressions (code+prompt dual-enforced) |
+| Active Narrative Limit | 30 | Narrator active narrative count |
+| Archive Narrative Limit | 10 | Narrator archive narrative count |
+| Dark Narrative Count | 10 | Narrator AI-compressed long-term narratives |
+| Working Memory Capacity | 10 | Short-term working memory entries |
+| Active Injection Ratio | 50% | Ratio of active memories injected into Prompt |
+| Archive Injection Ratio | 50% | Ratio of archive memories injected into Prompt |
+| Narrator Active Injection Ratio | 50% | Ratio of active narrator narratives injected |
+| Narrator Archive Injection Ratio | 50% | Ratio of archived narrator narratives injected |
+| Min Aggregation Count | 2 | Min same-type jobs before aggregating |
+| Idle Gap Threshold | 2.4 game hours | Gaps exceeding this recorded as idle |
+| Enable Importance Decay | Off | Memory importance decreases over time |
+| Decay Rate | 2%/day | Importance reduction per game day |
+| Minimum Threshold | 0.05 | Memories below this auto-archived |
+| Narrator Event Threshold | 0.2 | Min importance for narrator to record |
+| Pawn→Narrator Threshold | 0.8 | Min importance for pawn→narrator sync |
 
 ## FAQ
 
