@@ -24,7 +24,7 @@ namespace RimMind.Memory.Aggregation
 
         public void OnJobStarted(Pawn pawn, Job job, int maxActive, int maxArchive, int idleGapThresholdTicks, int minAggregationCount)
         {
-            if (pawn == null || job == null) return;
+            if (pawn == null || job == null || job.def == null) return;
             int now = Find.TickManager.TicksGame;
             int pawnId = pawn.thingIDNumber;
             string jobDefName = job.def.defName;

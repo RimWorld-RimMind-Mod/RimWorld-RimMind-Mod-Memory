@@ -49,7 +49,7 @@ namespace RimMind.Memory.DarkMemory
 
             foreach (var map in Find.Maps)
             {
-                foreach (var pawn in map.mapPawns.FreeColonists)
+                foreach (var pawn in map.mapPawns.FreeColonists.ToList())
                 {
                     int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
                     if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
@@ -63,7 +63,7 @@ namespace RimMind.Memory.DarkMemory
                 }
             }
 
-            foreach (var pawn in Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>())
+            foreach (var pawn in (Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>()).ToList())
             {
                 if (!pawn.IsFreeNonSlaveColonist) continue;
                 int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
@@ -117,7 +117,7 @@ namespace RimMind.Memory.DarkMemory
             sb.AppendLine("RimMind.Memory.Prompt.MergeInstruction".Translate(settings.darkCount));
             sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
 
-            var npcId = $"NPC-{pawn.ThingID}";
+            var npcId = $"NPC-{pawn.thingIDNumber}";
             var ctxRequest = new ContextRequest
             {
                 NpcId = npcId,

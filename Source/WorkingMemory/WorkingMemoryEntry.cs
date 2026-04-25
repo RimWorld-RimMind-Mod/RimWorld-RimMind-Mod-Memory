@@ -26,9 +26,13 @@ namespace RimMind.Memory.WorkingMemory
 
         public void ExposeData()
         {
+#pragma warning disable CS8601
             Scribe_Values.Look(ref _content, "Content");
             Scribe_Values.Look(ref _timestamp, "Timestamp");
             Scribe_Values.Look(ref _source, "Source");
+#pragma warning restore CS8601
+            _content ??= "";
+            _source ??= "";
             Scribe_Values.Look(ref _relevance, "Relevance");
         }
     }
