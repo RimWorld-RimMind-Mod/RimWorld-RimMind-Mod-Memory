@@ -73,6 +73,34 @@
   <RimMind.Memory.Prompt.ColonyTodayEvents>殖民地今天的事件：</RimMind.Memory.Prompt.ColonyTodayEvents>
   <RimMind.Memory.Prompt.ExistingNarrative>现有长期叙事（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingNarrative>
   <RimMind.Memory.Prompt.MergeNarrativeInstruction>请将今日事件融入已有叙事，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeNarrativeInstruction>
+  <!-- DarkMemoryUpdater.cs - TaskInstruction -->
+  <RimMind.Memory.Prompt.TaskInstruction.Role>你是 RimWorld 殖民地的记忆摘要师，负责将小人的日常记忆合并为长期印象。</RimMind.Memory.Prompt.TaskInstruction.Role>
+  <RimMind.Memory.Prompt.TaskInstruction.Goal>将今日记忆合并到现有长期印象中，保持简洁且信息完整。</RimMind.Memory.Prompt.TaskInstruction.Goal>
+  <RimMind.Memory.Prompt.TaskInstruction.Process>1. 阅读今日发生的所有记忆
+2. 阅读现有的长期印象
+3. 将今日记忆的关键信息融入现有印象（更新/合并/新增）
+4. 移除最不相关的旧印象以保持数量限制
+5. 确保每条印象包含时间或场景定位</RimMind.Memory.Prompt.TaskInstruction.Process>
+  <RimMind.Memory.Prompt.TaskInstruction.Constraint>保持指定条数，不多不少；每条 ≤50 字；优先保留高重要性记忆；合并相似主题的印象；每条应包含时间/场景定位词</RimMind.Memory.Prompt.TaskInstruction.Constraint>
+  <RimMind.Memory.Prompt.TaskInstruction.Example>输入：今日记忆=["采矿6小时","被海盗袭击受伤","与Alex聊天"]，现有印象=["擅长采矿","与Alex关系好"]
+输出：{"dark":["资深矿工，经常长时间采矿","上个月被海盗袭击受伤，对袭击保持警惕","与Alex关系亲密，经常聊天"]}</RimMind.Memory.Prompt.TaskInstruction.Example>
+  <RimMind.Memory.Prompt.TaskInstruction.Output>只返回以下 JSON 格式：
+{"dark":["...","..."]}</RimMind.Memory.Prompt.TaskInstruction.Output>
+  <RimMind.Memory.Prompt.TaskInstruction.Fallback>如果无法合并，返回现有印象不变。</RimMind.Memory.Prompt.TaskInstruction.Fallback>
+  <!-- DarkMemoryUpdater.cs - NarratorTaskInstruction -->
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Role>你是 RimWorld 殖民地的叙事摘要师，负责将每日事件合并为长期叙事。</RimMind.Memory.Prompt.NarratorTaskInstruction.Role>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Goal>将今日事件合并到现有长期叙事中，保持简洁且信息完整。</RimMind.Memory.Prompt.NarratorTaskInstruction.Goal>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Process>1. 阅读今日殖民地发生的所有事件
+2. 阅读现有的长期叙事
+3. 将今日事件的关键信息融入现有叙事
+4. 移除最不相关的旧叙事以保持数量限制
+5. 确保每条叙事包含时间或场景定位</RimMind.Memory.Prompt.NarratorTaskInstruction.Process>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Constraint>保持指定条数，不多不少；每条 ≤50 字；优先保留高重要性事件；合并相似主题的叙事；每条应包含时间/场景定位词</RimMind.Memory.Prompt.NarratorTaskInstruction.Constraint>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Example>输入：今日事件=["海盗袭击","商人来访","新殖民者加入"]，现有叙事=["殖民地刚建立"]
+输出：{"dark":["殖民地建立初期，经历了海盗袭击","曾有商人来访，建立了贸易联系","最近有新殖民者加入，壮大了队伍"]}</RimMind.Memory.Prompt.NarratorTaskInstruction.Example>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Output>只返回以下 JSON 格式：
+{"dark":["...","..."]}</RimMind.Memory.Prompt.NarratorTaskInstruction.Output>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Fallback>如果无法合并，返回现有叙事不变。</RimMind.Memory.Prompt.NarratorTaskInstruction.Fallback>
   <!-- MemoryContextProvider.cs - Context -->
   <RimMind.Memory.Context.RecentMemory>[{0} 近期记忆]</RimMind.Memory.Context.RecentMemory>
   <RimMind.Memory.Context.ArchiveMemory>[{0} 存档记忆（按重要度）]</RimMind.Memory.Context.ArchiveMemory>
