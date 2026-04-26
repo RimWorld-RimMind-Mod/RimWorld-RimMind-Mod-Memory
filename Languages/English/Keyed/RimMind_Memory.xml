@@ -73,6 +73,34 @@
   <RimMind.Memory.Prompt.ColonyTodayEvents>Colony events today:</RimMind.Memory.Prompt.ColonyTodayEvents>
   <RimMind.Memory.Prompt.ExistingNarrative>Existing long-term narratives (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingNarrative>
   <RimMind.Memory.Prompt.MergeNarrativeInstruction>Merge today's events into existing narratives, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeNarrativeInstruction>
+  <!-- DarkMemoryUpdater.cs - TaskInstruction -->
+  <RimMind.Memory.Prompt.TaskInstruction.Role>You are a memory summarizer for a RimWorld colony, responsible for merging daily memories into long-term impressions.</RimMind.Memory.Prompt.TaskInstruction.Role>
+  <RimMind.Memory.Prompt.TaskInstruction.Goal>Merge today's memories into existing long-term impressions, keeping them concise yet informative.</RimMind.Memory.Prompt.TaskInstruction.Goal>
+  <RimMind.Memory.Prompt.TaskInstruction.Process>1. Read all memories that occurred today
+2. Read the existing long-term impressions
+3. Integrate key information from today's memories into existing impressions (update/merge/add)
+4. Remove the least relevant old impressions to maintain the count limit
+5. Ensure each impression includes time or scene context</RimMind.Memory.Prompt.TaskInstruction.Process>
+  <RimMind.Memory.Prompt.TaskInstruction.Constraint>Maintain the exact specified count; each ≤50 chars; prioritize high-importance memories; merge similar themes; each must include time/scene context</RimMind.Memory.Prompt.TaskInstruction.Constraint>
+  <RimMind.Memory.Prompt.TaskInstruction.Example>Input: today_memories=["Mining 6 hours","Injured by pirate raid","Chatted with Alex"], existing_impressions=["Skilled miner","Good relationship with Alex"]
+Output: {"dark":["Veteran miner, often works long hours","Wounded in pirate raid last month, stays vigilant","Close with Alex, chats frequently"]}</RimMind.Memory.Prompt.TaskInstruction.Example>
+  <RimMind.Memory.Prompt.TaskInstruction.Output>Return only the following JSON format:
+{"dark":["...","..."]}</RimMind.Memory.Prompt.TaskInstruction.Output>
+  <RimMind.Memory.Prompt.TaskInstruction.Fallback>If unable to merge, return existing impressions unchanged.</RimMind.Memory.Prompt.TaskInstruction.Fallback>
+  <!-- DarkMemoryUpdater.cs - NarratorTaskInstruction -->
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Role>You are a narrative summarizer for a RimWorld colony, responsible for merging daily events into long-term narratives.</RimMind.Memory.Prompt.NarratorTaskInstruction.Role>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Goal>Merge today's events into existing long-term narratives, keeping them concise yet informative.</RimMind.Memory.Prompt.NarratorTaskInstruction.Goal>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Process>1. Read all colony events that occurred today
+2. Read the existing long-term narratives
+3. Integrate key information from today's events into existing narratives
+4. Remove the least relevant old narratives to maintain the count limit
+5. Ensure each narrative includes time or scene context</RimMind.Memory.Prompt.NarratorTaskInstruction.Process>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Constraint>Maintain the exact specified count; each ≤50 chars; prioritize high-importance events; merge similar themes; each must include time/scene context</RimMind.Memory.Prompt.NarratorTaskInstruction.Constraint>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Example>Input: today_events=["Pirate raid","Trader visit","New colonist joined"], existing_narratives=["Colony just established"]
+Output: {"dark":["Colony established, survived a pirate raid","Traders visited, trade relations established","New colonist joined recently, strengthening the team"]}</RimMind.Memory.Prompt.NarratorTaskInstruction.Example>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Output>Return only the following JSON format:
+{"dark":["...","..."]}</RimMind.Memory.Prompt.NarratorTaskInstruction.Output>
+  <RimMind.Memory.Prompt.NarratorTaskInstruction.Fallback>If unable to merge, return existing narratives unchanged.</RimMind.Memory.Prompt.NarratorTaskInstruction.Fallback>
   <!-- MemoryContextProvider.cs - Context -->
   <RimMind.Memory.Context.RecentMemory>[{0} Recent Memories]</RimMind.Memory.Context.RecentMemory>
   <RimMind.Memory.Context.ArchiveMemory>[{0} Archived Memories (by importance)]</RimMind.Memory.Context.ArchiveMemory>
