@@ -124,7 +124,7 @@ namespace RimMind.Memory.DarkMemory
                 Scenario = ScenarioIds.Personality,
                 Budget = 0.4f,
                 CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
-                MaxTokens = 200,
+                MaxTokens = 400,
                 Temperature = 0.5f,
             };
 
@@ -166,8 +166,9 @@ namespace RimMind.Memory.DarkMemory
                 Scenario = ScenarioIds.Storyteller,
                 Budget = 0.4f,
                 CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
-                MaxTokens = 300,
+                MaxTokens = 400,
                 Temperature = 0.5f,
+                Map = Find.Maps.FirstOrDefault(),
             };
 
             var schema = RimMind.Core.Context.SchemaRegistry.DarkMemoryOutput;
@@ -184,6 +185,12 @@ namespace RimMind.Memory.DarkMemory
             try
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(jsonContent);
+                if (result?.dark == null)
+                {
+                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(jsonContent);
+                    if (repaired != null)
+                        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
+                }
                 if (result?.dark == null) return;
 
                 store.dark.Clear();
@@ -207,6 +214,12 @@ namespace RimMind.Memory.DarkMemory
             try
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(jsonContent);
+                if (result?.dark == null)
+                {
+                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(jsonContent);
+                    if (repaired != null)
+                        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
+                }
                 if (result?.dark == null) return;
 
                 store.dark.Clear();
