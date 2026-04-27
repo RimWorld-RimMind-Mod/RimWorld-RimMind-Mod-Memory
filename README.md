@@ -108,7 +108,7 @@ Pawn 记忆重要度 >= 0.8 时自动同步到叙事者记忆。
 
 ### 上下文注入
 
-通过 RimMind-Core 的 Provider 机制，将记忆自动注入 AI Prompt，让所有子模块都能参考殖民者的历史。
+通过 RimMind-Core 的 ContextKeyRegistry 机制，将记忆自动注入 AI Prompt，让所有子模块都能参考殖民者的历史。ContextEngine 的自适应预算和 Layer 感知裁剪对记忆上下文生效。
 
 ## 设置项
 
@@ -241,7 +241,7 @@ cd RimWorld-RimMind-Mod-Memory
 - **Work Session Aggregation**: Groups continuous similar work into single entries (e.g., "Hauling x12, ~4.8 game hours")
 - **Working Memory**: Short-term rolling buffer for current context, injected at highest priority
 - **Dark Memory**: AI distills daily memories into permanent 50-char summaries
-- **Context Injection**: Automatically injects memories into AI prompts for all sub-modules
+- **Context Injection**: Automatically injects memories into AI prompts via ContextKeyRegistry, with adaptive budgeting and layer-aware trimming
 
 ## Settings
 

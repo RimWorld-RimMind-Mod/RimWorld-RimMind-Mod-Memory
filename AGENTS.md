@@ -247,20 +247,20 @@ DarkMemoryUpdater（GameComponent）每日执行，带抖动机制分散 API 请
 
 ## 上下文注入
 
-MemoryContextProvider.Register() 注册两个 Provider：
+MemoryContextProvider.Register() 通过 `ContextKeyRegistry.Register` 注册两个 ContextKey：
 
-| Provider ID | 注册方式 | 优先级 | 内容 |
+| Key | Layer | Priority | 内容 |
 |---|---|---|---|
-| `memory_pawn` | RegisterPawnContextProvider | PromptSection.PriorityMemory | Pawn 的 active + archive + dark |
-| `memory_narrator` | RegisterStaticProvider | PromptSection.PriorityAuxiliary | 叙事者 active + archive + dark |
+| `memory_pawn` | L3_State | 0.25 | Pawn 的 active + archive + dark |
+| `memory_narrator` | L1_Baseline | 0.8 | 叙事者 active + archive + dark |
 
-WorkingMemoryProvider.Register() 注册一个 Provider：
+WorkingMemoryProvider.Register() 注册一个 ContextKey：
 
-| Provider ID | 注册方式 | 优先级 | 内容 |
+| Key | Layer | Priority | 内容 |
 |---|---|---|---|
-| `working_memory` | RegisterPawnContextProvider | PromptSection.PriorityCurrentInput | Pawn 工作记忆 |
+| `working_memory` | L3_State | 0.3 | Pawn 工作记忆 |
 
-**⚠️ 已知问题**: `ContextKeyRegistry.Register` 从未调用。当前仅使用简单 Provider 系统，未接入 ContextEngine 的自适应预算/Embedding 检索/Layer 感知裁剪。记忆上下文始终以固定优先级注入。
+ContextKeyRegistry 接入后，ContextEngine 的自适应预算、Embedding 检索、Layer 感知裁剪对记忆上下文生效。记忆上下文可根据查询相关性动态调整注入量。
 
 注入比例由设置控制：`activeInjectRatio`/`archiveInjectRatio`（Pawn）和 `narratorActiveInjectRatio`/`narratorArchiveInjectRatio`（叙事者）。注入条数计算方式为 `maxActive * activeInjectRatio`（而非现有条目数的比例），截取对应数量的条目。
 
@@ -281,8 +281,7 @@ ImportanceDecayManager.ApplyDecay(NarratorMemoryStore store, decayRate, minThres
 
 | API | 使用位置 | 用途 |
 |---|---|---|
-| `RimMindAPI.RegisterPawnContextProvider` | MemoryContextProvider, WorkingMemoryProvider | 注册 Pawn 上下文 Provider |
-| `RimMindAPI.RegisterStaticProvider` | MemoryContextProvider | 注册叙事者上下文 |
+| `ContextKeyRegistry.Register` | MemoryContextProvider, WorkingMemoryProvider | 注册 ContextKey（自适应上下文管理） |
 | `RimMindAPI.RegisterSettingsTab` | RimMindMemoryMod | 注册记忆设置标签页 |
 | `RimMindAPI.RegisterModCooldown` | RimMindMemoryMod | 注册模组冷却 |
 | `RimMindAPI.IsConfigured()` | DarkMemoryUpdater | 检查 API 是否已配置 |
@@ -290,12 +289,10 @@ ImportanceDecayManager.ApplyDecay(NarratorMemoryStore store, decayRate, minThres
 | `SchemaRegistry.DarkMemoryOutput` | DarkMemoryUpdater | 暗记忆输出 Schema |
 | `PromptSanitizer.Sanitize` | DarkMemoryUpdater | User Prompt 清洗 |
 | `SettingsUIHelper.*` | RimMindMemoryMod | UI 辅助方法 |
-| `PromptSection.Priority*` | MemoryContextProvider, WorkingMemoryProvider | 优先级常量 |
 | `StorageDriverFactory.GetDriver` | RimMindMemoryWorldComponent | 远端存储驱动（仅 PutAsync） |
 | `JsonRepairHelper.TryRepairTruncatedJson` | DarkMemoryUpdater | AI 响应 JSON 修复 |
 
 **未使用但可集成的 Core API**:
-- `ContextKeyRegistry.Register` — 自适应上下文管理
 - `RimMindAPI.PublishPerception` — 跨模组事件广播
 - `IStorageDriver.QueryMemoriesAsync` — 语义搜索
 - `RimMindAPI.RegisterAgentIdentityProvider` — 身份注册
