@@ -9,10 +9,10 @@ RimMind-Memory 是 RimMind AI 模组套件的**记忆系统模块**，负责：
 1. **记忆采集** — 监听游戏事件（工作、受伤、死亡、技能升级等），生成 MemoryEntry
 2. **工作会话聚合** — 将连续同类工作聚合成单条记忆（如"搬运 x12 约4.8游戏时"）
 3. **叙事者记忆** — 采集殖民地级别事件（袭击、事件等），形成叙事视角
-4. **暗记忆生成** — 每日调用 AI 将当日记忆凝练为长期印象（<=50字/条）
+4. **暗记忆生成** — 每日调用 AI 将当日记忆凝练为长期印象（≤50字/条）
 5. **上下文注入** — 通过 RimMind-Core Provider 注册机制将记忆注入 AI Prompt
 6. **重要度衰减** — 可选机制，低重要度记忆随时间衰减直至移除
-7. **公开 API** — `RimMindMemoryAPI.AddMemory()` 供其他模组（如 Dialogue）写入记忆
+7. **公开 API** — `RimMindMemoryAPI.AddMemory()` 供其他模组写入记忆
 
 ## 构建配置
 
@@ -36,7 +36,7 @@ RimMind-Memory 是 RimMind AI 模组套件的**记忆系统模块**，负责：
 ```
 Source/
 ├── RimMindMemoryMod.cs                Mod 入口，Harmony PatchAll，设置 UI
-├── RimMindMemoryAPI.cs                公开静态 API
+├── RimMindMemoryAPI.cs                公开静态 API（仅 AddMemory）
 ├── Settings/
 │   └── RimMindMemorySettings.cs       ModSettings，25 个配置项
 ├── Data/
@@ -45,10 +45,10 @@ Source/
 │   ├── NarratorMemoryStore.cs         叙事者记忆存储（结构同 PawnMemoryStore）
 │   └── RimMindMemoryWorldComponent.cs WorldComponent 单例，管理所有存储 + WorkingMemory
 ├── WorkingMemory/
-│   ├── WorkingMemory.cs               滚动缓冲区短期记忆
+│   ├── WorkingMemory.cs               滚动缓冲区短期记忆（_capacity 已序列化）
 │   └── WorkingMemoryEntry.cs          工作记忆条目
 ├── Injection/
-│   ├── MemoryContextProvider.cs       向 RimMind-Core 注册上下文 Provider + ContextKey
+│   ├── MemoryContextProvider.cs       向 RimMind-Core 注册上下文 Provider
 │   └── WorkingMemoryProvider.cs       工作记忆上下文 Provider
 ├── Aggregation/
 │   ├── WorkSessionAggregator.cs       工作会话聚合（GameComponent，不持久化）
@@ -72,7 +72,7 @@ Source/
 │   ├── BioTabMemoryPatch.cs           CharacterCardUtility.DoTopStack Transpiler
 │   └── Dialog_MemoryLog.cs            记忆日志窗口 + Dialog_InputMemory（内嵌类）
 └── Debug/
-    └── MemoryDebugActions.cs          8 个 Dev 菜单调试动作
+    └── MemoryDebugActions.cs          11 个 Dev 菜单调试动作
 ```
 
 ## 关键类与数据结构
@@ -85,7 +85,7 @@ public enum MemoryType { Work, Event, Manual, Dark }
 
 public class MemoryEntry : IExposable
 {
-    public string id;           // "mem-{tick}-{seq}"
+    public string id;           // "mem-{tick}-{seq}"，_nextSeq 已序列化
     public string content;      // 记忆内容
     public MemoryType type;
     public int tick;            // 游戏刻
@@ -105,7 +105,7 @@ public class WorkingMemory : IExposable
 {
     public const int DefaultCapacity = 10;
     private List<WorkingMemoryEntry> _entries;
-    private readonly int _capacity;   // 注意: 未序列化，读档后回退为 DefaultCapacity
+    private int _capacity;   // 已序列化，读档后恢复用户设定值
 
     public void Add(string content, string source = "", float relevance = 0.5f);
     public void Add(WorkingMemoryEntry entry);
@@ -161,6 +161,7 @@ public class RimMindMemoryWorldComponent : WorldComponent
 public static class RimMindMemoryAPI
 {
     // memoryType 通过 Enum.TryParse<MemoryType> 解析，返回 false 表示 pawn 未找到
+    // Pawn 搜索顺序: WorldPawns → Maps → Caravans
     public static bool AddMemory(string content, string memoryType, int tick, float importance, string? pawnId = null);
 }
 ```
@@ -229,7 +230,7 @@ class PawnSession
 
 DarkMemoryUpdater（GameComponent）每日执行，带抖动机制分散 API 请求：
 
-- **Pawn 暗记忆**: 每个 Pawn 有独立 jitter 偏移，按 `IsHashIntervalTick(DailyInterval + jitter)` 触发
+- **Pawn 暗记忆**: 遍历 `Find.Maps` + `Find.WorldPawns?.AllPawnsAlive`，每个 Pawn 有独立 jitter 偏移，按 `IsHashIntervalTick(DailyInterval + jitter)` 触发
 - **叙事者暗记忆**: 有独立 `_narratorOffset` 偏移
 
 流程：
@@ -242,21 +243,24 @@ DarkMemoryUpdater（GameComponent）每日执行，带抖动机制分散 API 请
 
 **注意**: `darkCount` 参数在 `ApplyPawnDarkMemory`/`ApplyNarratorDarkMemory` 中用于限制实际写入 store.dark 的条目数，同时 prompt 中也约束 AI 输出对应条数。双重保障确保暗记忆条数符合设置。
 
+**⚠️ 已知问题**: `RimMind.Memory.Prompt.TaskInstruction.*` 和 `NarratorTaskInstruction.*` 翻译键已预留但未使用。Prompt 通过 `sb.AppendLine()` 硬编码构建，未接入 `StructuredPromptBuilder`。
+
 ## 上下文注入
 
-MemoryContextProvider.Register() 注册两个 Provider + 三个 ContextKey：
+MemoryContextProvider.Register() 注册两个 Provider：
 
 | Provider ID | 注册方式 | 优先级 | 内容 |
 |---|---|---|---|
 | `memory_pawn` | RegisterPawnContextProvider | PromptSection.PriorityMemory | Pawn 的 active + archive + dark |
 | `memory_narrator` | RegisterStaticProvider | PromptSection.PriorityAuxiliary | 叙事者 active + archive + dark |
+
+WorkingMemoryProvider.Register() 注册一个 Provider：
+
+| Provider ID | 注册方式 | 优先级 | 内容 |
+|---|---|---|---|
 | `working_memory` | RegisterPawnContextProvider | PromptSection.PriorityCurrentInput | Pawn 工作记忆 |
 
-| ContextKey | Layer | Weight | 内容 |
-|---|---|---|---|
-| `memory_pawn` | L3_State | 0.25 | Pawn active + archive + dark |
-| `working_memory` | L3_State | 0.3 | 工作记忆条目 |
-| `memory_narrator` | L1_Baseline | 0.8 | 叙事者 active + archive + dark |
+**⚠️ 已知问题**: `ContextKeyRegistry.Register` 从未调用。当前仅使用简单 Provider 系统，未接入 ContextEngine 的自适应预算/Embedding 检索/Layer 感知裁剪。记忆上下文始终以固定优先级注入。
 
 注入比例由设置控制：`activeInjectRatio`/`archiveInjectRatio`（Pawn）和 `narratorActiveInjectRatio`/`narratorArchiveInjectRatio`（叙事者）。注入条数计算方式为 `maxActive * activeInjectRatio`（而非现有条目数的比例），截取对应数量的条目。
 
@@ -270,7 +274,7 @@ ImportanceDecayCalculator.ShouldRemove(importance, threshold) => importance < th
 
 ImportanceDecayManager.ApplyDecay(PawnMemoryStore store, decayRate, minThreshold);
 ImportanceDecayManager.ApplyDecay(NarratorMemoryStore store, decayRate, minThreshold);
-// 两个重载：衰减 active + archive，移除 archive 中低于阈值且非 pinned 的条目
+// 两个重载：衰减 active + archive，移除 active + archive 中低于阈值且非 pinned 的条目
 ```
 
 ## RimMind-Core API 使用点
@@ -283,12 +287,18 @@ ImportanceDecayManager.ApplyDecay(NarratorMemoryStore store, decayRate, minThres
 | `RimMindAPI.RegisterModCooldown` | RimMindMemoryMod | 注册模组冷却 |
 | `RimMindAPI.IsConfigured()` | DarkMemoryUpdater | 检查 API 是否已配置 |
 | `RimMindAPI.RequestStructured` | DarkMemoryUpdater | 结构化 AI 请求 |
-| `ContextKeyRegistry.Register` | MemoryContextProvider | 注册 ContextKey |
 | `SchemaRegistry.DarkMemoryOutput` | DarkMemoryUpdater | 暗记忆输出 Schema |
 | `PromptSanitizer.Sanitize` | DarkMemoryUpdater | User Prompt 清洗 |
 | `SettingsUIHelper.*` | RimMindMemoryMod | UI 辅助方法 |
 | `PromptSection.Priority*` | MemoryContextProvider, WorkingMemoryProvider | 优先级常量 |
-| `StorageDriverFactory.GetDriver` | RimMindMemoryWorldComponent | 远端存储驱动 |
+| `StorageDriverFactory.GetDriver` | RimMindMemoryWorldComponent | 远端存储驱动（仅 PutAsync） |
+| `JsonRepairHelper.TryRepairTruncatedJson` | DarkMemoryUpdater | AI 响应 JSON 修复 |
+
+**未使用但可集成的 Core API**:
+- `ContextKeyRegistry.Register` — 自适应上下文管理
+- `RimMindAPI.PublishPerception` — 跨模组事件广播
+- `IStorageDriver.QueryMemoriesAsync` — 语义搜索
+- `RimMindAPI.RegisterAgentIdentityProvider` — 身份注册
 
 ## 设置项
 
@@ -445,7 +455,7 @@ RimMindMemoryAPI.AddMemory("与艾丽斯进行了深度交谈", "Event", Find.Ti
 
 ```
 RimMind-Memory
-    ├── RimMind-Core (RimMindAPI, ContextRequest, SchemaRegistry, PromptSanitizer, PromptSection, SettingsUIHelper, ContextKeyRegistry, StorageDriverFactory)
+    ├── RimMind-Core (RimMindAPI, ContextRequest, SchemaRegistry, PromptSanitizer, PromptSection, SettingsUIHelper, ContextKeyRegistry, StorageDriverFactory, JsonRepairHelper)
     ├── Harmony (Lib.Harmony.Ref 2.*)
     ├── RimWorld 1.6 (Krafs.Rimworld.Ref)
     └── Newtonsoft.Json 13.0.* (DarkMemoryUpdater 反序列化)
