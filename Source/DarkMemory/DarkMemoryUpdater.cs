@@ -15,7 +15,7 @@ namespace RimMind.Memory.DarkMemory
     public class DarkMemoryUpdater : GameComponent
     {
         private static DarkMemoryUpdater? _instance;
-        public static DarkMemoryUpdater Instance => _instance!;
+        public static DarkMemoryUpdater Instance => _instance ?? throw new InvalidOperationException("DarkMemoryUpdater not initialized");
 
         private int _narratorOffset;
         private const int DailyInterval = 60000;
@@ -182,59 +182,40 @@ namespace RimMind.Memory.DarkMemory
 
         private void ApplyPawnDarkMemory(string jsonContent, PawnMemoryStore store, int darkCount, int now)
         {
-            try
-            {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(jsonContent);
-                if (result?.dark == null)
-                {
-                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(jsonContent);
-                    if (repaired != null)
-                        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
-                }
-                if (result?.dark == null) return;
-
-                store.dark.Clear();
-                int added = 0;
-                foreach (var text in result.dark)
-                {
-                    if (string.IsNullOrEmpty(text)) continue;
-                    if (added >= darkCount) break;
-                    store.dark.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
-                    added++;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"[RimMind-Memory] Failed to parse pawn dark memory response: {ex.Message}");
-            }
+            ApplyDarkMemory(jsonContent, darkCount, now, store.dark);
         }
 
         private void ApplyNarratorDarkMemory(string jsonContent, NarratorMemoryStore store, int darkCount, int now)
         {
+            ApplyDarkMemory(jsonContent, darkCount, now, store.dark);
+        }
+
+        private static void ApplyDarkMemory(string json, int darkCount, int now, List<MemoryEntry> darkStore)
+        {
             try
             {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(jsonContent);
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(json);
                 if (result?.dark == null)
                 {
-                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(jsonContent);
+                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(json);
                     if (repaired != null)
                         result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
                 }
                 if (result?.dark == null) return;
 
-                store.dark.Clear();
+                darkStore.Clear();
                 int added = 0;
                 foreach (var text in result.dark)
                 {
                     if (string.IsNullOrEmpty(text)) continue;
                     if (added >= darkCount) break;
-                    store.dark.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
+                    darkStore.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
                     added++;
                 }
             }
             catch (Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Failed to parse narrator dark memory response: {ex.Message}");
+                Log.Warning($"[RimMind-Memory] Failed to parse dark memory response: {ex.Message}");
             }
         }
 

@@ -11,7 +11,7 @@ namespace RimMind.Memory.Aggregation
     public class WorkSessionAggregator : GameComponent
     {
         private static WorkSessionAggregator? _instance;
-        public static WorkSessionAggregator Instance => _instance!;
+        public static WorkSessionAggregator Instance => _instance ?? throw new InvalidOperationException("WorkSessionAggregator not initialized");
 
         private readonly Dictionary<int, PawnSession> _sessions = new Dictionary<int, PawnSession>();
 
