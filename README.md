@@ -104,7 +104,7 @@ Pawn 记忆重要度 >= 0.8 时自动同步到叙事者记忆。
 
 ### 工作记忆
 
-短期滚动缓冲区，记录当前正在发生的上下文，以最高优先级注入 AI Prompt。
+短期滚动缓冲区，记录当前正在发生的上下文，以高优先级注入 AI Prompt。
 
 ### 上下文注入
 
@@ -239,7 +239,7 @@ cd RimWorld-RimMind-Mod-Memory
 - **Three-Layer Storage**: Active (recent), Archive (by importance), Dark (AI-generated long-term impressions)
 - **Auto Collection**: Monitors work sessions, injuries, mental breaks, deaths, skill ups, relationships, and narrator events
 - **Work Session Aggregation**: Groups continuous similar work into single entries (e.g., "Hauling x12, ~4.8 game hours")
-- **Working Memory**: Short-term rolling buffer for current context, injected at highest priority
+- **Working Memory**: Short-term rolling buffer for current context, injected at high priority
 - **Dark Memory**: AI distills daily memories into permanent 50-char summaries
 - **Context Injection**: Automatically injects memories into AI prompts via ContextKeyRegistry, with adaptive budgeting and layer-aware trimming
 

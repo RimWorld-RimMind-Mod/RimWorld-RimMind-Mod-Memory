@@ -28,8 +28,9 @@ Source/
 │   ├── PawnMemoryStore.cs                       三层存储(active/archive/dark)
 │   ├── NarratorMemoryStore.cs                   叙事者存储(结构同)
 │   └── RimMindMemoryWorldComponent.cs           WorldComponent管理所有存储+WorkingMemory
-├── WorkingMemory/                               工作记忆缓冲区(容量10, 已序列化)
-├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator/working_memory)
+├── WorkingMemory/                               工作记忆缓冲区(容量可配置, 已序列化)
+├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator)
+│       WorkingMemoryProvider.cs                 注册ContextKey(working_memory)
 ├── Aggregation/
 │   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化)
 │   └── Patch_StartJob_Memory.cs                 JobTracker Postfix
@@ -63,6 +64,24 @@ Source/
 | memory_narrator | L1_Baseline | 0.8 | 叙事者active+archive+dark |
 | working_memory | L3_State | 0.3 | Pawn工作记忆 |
 
+## Core API 使用情况
+
+| API | 用途 | 状态 |
+|-----|------|------|
+| ContextKeyRegistry.Register | 注入记忆上下文 | ✅ 使用中 |
+| RimMindAPI.RequestStructured | 暗记忆AI生成 | ✅ 使用中 |
+| SchemaRegistry.DarkMemoryOutput | 暗记忆JSON Schema | ✅ 使用中 |
+| RimMindAPI.RegisterSettingsTab | 设置页标签 | ✅ 使用中 |
+| RimMindAPI.RegisterModCooldown | 冷却注册 | ✅ 使用中 |
+| RimMindAPI.IsConfigured | API可用性检查 | ✅ 使用中 |
+| PromptSanitizer.Sanitize | Prompt清洗 | ✅ 使用中 |
+| StorageDriverFactory.GetDriver | 远端存储 | ✅ 使用中(仅PutAsync) |
+| AgentBus.Publish/Subscribe | 事件总线 | ❌ 未使用 |
+| RimMindAPI.PublishPerception | 感知广播 | ❌ 未使用 |
+| RimMindAPI.RegisterAgentIdentityProvider | 身份注册 | ❌ 未使用 |
+| TaskInstructionBuilder.Build | 结构化Prompt | ❌ 未使用 |
+| ScenarioIds.Memory | 暗记忆场景 | ❌ 未使用(误用Personality/Storyteller) |
+
 ## 代码约定
 
 - Harmony ID: `mcocdaa.RimMindMemory`，PostFix优先
@@ -70,6 +89,7 @@ Source/
 - 新触发器在 `RimMindMemorySettings` 添加 `triggerXxx` 开关
 - 记忆写入: `wc.AddPawnMemory(pawn, MemoryEntry.Create(...), maxActive, maxArchive)`
 - 重要度≥`pawnToNarratorThreshold`(默认0.8)时同步写入 `NarratorStore`
+- 单例模式: `Instance => _instance ?? throw new InvalidOperationException(...)`
 
 ## 操作边界
 
