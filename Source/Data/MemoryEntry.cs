@@ -20,6 +20,13 @@ namespace RimMind.Memory.Data
 
         public static MemoryEntry Create(string content, MemoryType type, int tick, float importance, string? pawnId = null)
         {
+            if (content.Length > 2000)
+            {
+                var originalLength = content.Length;
+                content = content.Substring(0, 2000) + "...";
+                Log.Warning($"[RimMind-Memory] Memory content truncated to 2000 chars (original length: {originalLength})");
+            }
+
             return new MemoryEntry
             {
                 id = $"mem-{tick}-{System.Threading.Interlocked.Increment(ref _nextSeq)}",

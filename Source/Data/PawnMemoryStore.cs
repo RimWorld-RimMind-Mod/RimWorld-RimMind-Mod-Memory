@@ -51,6 +51,20 @@ namespace RimMind.Memory.Data
 
         public bool IsEmpty => active.Count == 0 && archive.Count == 0 && dark.Count == 0;
 
+        public bool ContainsId(string id)
+        {
+            return active.Any(e => e.id == id)
+                || archive.Any(e => e.id == id)
+                || dark.Any(e => e.id == id);
+        }
+
+        public void AddIfNotExists(MemoryEntry entry)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.id)) return;
+            if (ContainsId(entry.id)) return;
+            active.Insert(0, entry);
+        }
+
         public void ExposeData()
         {
             Scribe_Collections.Look(ref active, "active", LookMode.Deep);

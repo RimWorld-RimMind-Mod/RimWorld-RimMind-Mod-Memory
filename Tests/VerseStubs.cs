@@ -33,6 +33,13 @@ namespace Verse
 
     public enum LookMode { Value, Deep }
 
+    public static class Log
+    {
+        public static void Warning(string msg) { }
+        public static void Message(string msg) { }
+        public static void Error(string msg) { }
+    }
+
     public static class TranslationStubs
     {
         private static readonly Dictionary<string, string> Translations = new Dictionary<string, string>
