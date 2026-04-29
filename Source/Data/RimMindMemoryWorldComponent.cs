@@ -82,6 +82,10 @@ namespace RimMind.Memory.Data
                 wm = new WM(RimMindMemoryMod.Settings.workingMemoryCapacity);
                 _workingMemories[id] = wm;
             }
+            else
+            {
+                wm.UpdateCapacity(RimMindMemoryMod.Settings.workingMemoryCapacity);
+            }
             return wm;
         }
 

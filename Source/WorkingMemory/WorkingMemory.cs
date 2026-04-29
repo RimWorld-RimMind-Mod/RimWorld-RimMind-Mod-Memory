@@ -39,6 +39,14 @@ namespace RimMind.Memory.WorkingMemory
                 _entries.RemoveAt(0);
         }
 
+        public void UpdateCapacity(int newCapacity)
+        {
+            if (newCapacity <= 0) newCapacity = DefaultCapacity;
+            _capacity = newCapacity;
+            while (_entries.Count > _capacity)
+                _entries.RemoveAt(0);
+        }
+
         public void Clear()
         {
             _entries.Clear();

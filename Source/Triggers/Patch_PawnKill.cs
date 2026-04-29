@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -19,6 +20,9 @@ namespace RimMind.Memory.Triggers
             {
                 var wc = RimMindMemoryWorldComponent.Instance;
                 if (wc == null) return;
+
+                if (__instance != null)
+                    DarkMemoryUpdater.CleanupPawnJitter(__instance.thingIDNumber);
 
                 var settings = RimMindMemoryMod.Settings;
                 int now = Find.TickManager.TicksGame;

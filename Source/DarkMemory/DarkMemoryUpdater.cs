@@ -39,6 +39,11 @@ namespace RimMind.Memory.DarkMemory
             return jitter;
         }
 
+        public static void CleanupPawnJitter(int thingID)
+        {
+            _instance?._pawnJitter.Remove(thingID);
+        }
+
         public override void GameComponentTick()
         {
             if (!RimMindMemoryMod.Settings.enableMemory) return;
@@ -121,7 +126,7 @@ namespace RimMind.Memory.DarkMemory
             var ctxRequest = new ContextRequest
             {
                 NpcId = npcId,
-                Scenario = ScenarioIds.Personality,
+                Scenario = ScenarioIds.Memory,
                 Budget = 0.4f,
                 CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
                 MaxTokens = 400,
@@ -163,7 +168,7 @@ namespace RimMind.Memory.DarkMemory
             var ctxRequest = new ContextRequest
             {
                 NpcId = "NPC-storyteller",
-                Scenario = ScenarioIds.Storyteller,
+                Scenario = ScenarioIds.Memory,
                 Budget = 0.4f,
                 CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
                 MaxTokens = 400,

@@ -27,7 +27,11 @@ namespace RimMind.Memory.Data
             while (src.Count > srcMax)
             {
                 var evict = src.LastOrDefault(x => !x.isPinned);
-                if (evict == null) break;
+                if (evict == null)
+                {
+                    Log.Warning($"[RimMind-Memory] Cannot enforce limit: all {src.Count} entries in src are pinned (max={srcMax})");
+                    break;
+                }
                 src.Remove(evict);
                 int insertIdx = dst.FindIndex(x => x.importance < evict.importance);
                 if (insertIdx < 0) dst.Add(evict);
@@ -37,7 +41,11 @@ namespace RimMind.Memory.Data
             {
                 var least = dst.LastOrDefault(x => !x.isPinned);
                 if (least != null) dst.Remove(least);
-                else break;
+                else
+                {
+                    Log.Warning($"[RimMind-Memory] Cannot enforce limit: all {dst.Count} entries in dst are pinned (max={dstMax})");
+                    break;
+                }
             }
         }
 
