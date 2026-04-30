@@ -1,222 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <!-- TimeFormatter.cs -->
-    <RimMind.Memory.Time.JustNow>Just now</RimMind.Memory.Time.JustNow>
-    <RimMind.Memory.Time.HoursAgo>About {0}h ago</RimMind.Memory.Time.HoursAgo>
-    <RimMind.Memory.Time.Today>Today</RimMind.Memory.Time.Today>
-    <RimMind.Memory.Time.DaysAgo>{0} days ago</RimMind.Memory.Time.DaysAgo>
-    <RimMind.Memory.Time.GameDate>Day {0} {1}:00</RimMind.Memory.Time.GameDate>
-    <RimMind.Memory.Time.TimeContent>{0}: {1}</RimMind.Memory.Time.TimeContent>
-
-    <!-- WorkSessionAggregator.cs -->
-    <RimMind.Memory.Work.Session>{0} x{1}  ~{2} game hours</RimMind.Memory.Work.Session>
-    <RimMind.Memory.Work.Idle>Idle/Standby ~{0} game hours</RimMind.Memory.Work.Idle>
-
-    <!-- Work Labels - WorkSessionAggregator.cs -->
-    <RimMind.Memory.Work.Sow>Sowing</RimMind.Memory.Work.Sow>
-    <RimMind.Memory.Work.PlantSeed>Sowing</RimMind.Memory.Work.PlantSeed>
-    <RimMind.Memory.Work.Replant>Replanting</RimMind.Memory.Work.Replant>
-    <RimMind.Memory.Work.Harvest>Harvesting</RimMind.Memory.Work.Harvest>
-    <RimMind.Memory.Work.HarvestDesignated>Harvesting</RimMind.Memory.Work.HarvestDesignated>
-    <RimMind.Memory.Work.CutPlant>Chopping</RimMind.Memory.Work.CutPlant>
-    <RimMind.Memory.Work.CutPlantDesignated>Chopping</RimMind.Memory.Work.CutPlantDesignated>
-    <RimMind.Memory.Work.FinishFrame>Building</RimMind.Memory.Work.FinishFrame>
-    <RimMind.Memory.Work.PlaceNoCostFrame>Building</RimMind.Memory.Work.PlaceNoCostFrame>
-    <RimMind.Memory.Work.Deconstruct>Deconstructing</RimMind.Memory.Work.Deconstruct>
-    <RimMind.Memory.Work.Uninstall>Uninstalling</RimMind.Memory.Work.Uninstall>
-    <RimMind.Memory.Work.Repair>Repairing</RimMind.Memory.Work.Repair>
-    <RimMind.Memory.Work.FixBrokenDownBuilding>Repairing</RimMind.Memory.Work.FixBrokenDownBuilding>
-    <RimMind.Memory.Work.Mine>Mining</RimMind.Memory.Work.Mine>
-    <RimMind.Memory.Work.Clean>Cleaning</RimMind.Memory.Work.Clean>
-    <RimMind.Memory.Work.HaulToCell>Hauling</RimMind.Memory.Work.HaulToCell>
-    <RimMind.Memory.Work.HaulToContainer>Hauling</RimMind.Memory.Work.HaulToContainer>
-    <RimMind.Memory.Work.HaulToTransporter>Hauling</RimMind.Memory.Work.HaulToTransporter>
-    <RimMind.Memory.Work.HaulToPortal>Hauling</RimMind.Memory.Work.HaulToPortal>
-    <RimMind.Memory.Work.HaulCorpseToPublicPlace>Hauling</RimMind.Memory.Work.HaulCorpseToPublicPlace>
-    <RimMind.Memory.Work.DoBill>Crafting</RimMind.Memory.Work.DoBill>
-    <RimMind.Memory.Work.Research>Researching</RimMind.Memory.Work.Research>
-    <RimMind.Memory.Work.Hunt>Hunting</RimMind.Memory.Work.Hunt>
-    <RimMind.Memory.Work.BeatFire>Firefighting</RimMind.Memory.Work.BeatFire>
-    <RimMind.Memory.Work.ExtinguishSelf>Firefighting</RimMind.Memory.Work.ExtinguishSelf>
-    <RimMind.Memory.Work.SmoothFloor>Refining</RimMind.Memory.Work.SmoothFloor>
-    <RimMind.Memory.Work.RemoveFloor>Refining</RimMind.Memory.Work.RemoveFloor>
-    <RimMind.Memory.Work.SmoothWall>Refining</RimMind.Memory.Work.SmoothWall>
-    <RimMind.Memory.Work.BuildRoof>Building Roof</RimMind.Memory.Work.BuildRoof>
-    <RimMind.Memory.Work.RemoveRoof>Removing Roof</RimMind.Memory.Work.RemoveRoof>
-    <RimMind.Memory.Work.PaintBuilding>Painting</RimMind.Memory.Work.PaintBuilding>
-    <RimMind.Memory.Work.PaintFloor>Painting</RimMind.Memory.Work.PaintFloor>
-    <RimMind.Memory.Work.RemovePaintBuilding>Removing Paint</RimMind.Memory.Work.RemovePaintBuilding>
-    <RimMind.Memory.Work.RemovePaintFloor>Removing Paint</RimMind.Memory.Work.RemovePaintFloor>
-    <RimMind.Memory.Work.OperateDeepDrill>Deep Drilling</RimMind.Memory.Work.OperateDeepDrill>
-    <RimMind.Memory.Work.OperateScanner>Scanning</RimMind.Memory.Work.OperateScanner>
-    <RimMind.Memory.Work.ExtractTree>Logging</RimMind.Memory.Work.ExtractTree>
-    <RimMind.Memory.Work.Refuel>Refueling</RimMind.Memory.Work.Refuel>
-    <RimMind.Memory.Work.RearmTurret>Rearming</RimMind.Memory.Work.RearmTurret>
-    <RimMind.Memory.Work.ClearSnow>Clearing Snow</RimMind.Memory.Work.ClearSnow>
-    <RimMind.Memory.Work.ManTurret>Manning Turret</RimMind.Memory.Work.ManTurret>
-
-    <!-- Significant Job Labels - WorkSessionAggregator.cs -->
-    <RimMind.Memory.Work.AttackMelee>Combat</RimMind.Memory.Work.AttackMelee>
-    <RimMind.Memory.Work.AttackStatic>Combat</RimMind.Memory.Work.AttackStatic>
-    <RimMind.Memory.Work.Rescue>Rescuing</RimMind.Memory.Work.Rescue>
-    <RimMind.Memory.Work.TendPatient>Tending Patient</RimMind.Memory.Work.TendPatient>
-    <RimMind.Memory.Work.FeedPatient>Feeding Patient</RimMind.Memory.Work.FeedPatient>
-    <RimMind.Memory.Work.DeliverFood>Delivering Food</RimMind.Memory.Work.DeliverFood>
-    <RimMind.Memory.Work.Slaughter>Slaughtering</RimMind.Memory.Work.Slaughter>
-    <RimMind.Memory.Work.Tame>Taming</RimMind.Memory.Work.Tame>
-    <RimMind.Memory.Work.Train>Training</RimMind.Memory.Work.Train>
-    <RimMind.Memory.Work.Milk>Milking</RimMind.Memory.Work.Milk>
-    <RimMind.Memory.Work.Shear>Shearing</RimMind.Memory.Work.Shear>
-    <RimMind.Memory.Work.PrisonerAttemptRecruit>Recruiting Prisoner</RimMind.Memory.Work.PrisonerAttemptRecruit>
-
-    <!-- DarkMemoryUpdater.cs - Prompt -->
-    <RimMind.Memory.Prompt.PawnTodayMemory>{0}'s memories today:</RimMind.Memory.Prompt.PawnTodayMemory>
-    <RimMind.Memory.Prompt.ExistingImpression>Existing long-term impressions (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingImpression>
-    <RimMind.Memory.Prompt.MergeInstruction>Merge today's memories into existing impressions, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeInstruction>
-    <RimMind.Memory.Prompt.JsonTemplate>{{"dark":["...","..."]}}</RimMind.Memory.Prompt.JsonTemplate>
-    <RimMind.Memory.Prompt.DarkMemorySystem>You are a RimWorld colony memory summarizer. Merge daily memories into long-term impressions, keep concise. Output JSON only.</RimMind.Memory.Prompt.DarkMemorySystem>
-    <RimMind.Memory.Prompt.ColonyTodayEvents>Colony events today:</RimMind.Memory.Prompt.ColonyTodayEvents>
-    <RimMind.Memory.Prompt.ExistingNarrative>Existing long-term narratives (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingNarrative>
-    <RimMind.Memory.Prompt.MergeNarrativeInstruction>Merge today's events into existing narratives, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeNarrativeInstruction>
-    <RimMind.Memory.Prompt.DarkNarrativeSystem>You are a RimWorld colony narrative summarizer. Merge daily events into long-term narratives, keep concise. Output JSON only.</RimMind.Memory.Prompt.DarkNarrativeSystem>
-
-    <!-- Five-section System Prompt - Pawn Dark Memory -->
-    <RimMind.Memory.Prompt.System.Role>[Role] You are a RimWorld colony memory summarizer, responsible for merging colonist daily memories into long-term impressions.</RimMind.Memory.Prompt.System.Role>
-    <RimMind.Memory.Prompt.System.Goal>[Goal] Merge today's memories into existing long-term impressions, keeping them concise yet informative.</RimMind.Memory.Prompt.System.Goal>
-    <RimMind.Memory.Prompt.System.Process>[Process]\n1. Read all memories from today\n2. Read existing long-term impressions\n3. Merge key information from today's memories into existing impressions (update/merge/add)\n4. Remove least relevant old impressions to maintain count limit\n5. Ensure each impression includes temporal or situational context</RimMind.Memory.Prompt.System.Process>
-    <RimMind.Memory.Prompt.System.Constraint>[Constraint]\n- Maintain the specified count, no more no less\n- Each entry ≤50 chars\n- Prioritize high-importance memories\n- Merge similar-themed impressions\n- Each entry should include temporal/situational context words</RimMind.Memory.Prompt.System.Constraint>
-    <RimMind.Memory.Prompt.System.Example>[Example]\nInput: Today's memories=["mining 6h","injured by pirate raid","chatting with Alex"], Existing impressions=["skilled miner","good relation with Alex"]\nOutput: {{"dark":["Veteran miner, frequently mines for long hours","Injured in pirate raid last month, stays alert for raids","Close relationship with Alex, often chats"]}}</RimMind.Memory.Prompt.System.Example>
-    <RimMind.Memory.Prompt.System.Output>[Output] Only return the following JSON format:\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.System.Output>
-    <RimMind.Memory.Prompt.System.Fallback>[Fallback] If unable to merge, return existing impressions unchanged.</RimMind.Memory.Prompt.System.Fallback>
-
-    <!-- Five-section System Prompt - Narrator Dark Memory -->
-    <RimMind.Memory.Prompt.NarratorSystem.Role>[Role] You are a RimWorld colony narrative summarizer, responsible for merging daily events into long-term narratives.</RimMind.Memory.Prompt.NarratorSystem.Role>
-    <RimMind.Memory.Prompt.NarratorSystem.Goal>[Goal] Merge today's events into existing long-term narratives, keeping them concise yet informative.</RimMind.Memory.Prompt.NarratorSystem.Goal>
-    <RimMind.Memory.Prompt.NarratorSystem.Process>[Process]\n1. Read all colony events from today\n2. Read existing long-term narratives\n3. Merge key information from today's events into existing narratives\n4. Remove least relevant old narratives to maintain count limit\n5. Ensure each narrative includes temporal or situational context</RimMind.Memory.Prompt.NarratorSystem.Process>
-    <RimMind.Memory.Prompt.NarratorSystem.Constraint>[Constraint]\n- Maintain the specified count, no more no less\n- Each entry ≤50 chars\n- Prioritize high-importance events\n- Merge similar-themed narratives\n- Each entry should include temporal/situational context words</RimMind.Memory.Prompt.NarratorSystem.Constraint>
-    <RimMind.Memory.Prompt.NarratorSystem.Example>[Example]\nInput: Today's events=["pirate raid","trader visit","new colonist joined"], Existing narratives=["colony just established"]\nOutput: {{"dark":["Colony experienced pirate raid in early days","Trader visited, established trade connections","New colonist joined recently, growing the team"]}}</RimMind.Memory.Prompt.NarratorSystem.Example>
-    <RimMind.Memory.Prompt.NarratorSystem.Output>[Output] Only return the following JSON format:\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.NarratorSystem.Output>
-    <RimMind.Memory.Prompt.NarratorSystem.Fallback>[Fallback] If unable to merge, return existing narratives unchanged.</RimMind.Memory.Prompt.NarratorSystem.Fallback>
-
-    <!-- MemoryContextProvider.cs - Context -->
-    <RimMind.Memory.Context.RecentMemory>[{0} Recent Memories]</RimMind.Memory.Context.RecentMemory>
-    <RimMind.Memory.Context.ArchiveMemory>[{0} Archived Memories (by importance)]</RimMind.Memory.Context.ArchiveMemory>
-    <RimMind.Memory.Context.DarkMemory>\n[{0} Long-term Impressions (AI-generated)]</RimMind.Memory.Context.DarkMemory>
-    <RimMind.Memory.Context.NarratorMemory>[Colony Narrative Memories]</RimMind.Memory.Context.NarratorMemory>
-    <RimMind.Memory.Context.NarratorArchive>[Archived Narratives (by importance)]</RimMind.Memory.Context.NarratorArchive>
-    <RimMind.Memory.Context.NarratorDark>\n[Long-term Narratives (AI-generated)]</RimMind.Memory.Context.NarratorDark>
-    <RimMind.Memory.Context.Map>[Map]</RimMind.Memory.Context.Map>
-    <RimMind.Memory.Context.FromFaction>({0} from {1})</RimMind.Memory.Context.FromFaction>
-
-    <!-- RimMindMemoryMod.cs - Settings UI -->
-    <RimMind.Memory.Settings.TabLabel>Memory</RimMind.Memory.Settings.TabLabel>
-    <RimMind.Memory.Settings.EnableMemory>Enable Memory System</RimMind.Memory.Settings.EnableMemory>
-    <RimMind.Memory.Settings.EnableMemory.Desc>When enabled, colonists automatically record game events as personal memories.</RimMind.Memory.Settings.EnableMemory.Desc>
-    <RimMind.Memory.Settings.TriggerSources>Trigger Sources</RimMind.Memory.Settings.TriggerSources>
-    <RimMind.Memory.Settings.TriggerWorkSession>Work Session End</RimMind.Memory.Settings.TriggerWorkSession>
-    <RimMind.Memory.Settings.TriggerWorkSession.Desc>Automatically record work content as memory when a work session ends.</RimMind.Memory.Settings.TriggerWorkSession.Desc>
-    <RimMind.Memory.Settings.TriggerInjury>Injury / Illness</RimMind.Memory.Settings.TriggerInjury>
-    <RimMind.Memory.Settings.TriggerInjury.Desc>Automatically record as memory when a colonist is injured or falls ill.</RimMind.Memory.Settings.TriggerInjury.Desc>
-    <RimMind.Memory.Settings.TriggerMentalBreak>Mental Break</RimMind.Memory.Settings.TriggerMentalBreak>
-    <RimMind.Memory.Settings.TriggerMentalBreak.Desc>Automatically record as memory when a colonist has a mental break.</RimMind.Memory.Settings.TriggerMentalBreak.Desc>
-    <RimMind.Memory.Settings.TriggerDeath>Close One Died</RimMind.Memory.Settings.TriggerDeath>
-    <RimMind.Memory.Settings.TriggerDeath.Desc>Automatically record as memory when a colonist's friend or family member dies.</RimMind.Memory.Settings.TriggerDeath.Desc>
-    <RimMind.Memory.Settings.TriggerSkillLevelUp>Skill Level Up</RimMind.Memory.Settings.TriggerSkillLevelUp>
-    <RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>Automatically record as memory when a colonist levels up a skill.</RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>
-    <RimMind.Memory.Settings.TriggerRelation>Relationship Change</RimMind.Memory.Settings.TriggerRelation>
-    <RimMind.Memory.Settings.TriggerRelation.Desc>Automatically record as memory when a colonist establishes or changes a relationship.</RimMind.Memory.Settings.TriggerRelation.Desc>
-    <RimMind.Memory.Settings.PawnCapacity>Pawn Memory Capacity</RimMind.Memory.Settings.PawnCapacity>
-    <RimMind.Memory.Settings.MaxActive>Active Memory Limit: {0}</RimMind.Memory.Settings.MaxActive>
-    <RimMind.Memory.Settings.MaxActive.Desc>Active memories are recent, high-importance memories injected into AI context.</RimMind.Memory.Settings.MaxActive.Desc>
-    <RimMind.Memory.Settings.MaxArchive>Archive Memory Limit: {0}</RimMind.Memory.Settings.MaxArchive>
-    <RimMind.Memory.Settings.MaxArchive.Desc>Archive memories are older memories with reduced importance, injected proportionally.</RimMind.Memory.Settings.MaxArchive.Desc>
-    <RimMind.Memory.Settings.DarkCount>Dark Memory Count: {0}</RimMind.Memory.Settings.DarkCount>
-    <RimMind.Memory.Settings.DarkCount.Desc>Dark memories are AI-compressed long-term impressions, each no more than 50 characters.</RimMind.Memory.Settings.DarkCount.Desc>
-    <RimMind.Memory.Settings.NarratorCapacity>Narrator Memory Capacity</RimMind.Memory.Settings.NarratorCapacity>
-    <RimMind.Memory.Settings.NarratorMaxActive>Active Narrative Limit: {0}</RimMind.Memory.Settings.NarratorMaxActive>
-    <RimMind.Memory.Settings.NarratorMaxActive.Desc>Maximum active event records for the narrator.</RimMind.Memory.Settings.NarratorMaxActive.Desc>
-    <RimMind.Memory.Settings.NarratorMaxArchive>Archive Narrative Limit: {0}</RimMind.Memory.Settings.NarratorMaxArchive>
-    <RimMind.Memory.Settings.NarratorMaxArchive.Desc>Maximum archived event records for the narrator.</RimMind.Memory.Settings.NarratorMaxArchive.Desc>
-    <RimMind.Memory.Settings.NarratorDarkCount>Dark Narrative Count: {0}</RimMind.Memory.Settings.NarratorDarkCount>
-    <RimMind.Memory.Settings.NarratorDarkCount.Desc>Number of AI-compressed long-term narratives for the narrator.</RimMind.Memory.Settings.NarratorDarkCount.Desc>
-    <RimMind.Memory.Settings.InjectRatio>Injection Ratios</RimMind.Memory.Settings.InjectRatio>
-    <RimMind.Memory.Settings.ActiveInjectRatio>Active Injection Ratio: {0}</RimMind.Memory.Settings.ActiveInjectRatio>
-    <RimMind.Memory.Settings.ActiveInjectRatio.Desc>Ratio of active memories injected into AI context. 1.0 = all, 0.5 = half.</RimMind.Memory.Settings.ActiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.ArchiveInjectRatio>Archive Injection Ratio: {0}</RimMind.Memory.Settings.ArchiveInjectRatio>
-    <RimMind.Memory.Settings.ArchiveInjectRatio.Desc>Ratio of archive memories injected into AI context. Lower values save tokens when archive is large.</RimMind.Memory.Settings.ArchiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.NarratorActiveInjectRatio>Narrator Active Injection Ratio: {0}</RimMind.Memory.Settings.NarratorActiveInjectRatio>
-    <RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>Ratio of active narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.NarratorArchiveInjectRatio>Narrator Archive Injection Ratio: {0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
-    <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>Ratio of archived narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.Section.Decay>Memory Decay</RimMind.Memory.Settings.Section.Decay>
-    <RimMind.Memory.Settings.Section.Request>Request Settings</RimMind.Memory.Settings.Section.Request>
-    <RimMind.Memory.Settings.RequestExpire>Request expiry: {0} game days</RimMind.Memory.Settings.RequestExpire>
-    <RimMind.Memory.Settings.RequestExpire.Desc>Dark memory generation requests that don't receive a response within this time are automatically cancelled.</RimMind.Memory.Settings.RequestExpire.Desc>
-    <RimMind.Memory.Settings.EnableDecay>Enable Importance Decay</RimMind.Memory.Settings.EnableDecay>
-    <RimMind.Memory.Settings.EnableDecay.Desc>When enabled, memory importance decreases over time and memories below the threshold are auto-archived.</RimMind.Memory.Settings.EnableDecay.Desc>
-    <RimMind.Memory.Settings.DecayRate>Decay Rate: {0}%/day</RimMind.Memory.Settings.DecayRate>
-    <RimMind.Memory.Settings.DecayRate.Desc>Percentage of importance reduction per game day. Higher values mean faster archiving.</RimMind.Memory.Settings.DecayRate.Desc>
-    <RimMind.Memory.Settings.MinThreshold>Minimum Threshold: {0}</RimMind.Memory.Settings.MinThreshold>
-    <RimMind.Memory.Settings.MinThreshold.Desc>Memories with importance below this threshold are automatically archived.</RimMind.Memory.Settings.MinThreshold.Desc>
-    <RimMind.Memory.Settings.Section.Aggregation>Work Session Aggregation</RimMind.Memory.Settings.Section.Aggregation>
-    <RimMind.Memory.Settings.MinAggregationCount>Min Aggregation Count: {0}</RimMind.Memory.Settings.MinAggregationCount>
-    <RimMind.Memory.Settings.MinAggregationCount.Desc>Minimum number of same-type jobs before aggregating into a single memory. Lower values record more granularly.</RimMind.Memory.Settings.MinAggregationCount.Desc>
-    <RimMind.Memory.Settings.IdleGapThreshold>Idle Gap Threshold: {0} game hours</RimMind.Memory.Settings.IdleGapThreshold>
-    <RimMind.Memory.Settings.IdleGapThreshold.Desc>Gaps between meaningful jobs exceeding this duration are recorded as idle time.</RimMind.Memory.Settings.IdleGapThreshold.Desc>
-    <RimMind.Memory.Settings.CollectionControl>Collection Control</RimMind.Memory.Settings.CollectionControl>
-    <RimMind.Memory.Settings.NarratorEventThreshold>Narrator Event Threshold: {0}</RimMind.Memory.Settings.NarratorEventThreshold>
-    <RimMind.Memory.Settings.NarratorEventThreshold.Desc>Events must reach this importance threshold to be recorded by the narrator.</RimMind.Memory.Settings.NarratorEventThreshold.Desc>
-    <RimMind.Memory.Settings.PawnToNarratorThreshold>Pawn→Narrator Threshold: {0}</RimMind.Memory.Settings.PawnToNarratorThreshold>
-    <RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>Pawn memories must reach this importance threshold to be synced to the narrator.</RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>
-    <RimMind.Memory.Settings.NarratorMemoryReadonly>Narrator Memory (Read-only):</RimMind.Memory.Settings.NarratorMemoryReadonly>
-    <RimMind.Memory.Settings.NeedLoadGame>  Load a game to view</RimMind.Memory.Settings.NeedLoadGame>
-    <RimMind.Memory.Settings.LongTermNarrative>  Long-term Narratives (AI-generated):</RimMind.Memory.Settings.LongTermNarrative>
-    <RimMind.Memory.Settings.ActiveNarrative>  Active Narratives ({0}/{1}):</RimMind.Memory.Settings.ActiveNarrative>
-    <RimMind.Memory.Settings.ArchiveNarrativeCount>  Archive Narratives: {0} entries</RimMind.Memory.Settings.ArchiveNarrativeCount>
-
-    <!-- Patch_AddHediff.cs - Trigger -->
-    <RimMind.Memory.Trigger.FullBody>Whole Body</RimMind.Memory.Trigger.FullBody>
-    <RimMind.Memory.Trigger.UnknownSource>Unknown Source</RimMind.Memory.Trigger.UnknownSource>
-    <RimMind.Memory.Trigger.AttackedBy>Attacked by {0}, causing {1} ({2})</RimMind.Memory.Trigger.AttackedBy>
-    <RimMind.Memory.Trigger.Contracted>Contracted {0} ({1})</RimMind.Memory.Trigger.Contracted>
-
-    <!-- Patch_PawnKill.cs - Trigger -->
-    <RimMind.Memory.Trigger.Unknown>Unknown</RimMind.Memory.Trigger.Unknown>
-    <RimMind.Memory.Trigger.RelationDeath>{0}{1} died</RimMind.Memory.Trigger.RelationDeath>
-    <RimMind.Memory.Trigger.Death>{0} died</RimMind.Memory.Trigger.Death>
-    <RimMind.Memory.Trigger.ColonistDeath>Colonist {0} died</RimMind.Memory.Trigger.ColonistDeath>
-    <RimMind.Memory.Trigger.KilledBy>(killed by {0})</RimMind.Memory.Trigger.KilledBy>
-
-    <!-- Patch_SkillLevelUp.cs - Trigger -->
-    <RimMind.Memory.Trigger.Skill>Skill</RimMind.Memory.Trigger.Skill>
-    <RimMind.Memory.Trigger.SkillUp>{0} skill increased to level {1} ({2}→{3})</RimMind.Memory.Trigger.SkillUp>
-
-    <!-- Patch_MentalBreak.cs - Trigger -->
-    <RimMind.Memory.Trigger.MentalBreak>{0} had a mental break: {1}</RimMind.Memory.Trigger.MentalBreak>
-
-    <!-- Patch_AddRelation.cs - Trigger -->
-    <RimMind.Memory.Trigger.EstablishRelation>Established {1} relationship with {0}</RimMind.Memory.Trigger.EstablishRelation>
-
-    <!-- BioTabMemoryPatch.cs - UI -->
-    <RimMind.Memory.UI.MemoryTab>Memory</RimMind.Memory.UI.MemoryTab>
-    <RimMind.Memory.UI.MemorySummary>Active {0} / Archived {1} / Dark {2}</RimMind.Memory.UI.MemorySummary>
-    <RimMind.Memory.UI.NoMemory>No memory records</RimMind.Memory.UI.NoMemory>
-
-    <!-- Dialog_MemoryLog.cs - UI -->
-    <RimMind.Memory.UI.MemoryLogTitle>{0}'s Memories</RimMind.Memory.UI.MemoryLogTitle>
-    <RimMind.Memory.UI.AddMemoryManually>Add Memory Manually</RimMind.Memory.UI.AddMemoryManually>
-    <RimMind.Memory.UI.DarkMemoryReadonly>Long-term Impressions (Read-only, AI-generated)</RimMind.Memory.UI.DarkMemoryReadonly>
-    <RimMind.Memory.UI.ActiveMemory>Active Memories ({0}/{1})</RimMind.Memory.UI.ActiveMemory>
-    <RimMind.Memory.UI.ArchiveMemoryUI>Archived Memories ({0}/{1})</RimMind.Memory.UI.ArchiveMemoryUI>
-    <RimMind.Memory.UI.InputMemoryContent>Enter memory content:</RimMind.Memory.UI.InputMemoryContent>
-    <RimMind.Memory.UI.Add>Add</RimMind.Memory.UI.Add>
-    <RimMind.Memory.UI.Cancel>Cancel</RimMind.Memory.UI.Cancel>
-    <RimMind.Memory.UI.MemoryAdded>[RimMind] Memory added for {0}</RimMind.Memory.UI.MemoryAdded>
-
-    <!-- NarratorSettingsTab.cs - UI -->
-    <RimMind.Memory.UI.NotInitialized>Memory system not initialized (load a game first)</RimMind.Memory.UI.NotInitialized>
-    <RimMind.Memory.UI.NarratorMemory>Colony Narrator Memory</RimMind.Memory.UI.NarratorMemory>
-    <RimMind.Memory.UI.LongTermNarrative>Long-term Narratives (Read-only, AI-generated):</RimMind.Memory.UI.LongTermNarrative>
-    <RimMind.Memory.UI.ActiveNarrative>Active Narratives ({0}/{1})</RimMind.Memory.UI.ActiveNarrative>
-    <RimMind.Memory.UI.ClearAll>Clear All</RimMind.Memory.UI.ClearAll>
+  <!-- TimeFormatter.cs -->
+  <RimMind.Memory.Time.JustNow>Just now</RimMind.Memory.Time.JustNow>
+  <RimMind.Memory.Time.HoursAgo>About {0}h ago</RimMind.Memory.Time.HoursAgo>
+  <RimMind.Memory.Time.Today>Today</RimMind.Memory.Time.Today>
+  <RimMind.Memory.Time.DaysAgo>{0} days ago</RimMind.Memory.Time.DaysAgo>
+  <RimMind.Memory.Time.GameDate>Day {0} {1}:00</RimMind.Memory.Time.GameDate>
+  <RimMind.Memory.Time.TimeContent>{0}: {1}</RimMind.Memory.Time.TimeContent>
+  <!-- WorkSessionAggregator.cs -->
+  <RimMind.Memory.Work.Session>{0} x{1}  ~{2} game hours</RimMind.Memory.Work.Session>
+  <RimMind.Memory.Work.Idle>Idle/Standby ~{0} game hours</RimMind.Memory.Work.Idle>
+  <!-- Work Labels - WorkSessionAggregator.cs -->
+  <RimMind.Memory.Work.Sow>Sowing</RimMind.Memory.Work.Sow>
+  <RimMind.Memory.Work.PlantSeed>Sowing</RimMind.Memory.Work.PlantSeed>
+  <RimMind.Memory.Work.Replant>Replanting</RimMind.Memory.Work.Replant>
+  <RimMind.Memory.Work.Harvest>Harvesting</RimMind.Memory.Work.Harvest>
+  <RimMind.Memory.Work.HarvestDesignated>Harvesting</RimMind.Memory.Work.HarvestDesignated>
+  <RimMind.Memory.Work.CutPlant>Chopping</RimMind.Memory.Work.CutPlant>
+  <RimMind.Memory.Work.CutPlantDesignated>Chopping</RimMind.Memory.Work.CutPlantDesignated>
+  <RimMind.Memory.Work.FinishFrame>Building</RimMind.Memory.Work.FinishFrame>
+  <RimMind.Memory.Work.PlaceNoCostFrame>Building</RimMind.Memory.Work.PlaceNoCostFrame>
+  <RimMind.Memory.Work.Deconstruct>Deconstructing</RimMind.Memory.Work.Deconstruct>
+  <RimMind.Memory.Work.Uninstall>Uninstalling</RimMind.Memory.Work.Uninstall>
+  <RimMind.Memory.Work.Repair>Repairing</RimMind.Memory.Work.Repair>
+  <RimMind.Memory.Work.FixBrokenDownBuilding>Repairing</RimMind.Memory.Work.FixBrokenDownBuilding>
+  <RimMind.Memory.Work.Mine>Mining</RimMind.Memory.Work.Mine>
+  <RimMind.Memory.Work.Clean>Cleaning</RimMind.Memory.Work.Clean>
+  <RimMind.Memory.Work.HaulToCell>Hauling</RimMind.Memory.Work.HaulToCell>
+  <RimMind.Memory.Work.HaulToContainer>Hauling</RimMind.Memory.Work.HaulToContainer>
+  <RimMind.Memory.Work.HaulToTransporter>Hauling</RimMind.Memory.Work.HaulToTransporter>
+  <RimMind.Memory.Work.HaulToPortal>Hauling</RimMind.Memory.Work.HaulToPortal>
+  <RimMind.Memory.Work.HaulCorpseToPublicPlace>Hauling</RimMind.Memory.Work.HaulCorpseToPublicPlace>
+  <RimMind.Memory.Work.DoBill>Crafting</RimMind.Memory.Work.DoBill>
+  <RimMind.Memory.Work.Research>Researching</RimMind.Memory.Work.Research>
+  <RimMind.Memory.Work.Hunt>Hunting</RimMind.Memory.Work.Hunt>
+  <RimMind.Memory.Work.BeatFire>Firefighting</RimMind.Memory.Work.BeatFire>
+  <RimMind.Memory.Work.ExtinguishSelf>Firefighting</RimMind.Memory.Work.ExtinguishSelf>
+  <RimMind.Memory.Work.SmoothFloor>Refining</RimMind.Memory.Work.SmoothFloor>
+  <RimMind.Memory.Work.RemoveFloor>Refining</RimMind.Memory.Work.RemoveFloor>
+  <RimMind.Memory.Work.SmoothWall>Refining</RimMind.Memory.Work.SmoothWall>
+  <RimMind.Memory.Work.BuildRoof>Building Roof</RimMind.Memory.Work.BuildRoof>
+  <RimMind.Memory.Work.RemoveRoof>Removing Roof</RimMind.Memory.Work.RemoveRoof>
+  <RimMind.Memory.Work.PaintBuilding>Painting</RimMind.Memory.Work.PaintBuilding>
+  <RimMind.Memory.Work.PaintFloor>Painting</RimMind.Memory.Work.PaintFloor>
+  <RimMind.Memory.Work.RemovePaintBuilding>Removing Paint</RimMind.Memory.Work.RemovePaintBuilding>
+  <RimMind.Memory.Work.RemovePaintFloor>Removing Paint</RimMind.Memory.Work.RemovePaintFloor>
+  <RimMind.Memory.Work.OperateDeepDrill>Deep Drilling</RimMind.Memory.Work.OperateDeepDrill>
+  <RimMind.Memory.Work.OperateScanner>Scanning</RimMind.Memory.Work.OperateScanner>
+  <RimMind.Memory.Work.ExtractTree>Logging</RimMind.Memory.Work.ExtractTree>
+  <RimMind.Memory.Work.Refuel>Refueling</RimMind.Memory.Work.Refuel>
+  <RimMind.Memory.Work.RearmTurret>Rearming</RimMind.Memory.Work.RearmTurret>
+  <RimMind.Memory.Work.ClearSnow>Clearing Snow</RimMind.Memory.Work.ClearSnow>
+  <RimMind.Memory.Work.ManTurret>Manning Turret</RimMind.Memory.Work.ManTurret>
+  <!-- Significant Job Labels - WorkSessionAggregator.cs -->
+  <RimMind.Memory.Work.AttackMelee>Combat</RimMind.Memory.Work.AttackMelee>
+  <RimMind.Memory.Work.AttackStatic>Combat</RimMind.Memory.Work.AttackStatic>
+  <RimMind.Memory.Work.Rescue>Rescuing</RimMind.Memory.Work.Rescue>
+  <RimMind.Memory.Work.TendPatient>Tending Patient</RimMind.Memory.Work.TendPatient>
+  <RimMind.Memory.Work.FeedPatient>Feeding Patient</RimMind.Memory.Work.FeedPatient>
+  <RimMind.Memory.Work.DeliverFood>Delivering Food</RimMind.Memory.Work.DeliverFood>
+  <RimMind.Memory.Work.Slaughter>Slaughtering</RimMind.Memory.Work.Slaughter>
+  <RimMind.Memory.Work.Tame>Taming</RimMind.Memory.Work.Tame>
+  <RimMind.Memory.Work.Train>Training</RimMind.Memory.Work.Train>
+  <RimMind.Memory.Work.Milk>Milking</RimMind.Memory.Work.Milk>
+  <RimMind.Memory.Work.Shear>Shearing</RimMind.Memory.Work.Shear>
+  <RimMind.Memory.Work.PrisonerAttemptRecruit>Recruiting Prisoner</RimMind.Memory.Work.PrisonerAttemptRecruit>
+  <!-- DarkMemoryUpdater.cs - Prompt -->
+  <RimMind.Memory.Prompt.PawnTodayMemory>{0}'s memories today:</RimMind.Memory.Prompt.PawnTodayMemory>
+  <RimMind.Memory.Prompt.ExistingImpression>Existing long-term impressions (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingImpression>
+  <RimMind.Memory.Prompt.MergeInstruction>Merge today's memories into existing impressions, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeInstruction>
+  <RimMind.Memory.Prompt.JsonTemplate>{{"dark":["...","..."]}}</RimMind.Memory.Prompt.JsonTemplate>
+  <RimMind.Memory.Prompt.ColonyTodayEvents>Colony events today:</RimMind.Memory.Prompt.ColonyTodayEvents>
+  <RimMind.Memory.Prompt.ExistingNarrative>Existing long-term narratives (each ≤50 chars, evolvable):</RimMind.Memory.Prompt.ExistingNarrative>
+  <RimMind.Memory.Prompt.MergeNarrativeInstruction>Merge today's events into existing narratives, output JSON (keep {0} entries, each ≤50 chars):</RimMind.Memory.Prompt.MergeNarrativeInstruction>
+  <!-- MemoryContextProvider.cs - Context -->
+  <RimMind.Memory.Context.RecentMemory>[{0} Recent Memories]</RimMind.Memory.Context.RecentMemory>
+  <RimMind.Memory.Context.ArchiveMemory>[{0} Archived Memories (by importance)]</RimMind.Memory.Context.ArchiveMemory>
+  <RimMind.Memory.Context.DarkMemory>\n[{0} Long-term Impressions (AI-generated)]</RimMind.Memory.Context.DarkMemory>
+  <RimMind.Memory.Context.NarratorMemory>[Colony Narrative Memories]</RimMind.Memory.Context.NarratorMemory>
+  <RimMind.Memory.Context.NarratorArchive>[Archived Narratives (by importance)]</RimMind.Memory.Context.NarratorArchive>
+  <RimMind.Memory.Context.NarratorDark>\n[Long-term Narratives (AI-generated)]</RimMind.Memory.Context.NarratorDark>
+  <RimMind.Memory.Context.Map>[Map]</RimMind.Memory.Context.Map>
+  <RimMind.Memory.Context.FromFaction>({0} from {1})</RimMind.Memory.Context.FromFaction>
+  <RimMind.Memory.Context.WorkingMemory>[Working Memory - {0}]</RimMind.Memory.Context.WorkingMemory>
+  <!-- RimMindMemoryMod.cs - Settings UI -->
+  <RimMind.Memory.Settings.TabLabel>Memory</RimMind.Memory.Settings.TabLabel>
+  <RimMind.Memory.Settings.EnableMemory>Enable Memory System</RimMind.Memory.Settings.EnableMemory>
+  <RimMind.Memory.Settings.EnableMemory.Desc>When enabled, colonists automatically record game events as personal memories.</RimMind.Memory.Settings.EnableMemory.Desc>
+  <RimMind.Memory.Settings.TriggerSources>Trigger Sources</RimMind.Memory.Settings.TriggerSources>
+  <RimMind.Memory.Settings.TriggerWorkSession>Work Session End</RimMind.Memory.Settings.TriggerWorkSession>
+  <RimMind.Memory.Settings.TriggerWorkSession.Desc>Automatically record work content as memory when a work session ends.</RimMind.Memory.Settings.TriggerWorkSession.Desc>
+  <RimMind.Memory.Settings.TriggerInjury>Injury / Illness</RimMind.Memory.Settings.TriggerInjury>
+  <RimMind.Memory.Settings.TriggerInjury.Desc>Automatically record as memory when a colonist is injured or falls ill.</RimMind.Memory.Settings.TriggerInjury.Desc>
+  <RimMind.Memory.Settings.TriggerMentalBreak>Mental Break</RimMind.Memory.Settings.TriggerMentalBreak>
+  <RimMind.Memory.Settings.TriggerMentalBreak.Desc>Automatically record as memory when a colonist has a mental break.</RimMind.Memory.Settings.TriggerMentalBreak.Desc>
+  <RimMind.Memory.Settings.TriggerDeath>Close One Died</RimMind.Memory.Settings.TriggerDeath>
+  <RimMind.Memory.Settings.TriggerDeath.Desc>Automatically record as memory when a colonist's friend or family member dies.</RimMind.Memory.Settings.TriggerDeath.Desc>
+  <RimMind.Memory.Settings.TriggerSkillLevelUp>Skill Level Up</RimMind.Memory.Settings.TriggerSkillLevelUp>
+  <RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>Automatically record as memory when a colonist levels up a skill.</RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>
+  <RimMind.Memory.Settings.TriggerRelation>Relationship Change</RimMind.Memory.Settings.TriggerRelation>
+  <RimMind.Memory.Settings.TriggerRelation.Desc>Automatically record as memory when a colonist establishes or changes a relationship.</RimMind.Memory.Settings.TriggerRelation.Desc>
+  <RimMind.Memory.Settings.PawnCapacity>Pawn Memory Capacity</RimMind.Memory.Settings.PawnCapacity>
+  <RimMind.Memory.Settings.MaxActive>Active Memory Limit: {0}</RimMind.Memory.Settings.MaxActive>
+  <RimMind.Memory.Settings.MaxActive.Desc>Active memories are recent, high-importance memories injected into AI context.</RimMind.Memory.Settings.MaxActive.Desc>
+  <RimMind.Memory.Settings.MaxArchive>Archive Memory Limit: {0}</RimMind.Memory.Settings.MaxArchive>
+  <RimMind.Memory.Settings.MaxArchive.Desc>Archive memories are older memories with reduced importance, injected proportionally.</RimMind.Memory.Settings.MaxArchive.Desc>
+  <RimMind.Memory.Settings.DarkCount>Dark Memory Count: {0}</RimMind.Memory.Settings.DarkCount>
+  <RimMind.Memory.Settings.DarkCount.Desc>Dark memories are AI-compressed long-term impressions, each no more than 50 characters.</RimMind.Memory.Settings.DarkCount.Desc>
+  <RimMind.Memory.Settings.WorkingMemoryCapacity>Working Memory Capacity: {0}</RimMind.Memory.Settings.WorkingMemoryCapacity>
+  <RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>Working memory is short-term memory of current events, injected into AI context. Larger capacity provides richer context but consumes more tokens.</RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>
+  <RimMind.Memory.Settings.NarratorCapacity>Narrator Memory Capacity</RimMind.Memory.Settings.NarratorCapacity>
+  <RimMind.Memory.Settings.NarratorMaxActive>Active Narrative Limit: {0}</RimMind.Memory.Settings.NarratorMaxActive>
+  <RimMind.Memory.Settings.NarratorMaxActive.Desc>Maximum active event records for the narrator.</RimMind.Memory.Settings.NarratorMaxActive.Desc>
+  <RimMind.Memory.Settings.NarratorMaxArchive>Archive Narrative Limit: {0}</RimMind.Memory.Settings.NarratorMaxArchive>
+  <RimMind.Memory.Settings.NarratorMaxArchive.Desc>Maximum archived event records for the narrator.</RimMind.Memory.Settings.NarratorMaxArchive.Desc>
+  <RimMind.Memory.Settings.NarratorDarkCount>Dark Narrative Count: {0}</RimMind.Memory.Settings.NarratorDarkCount>
+  <RimMind.Memory.Settings.NarratorDarkCount.Desc>Number of AI-compressed long-term narratives for the narrator.</RimMind.Memory.Settings.NarratorDarkCount.Desc>
+  <RimMind.Memory.Settings.InjectRatio>Injection Ratios</RimMind.Memory.Settings.InjectRatio>
+  <RimMind.Memory.Settings.ActiveInjectRatio>Active Injection Ratio: {0}</RimMind.Memory.Settings.ActiveInjectRatio>
+  <RimMind.Memory.Settings.ActiveInjectRatio.Desc>Ratio of active memories injected into AI context. 1.0 = all, 0.5 = half.</RimMind.Memory.Settings.ActiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.ArchiveInjectRatio>Archive Injection Ratio: {0}</RimMind.Memory.Settings.ArchiveInjectRatio>
+  <RimMind.Memory.Settings.ArchiveInjectRatio.Desc>Ratio of archive memories injected into AI context. Lower values save tokens when archive is large.</RimMind.Memory.Settings.ArchiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.NarratorActiveInjectRatio>Narrator Active Injection Ratio: {0}</RimMind.Memory.Settings.NarratorActiveInjectRatio>
+  <RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>Ratio of active narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.NarratorArchiveInjectRatio>Narrator Archive Injection Ratio: {0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
+  <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>Ratio of archived narrator narratives injected into AI context.</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.Section.Decay>Memory Decay</RimMind.Memory.Settings.Section.Decay>
+  <RimMind.Memory.Settings.EnableDecay>Enable Importance Decay</RimMind.Memory.Settings.EnableDecay>
+  <RimMind.Memory.Settings.EnableDecay.Desc>When enabled, memory importance decreases over time and memories below the threshold are auto-archived.</RimMind.Memory.Settings.EnableDecay.Desc>
+  <RimMind.Memory.Settings.DecayRate>Decay Rate: {0}%/day</RimMind.Memory.Settings.DecayRate>
+  <RimMind.Memory.Settings.DecayRate.Desc>Percentage of importance reduction per game day. Higher values mean faster archiving.</RimMind.Memory.Settings.DecayRate.Desc>
+  <RimMind.Memory.Settings.MinThreshold>Minimum Threshold: {0}</RimMind.Memory.Settings.MinThreshold>
+  <RimMind.Memory.Settings.MinThreshold.Desc>Memories with importance below this threshold are automatically archived.</RimMind.Memory.Settings.MinThreshold.Desc>
+  <RimMind.Memory.Settings.Section.Aggregation>Work Session Aggregation</RimMind.Memory.Settings.Section.Aggregation>
+  <RimMind.Memory.Settings.MinAggregationCount>Min Aggregation Count: {0}</RimMind.Memory.Settings.MinAggregationCount>
+  <RimMind.Memory.Settings.MinAggregationCount.Desc>Minimum number of same-type jobs before aggregating into a single memory. Lower values record more granularly.</RimMind.Memory.Settings.MinAggregationCount.Desc>
+  <RimMind.Memory.Settings.IdleGapThreshold>Idle Gap Threshold: {0} game hours</RimMind.Memory.Settings.IdleGapThreshold>
+  <RimMind.Memory.Settings.IdleGapThreshold.Desc>Gaps between meaningful jobs exceeding this duration are recorded as idle time.</RimMind.Memory.Settings.IdleGapThreshold.Desc>
+  <RimMind.Memory.Settings.CollectionControl>Collection Control</RimMind.Memory.Settings.CollectionControl>
+  <RimMind.Memory.Settings.NarratorEventThreshold>Narrator Event Threshold: {0}</RimMind.Memory.Settings.NarratorEventThreshold>
+  <RimMind.Memory.Settings.NarratorEventThreshold.Desc>Events must reach this importance threshold to be recorded by the narrator.</RimMind.Memory.Settings.NarratorEventThreshold.Desc>
+  <RimMind.Memory.Settings.PawnToNarratorThreshold>Pawn→Narrator Threshold: {0}</RimMind.Memory.Settings.PawnToNarratorThreshold>
+  <RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>Pawn memories must reach this importance threshold to be synced to the narrator.</RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>
+  <RimMind.Memory.Settings.NarratorMemoryReadonly>Narrator Memory (Read-only):</RimMind.Memory.Settings.NarratorMemoryReadonly>
+  <RimMind.Memory.Settings.NeedLoadGame>  Load a game to view</RimMind.Memory.Settings.NeedLoadGame>
+  <RimMind.Memory.Settings.LongTermNarrative>  Long-term Narratives (AI-generated):</RimMind.Memory.Settings.LongTermNarrative>
+  <RimMind.Memory.Settings.ActiveNarrative>  Active Narratives ({0}/{1}):</RimMind.Memory.Settings.ActiveNarrative>
+  <RimMind.Memory.Settings.ArchiveNarrativeCount>  Archive Narratives: {0} entries</RimMind.Memory.Settings.ArchiveNarrativeCount>
+  <!-- Patch_AddHediff.cs - Trigger -->
+  <RimMind.Memory.Trigger.FullBody>Whole Body</RimMind.Memory.Trigger.FullBody>
+  <RimMind.Memory.Trigger.UnknownSource>Unknown Source</RimMind.Memory.Trigger.UnknownSource>
+  <RimMind.Memory.Trigger.AttackedBy>Attacked by {0}, causing {1} ({2})</RimMind.Memory.Trigger.AttackedBy>
+  <RimMind.Memory.Trigger.Contracted>Contracted {0} ({1})</RimMind.Memory.Trigger.Contracted>
+  <!-- Patch_PawnKill.cs - Trigger -->
+  <RimMind.Memory.Trigger.Unknown>Unknown</RimMind.Memory.Trigger.Unknown>
+  <RimMind.Memory.Trigger.RelationDeath>{0}{1} died</RimMind.Memory.Trigger.RelationDeath>
+  <RimMind.Memory.Trigger.Death>{0} died</RimMind.Memory.Trigger.Death>
+  <RimMind.Memory.Trigger.ColonistDeath>Colonist {0} died</RimMind.Memory.Trigger.ColonistDeath>
+  <RimMind.Memory.Trigger.KilledBy>(killed by {0})</RimMind.Memory.Trigger.KilledBy>
+  <!-- Patch_SkillLevelUp.cs - Trigger -->
+  <RimMind.Memory.Trigger.Skill>Skill</RimMind.Memory.Trigger.Skill>
+  <RimMind.Memory.Trigger.SkillUp>{0} skill increased to level {1} ({2}→{3})</RimMind.Memory.Trigger.SkillUp>
+  <!-- Patch_MentalBreak.cs - Trigger -->
+  <RimMind.Memory.Trigger.MentalBreak>{0} had a mental break: {1}</RimMind.Memory.Trigger.MentalBreak>
+  <!-- Patch_AddRelation.cs - Trigger -->
+  <RimMind.Memory.Trigger.EstablishRelation>Established {1} relationship with {0}</RimMind.Memory.Trigger.EstablishRelation>
+  <!-- BioTabMemoryPatch.cs - UI -->
+  <RimMind.Memory.UI.MemoryTab>Memory</RimMind.Memory.UI.MemoryTab>
+  <RimMind.Memory.UI.MemorySummary>Active {0} / Archived {1} / Dark {2}</RimMind.Memory.UI.MemorySummary>
+  <RimMind.Memory.UI.NoMemory>No memory records</RimMind.Memory.UI.NoMemory>
+  <!-- Dialog_MemoryLog.cs - UI -->
+  <RimMind.Memory.UI.MemoryLogTitle>{0}'s Memories</RimMind.Memory.UI.MemoryLogTitle>
+  <RimMind.Memory.UI.AddMemoryManually>Add Memory Manually</RimMind.Memory.UI.AddMemoryManually>
+  <RimMind.Memory.UI.DarkMemoryReadonly>Long-term Impressions (Read-only, AI-generated)</RimMind.Memory.UI.DarkMemoryReadonly>
+  <RimMind.Memory.UI.ActiveMemory>Active Memories ({0}/{1})</RimMind.Memory.UI.ActiveMemory>
+  <RimMind.Memory.UI.ArchiveMemoryUI>Archived Memories ({0}/{1})</RimMind.Memory.UI.ArchiveMemoryUI>
+  <RimMind.Memory.UI.InputMemoryContent>Enter memory content:</RimMind.Memory.UI.InputMemoryContent>
+  <RimMind.Memory.UI.Add>Add</RimMind.Memory.UI.Add>
+  <RimMind.Memory.UI.Cancel>Cancel</RimMind.Memory.UI.Cancel>
+  <RimMind.Memory.UI.MemoryAdded>[RimMind] Memory added for {0}</RimMind.Memory.UI.MemoryAdded>
 </LanguageData>

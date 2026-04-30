@@ -31,13 +31,15 @@ namespace RimMind.Memory.Triggers
                 string label = stateDef.LabelCap.RawText.NullOrEmpty() ? stateDef.defName : stateDef.LabelCap.RawText;
                 string content = "RimMind.Memory.Trigger.MentalBreak".Translate(pawn.Name.ToStringShort, label);
 
-                var store = wc.GetOrCreatePawnStore(pawn);
-                store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
+                wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Event, now, importance),
                     settings.maxActive, settings.maxArchive);
 
-                wc.NarratorStore.AddActive(
-                    MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
-                    settings.narratorMaxActive, settings.narratorMaxArchive);
+                if (importance >= settings.pawnToNarratorThreshold)
+                {
+                    wc.AddNarratorMemory(
+                        MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
+                        settings.narratorMaxActive, settings.narratorMaxArchive);
+                }
             }
             catch (System.Exception ex)
             {

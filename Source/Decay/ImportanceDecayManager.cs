@@ -11,6 +11,7 @@ namespace RimMind.Memory.Decay
             if (store == null) return;
             DecayList(store.active, decayRate);
             DecayList(store.archive, decayRate);
+            store.active.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
             store.archive.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
         }
 
@@ -19,6 +20,7 @@ namespace RimMind.Memory.Decay
             if (store == null) return;
             DecayList(store.active, decayRate);
             DecayList(store.archive, decayRate);
+            store.active.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
             store.archive.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
         }
 
