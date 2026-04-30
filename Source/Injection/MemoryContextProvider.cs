@@ -56,7 +56,7 @@ namespace RimMind.Memory.Injection
                     return Wrap(sb.ToString().TrimEnd());
                 }, "RimMind-Memory");
 
-            ContextKeyRegistry.Register("memory_narrator", ContextLayer.L1_Baseline, 0.8f,
+            ContextKeyRegistry.Register("memory_narrator", ContextLayer.L4_History, 0.6f,
                 pawn =>
                 {
                     var wc = RimMindMemoryWorldComponent.Instance;
