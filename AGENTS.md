@@ -4,7 +4,7 @@
 
 ## 项目定位
 
-监听游戏事件(工作/受伤/死亡/技能/关系/叙事者)生成MemoryEntry → PawnMemoryStore(三层存储+溢出淘汰) + NarratorMemoryStore → 工作会话聚合(连续同类合并) → 暗记忆每日AI生成(≤50字/条) → 重要度衰减(可选) → ContextKeyRegistry注入上下文。公开 `RimMindMemoryAPI.AddMemory` 供其他模组写入。
+监听游戏事件(工作/受伤/死亡/技能/关系/叙事者)生成MemoryEntry → PawnMemoryStore(三层存储+溢出淘汰) + NarratorMemoryStore → 工作会话聚合(连续同类合并) → 暗记忆每日AI生成(≤50字/条) → 重要度衰减(可选) → ContextKeyRegistry注入上下文。公开 `RimMindMemoryAPI.AddMemory` 供其他模组写入，`GetNarratorMemories` 读取叙事者记忆。
 
 依赖: Core(编译期)，其他模组通过API/反射桥接消费记忆。
 
@@ -21,23 +21,27 @@
 
 ```
 Source/
-├── RimMindMemoryMod.cs / RimMindMemoryAPI.cs   Mod入口 + 公开API(AddMemory)
+├── RimMindMemoryMod.cs / RimMindMemoryAPI.cs   Mod入口 + 公开API(AddMemory/GetNarratorMemories)
 ├── Settings/RimMindMemorySettings.cs            25项设置
 ├── Data/
-│   ├── MemoryEntry.cs                           记忆条目(MemoryType: Work/Event/Manual/Dark)
-│   ├── PawnMemoryStore.cs                       三层存储(active/archive/dark)
+│   ├── MemoryEntry.cs                           记忆条目(MemoryType: Work/Event/Manual/Dark, content≤2000字)
+│   ├── PawnMemoryStore.cs                       三层存储(active/archive/dark) + EnforceLimit
 │   ├── NarratorMemoryStore.cs                   叙事者存储(结构同)
-│   └── RimMindMemoryWorldComponent.cs           WorldComponent管理所有存储+WorkingMemory
-├── WorkingMemory/                               工作记忆缓冲区(容量可配置, 已序列化)
+│   └── RimMindMemoryWorldComponent.cs           WorldComponent管理所有存储+WorkingMemory+远端同步
+├── WorkingMemory/                               工作记忆缓冲区(容量可配置, 已序列化, UpdateCapacity)
+│   ├── WorkingMemory.cs                         滚动缓冲区(capacity可动态更新)
+│   └── WorkingMemoryEntry.cs                    工作记忆条目(content/source/relevance)
 ├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator)
 │       WorkingMemoryProvider.cs                 注册ContextKey(working_memory)
 ├── Aggregation/
-│   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化)
+│   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化, CleanupPawnJitter)
 │   └── Patch_StartJob_Memory.cs                 JobTracker Postfix
 ├── Triggers/                                    5个Patch(AddHediff/Kill/MentalBreak/SkillLevelUp/AddRelation)
 ├── Narrator/Patch_IncidentWorker.cs             叙事者事件Postfix
-├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(RimMindAPI.RequestStructured)
+├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(ScenarioIds.Memory, RimMindAPI.RequestStructured)
+│                 DarkMemoryResultParser.cs       ⚠️ 死代码(未被引用)
 ├── Decay/ImportanceDecayManager.cs              衰减管理(默认关闭)
+├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs
 ├── UI/BioTabMemoryPatch.cs + Dialog_MemoryLog.cs
 └── Debug/MemoryDebugActions.cs
 ```
@@ -61,7 +65,7 @@ Source/
 | Key | Layer | Priority | 内容 |
 |-----|-------|----------|------|
 | memory_pawn | L3_State | 0.25 | Pawn的active+archive+dark |
-| memory_narrator | L1_Baseline | 0.8 | 叙事者active+archive+dark |
+| memory_narrator | L4_History | 0.6 | 叙事者active+archive+dark |
 | working_memory | L3_State | 0.3 | Pawn工作记忆 |
 
 ## Core API 使用情况
@@ -75,12 +79,14 @@ Source/
 | RimMindAPI.RegisterModCooldown | 冷却注册 | ✅ 使用中 |
 | RimMindAPI.IsConfigured | API可用性检查 | ✅ 使用中 |
 | PromptSanitizer.Sanitize | Prompt清洗 | ✅ 使用中 |
-| StorageDriverFactory.GetDriver | 远端存储 | ✅ 使用中(仅PutAsync) |
+| StorageDriverFactory.GetDriver | 远端存储 | ✅ 使用中(SaveAll+LoadAll+PutAsync) |
+| JsonRepairHelper.TryRepairTruncatedJson | JSON修复 | ✅ 使用中 |
+| ScenarioIds.Memory | 暗记忆场景 | ✅ 使用中 |
 | AgentBus.Publish/Subscribe | 事件总线 | ❌ 未使用 |
 | RimMindAPI.PublishPerception | 感知广播 | ❌ 未使用 |
 | RimMindAPI.RegisterAgentIdentityProvider | 身份注册 | ❌ 未使用 |
 | TaskInstructionBuilder.Build | 结构化Prompt | ❌ 未使用 |
-| ScenarioIds.Memory | 暗记忆场景 | ❌ 未使用(误用Personality/Storyteller) |
+| IStorageDriver.QueryMemoriesAsync | 语义搜索 | ❌ 未使用 |
 
 ## 代码约定
 
@@ -90,6 +96,8 @@ Source/
 - 记忆写入: `wc.AddPawnMemory(pawn, MemoryEntry.Create(...), maxActive, maxArchive)`
 - 重要度≥`pawnToNarratorThreshold`(默认0.8)时同步写入 `NarratorStore`
 - 单例模式: `Instance => _instance ?? throw new InvalidOperationException(...)`
+- 暗记忆场景: `ScenarioIds.Memory`（非 Personality/Storyteller）
+- MemoryEntry.Create 自动截断 content 至 2000 字符
 
 ## 操作边界
 
@@ -99,7 +107,7 @@ Source/
 - 记忆写入用try-catch
 
 ### ⚠️ 先询问
-- 修改 `memory_narrator` Provider优先级(当前L1_Baseline 0.8)
+- 修改 `memory_narrator` Provider优先级(当前L4_History 0.6)
 - 修改容量默认值(`maxActive=30`/`maxArchive=50`)
 - 修改暗记忆生成的AI请求参数
 
