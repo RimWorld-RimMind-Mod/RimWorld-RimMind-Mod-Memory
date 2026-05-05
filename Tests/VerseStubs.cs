@@ -23,6 +23,7 @@ namespace Verse
     public static class Scribe_Collections
     {
         public static void Look<T>(ref System.Collections.Generic.List<T> list, string label, LookMode lookMode) { }
+        public static void Look<T>(ref System.Collections.Generic.List<T> list, string label) { }
         public static void Look<TKey, TValue>(ref System.Collections.Generic.Dictionary<TKey, TValue> dict, string label, LookMode keyLookMode, LookMode valueLookMode) { }
     }
 
@@ -89,7 +90,20 @@ namespace RimWorld.Planet
     public class World { }
 }
 
-public class Pawn
+namespace Verse
 {
-    public int thingIDNumber;
+    public class Pawn
+    {
+        public int thingIDNumber;
+    }
+
+    public static class Find
+    {
+        public static TickManager TickManager = new TickManager();
+    }
+
+    public class TickManager
+    {
+        public int TicksGame = 100000;
+    }
 }
