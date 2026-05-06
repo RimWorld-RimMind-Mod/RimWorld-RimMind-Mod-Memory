@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Contracts.Extension;
 using RimMind.Core;
 using RimMind.Core.UI;
 using RimMind.Memory.Core;
@@ -21,8 +22,10 @@ namespace RimMind.Memory
 
             MemoryContextProvider.Register();
             WorkingMemoryProvider.Register();
-            RimMindAPI.RegisterSettingsTab("memory", () => "RimMind.Memory.Settings.TabLabel".Translate(), DrawSettingsContent);
-            RimMindAPI.RegisterModCooldown("DarkMemory", () => 60000);
+            RimMindAPI.Extensions<ISettingsTab>().Register(new MemorySettingsTab(this));
+            RimMindAPI.Extensions<IToggleBehavior>().Register(new MemoryToggleBehavior());
+            RimMindAPI.Extensions<IModCooldown>().Register(new MemoryModCooldown());
+            RimMindAPI.Extensions<ISkipCheck>().Register(new MemoryActionSkipCheck());
             Log.Message("[RimMind-Memory] Initialized.");
         }
 

@@ -23,7 +23,7 @@ namespace RimMind.Memory.Tests
             var store = new NarratorMemoryStore();
             var entry = MakeEntry(100, 0.5f);
             store.AddIfNotExists(entry, isActive: true);
-            Assert.Equal(1, store.active.Count);
+            Assert.Single(store.active);
             Assert.Equal(entry.id, store.active[0].id);
         }
 
@@ -33,8 +33,8 @@ namespace RimMind.Memory.Tests
             var store = new NarratorMemoryStore();
             var entry = MakeEntry(100, 0.5f);
             store.AddIfNotExists(entry, isActive: false);
-            Assert.Equal(0, store.active.Count);
-            Assert.Equal(1, store.archive.Count);
+            Assert.Empty(store.active);
+            Assert.Single(store.archive);
             Assert.Equal(entry.id, store.archive[0].id);
         }
 
@@ -45,7 +45,7 @@ namespace RimMind.Memory.Tests
             var entry = MakeEntry(100, 0.5f);
             store.active.Add(entry);
             store.AddIfNotExists(entry, isActive: true);
-            Assert.Equal(1, store.active.Count);
+            Assert.Single(store.active);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace RimMind.Memory.Tests
             var entry = MakeEntry(100, 0.5f);
             store.archive.Add(entry);
             store.AddIfNotExists(entry, isActive: true);
-            Assert.Equal(0, store.active.Count);
+            Assert.Empty(store.active);
         }
 
         [Fact]

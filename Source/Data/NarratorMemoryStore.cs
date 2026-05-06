@@ -12,6 +12,12 @@ namespace RimMind.Memory.Data
 
         public void AddActive(MemoryEntry e, int maxActive, int maxArchive)
         {
+            if (active.Count >= maxActive && active.All(x => x.isPinned))
+            {
+                archive.Insert(0, e);
+                PawnMemoryStore.EnforceLimit(archive, maxArchive, dark, int.MaxValue);
+                return;
+            }
             active.Insert(0, e);
             PawnMemoryStore.EnforceLimit(active, maxActive, archive, maxArchive);
         }

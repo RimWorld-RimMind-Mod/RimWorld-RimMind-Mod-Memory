@@ -10,9 +10,29 @@ namespace RimMind.Memory.Triggers
     public static class Patch_SkillLevelUp
     {
         private static readonly Dictionary<SkillRecord, int> _previousLevels = new Dictionary<SkillRecord, int>();
+        private static int _lastCleanupTick;
+        private const int CleanupInterval = 60000;
+
+        private static void CleanupDestroyedPawns()
+        {
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (now - _lastCleanupTick < CleanupInterval) return;
+            _lastCleanupTick = now;
+
+            var keysToRemove = new List<SkillRecord>();
+            foreach (var kv in _previousLevels)
+            {
+                var pawn = Traverse.Create(kv.Key).Field("pawn").GetValue<Pawn>();
+                if (pawn == null || pawn.Destroyed)
+                    keysToRemove.Add(kv.Key);
+            }
+            foreach (var key in keysToRemove)
+                _previousLevels.Remove(key);
+        }
 
         static void Prefix(SkillRecord __instance)
         {
+            CleanupDestroyedPawns();
             _previousLevels[__instance] = __instance.Level;
         }
 

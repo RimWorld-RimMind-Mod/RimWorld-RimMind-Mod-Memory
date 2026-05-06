@@ -98,6 +98,8 @@ namespace RimMind.Memory.Data
             var snapshot = JsonConvert.DeserializeObject<MemoryStorageSnapshot>(json!);
             if (snapshot == null) return;
 
+            var settings = RimMindMemoryMod.Settings;
+
             if (snapshot.pawnStores != null)
             {
                 foreach (var kv in snapshot.pawnStores)
@@ -105,6 +107,8 @@ namespace RimMind.Memory.Data
                     var store = GetOrCreatePawnStoreById(kv.Key);
                     foreach (var entry in kv.Value)
                         store.AddIfNotExists(entry);
+                    PawnMemoryStore.EnforceLimit(store.active, settings.maxActive, store.archive, settings.maxArchive);
+                    PawnMemoryStore.EnforceLimit(store.archive, settings.maxArchive, store.dark, int.MaxValue);
                 }
             }
 
@@ -119,6 +123,9 @@ namespace RimMind.Memory.Data
             if (snapshot.narratorDark != null)
                 foreach (var entry in snapshot.narratorDark)
                     _narratorStore.AddIfNotExists(entry, isActive: false);
+
+            PawnMemoryStore.EnforceLimit(_narratorStore.active, settings.narratorMaxActive, _narratorStore.archive, settings.narratorMaxArchive);
+            PawnMemoryStore.EnforceLimit(_narratorStore.archive, settings.narratorMaxArchive, _narratorStore.dark, int.MaxValue);
         }
 
         private PawnMemoryStore GetOrCreatePawnStoreById(int thingId)
@@ -149,16 +156,6 @@ namespace RimMind.Memory.Data
         {
             var store = GetOrCreatePawnStore(pawn);
             store.AddActive(e, maxActive, maxArchive);
-            var driver = GetStorageDriver();
-            if (driver != null && driver.IsRemote)
-            {
-                var npcId = $"NPC-{pawn.thingIDNumber}";
-                Task.Run(async () =>
-                {
-                    try { await driver.PutAsync($"{npcId}:memory_{e.type}_{e.id}", e.content); }
-                    catch { }
-                });
-            }
         }
 
         public void AddNarratorMemory(MemoryEntry e, int maxActive, int maxArchive)

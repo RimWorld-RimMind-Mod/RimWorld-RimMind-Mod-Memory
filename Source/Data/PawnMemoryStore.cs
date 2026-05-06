@@ -15,6 +15,7 @@ namespace RimMind.Memory.Data
             if (active.Count >= maxActive && active.All(x => x.isPinned))
             {
                 archive.Insert(0, e);
+                EnforceLimit(archive, maxArchive, dark, int.MaxValue);
                 return;
             }
             active.Insert(0, e);

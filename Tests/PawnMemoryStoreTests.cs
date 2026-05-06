@@ -39,7 +39,7 @@ namespace RimMind.Memory.Tests
             store.AddActive(MakeEntry(300, 0.7f), maxActive: 2, maxArchive: 10);
 
             Assert.Equal(2, store.active.Count);
-            Assert.Equal(1, store.archive.Count);
+            Assert.Single(store.archive);
             Assert.Equal(100, store.archive[0].tick);
         }
 
@@ -52,8 +52,8 @@ namespace RimMind.Memory.Tests
             store.AddActive(MakeEntry(300, 0.7f, isPinned: true), maxActive: 2, maxArchive: 10);
 
             Assert.Equal(2, store.active.Count);
-            Assert.True(store.active.Any(e => e.isPinned));
-            Assert.Equal(1, store.archive.Count);
+            Assert.Contains(store.active, e => e.isPinned);
+            Assert.Single(store.archive);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace RimMind.Memory.Tests
             store.AddActive(MakeEntry(300, 0.7f), maxActive: 1, maxArchive: 2);
             store.AddActive(MakeEntry(400, 0.9f), maxActive: 1, maxArchive: 2);
 
-            Assert.Equal(1, store.active.Count);
+            Assert.Single(store.active);
             Assert.Equal(2, store.archive.Count);
             Assert.All(store.archive, e => Assert.True(e.importance >= 0.5f));
         }
@@ -140,7 +140,7 @@ namespace RimMind.Memory.Tests
             var store = new PawnMemoryStore();
             var entry = MakeEntry(100, 0.5f);
             store.AddIfNotExists(entry);
-            Assert.Equal(1, store.active.Count);
+            Assert.Single(store.active);
             Assert.True(store.ContainsId(entry.id));
         }
 
@@ -151,7 +151,7 @@ namespace RimMind.Memory.Tests
             var entry = MakeEntry(100, 0.5f);
             store.AddActive(entry, maxActive: 10, maxArchive: 10);
             store.AddIfNotExists(entry);
-            Assert.Equal(1, store.active.Count);
+            Assert.Single(store.active);
         }
 
         [Fact]

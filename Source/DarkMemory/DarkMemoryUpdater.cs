@@ -22,6 +22,8 @@ namespace RimMind.Memory.DarkMemory
         private const int JitterRange = 3000;
 
         private Dictionary<int, int> _pawnJitter = new Dictionary<int, int>();
+        private int _lastJitterCleanupTick;
+        private const int JitterCleanupInterval = 300000;
 
         public DarkMemoryUpdater(Game game)
         {
@@ -44,9 +46,27 @@ namespace RimMind.Memory.DarkMemory
             _instance?._pawnJitter.Remove(thingID);
         }
 
+        private void PruneDestroyedPawnJitter()
+        {
+            int now = Find.TickManager.TicksGame;
+            if (now - _lastJitterCleanupTick < JitterCleanupInterval) return;
+            _lastJitterCleanupTick = now;
+
+            var aliveIds = new HashSet<int>();
+            foreach (var map in Find.Maps)
+                foreach (var pawn in map.mapPawns.FreeColonists)
+                    aliveIds.Add(pawn.thingIDNumber);
+            foreach (var pawn in Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>())
+                if (pawn.IsFreeNonSlaveColonist)
+                    aliveIds.Add(pawn.thingIDNumber);
+
+            _pawnJitter.RemoveWhere(kv => !aliveIds.Contains(kv.Key));
+        }
+
         public override void GameComponentTick()
         {
             if (!RimMindMemoryMod.Settings.enableMemory) return;
+            PruneDestroyedPawnJitter();
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
 
