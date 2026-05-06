@@ -3,11 +3,11 @@
   <name>RimMind - Memory</name>
   <author>mcocdaa</author>
   <packageId>mcocdaa.RimMindMemory</packageId>
-  <modVersion>0.0.1</modVersion>
+  <modVersion>2.0.0</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description>Three-layer memory system for AI mods. Tracks colonist activities and map events, providing temporal context for AI evaluations. Features Active/Archive/Dark memory layers, work session aggregation, narrator memory, and importance decay.</description>
+  <description>Three-layer memory system for AI mods. Tracks colonist activities and map events, providing temporal context for AI evaluations. Features Active/Archive/Dark memory layers, work session aggregation, narrator memory, and importance decay. [v2.0 BREAKING CHANGES]</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>
