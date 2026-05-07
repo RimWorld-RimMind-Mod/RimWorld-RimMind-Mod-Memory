@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimMind.Core;
 using RimMind.Core.Client;
-using RimMind.Core.Context;
-using RimMind.Core.Prompt;
+using RimMind.Kernel.Context;
+using RimMind.Kernel.Prompt;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
 using Verse;
@@ -153,7 +153,7 @@ namespace RimMind.Memory.DarkMemory
                 Temperature = 0.5f,
             };
 
-            var schema = RimMind.Core.Context.SchemaRegistry.DarkMemoryOutput;
+            var schema = RimMind.Kernel.Context.SchemaRegistry.DarkMemoryOutput;
 
             RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {
@@ -196,7 +196,7 @@ namespace RimMind.Memory.DarkMemory
                 Map = Find.Maps.FirstOrDefault(),
             };
 
-            var schema = RimMind.Core.Context.SchemaRegistry.DarkMemoryOutput;
+            var schema = RimMind.Kernel.Context.SchemaRegistry.DarkMemoryOutput;
 
             RimMindAPI.RequestStructured(ctxRequest, schema, response =>
             {

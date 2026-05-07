@@ -1,7 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using RimMind.Core;
-using RimMind.Core.Context;
+using RimMind.Kernel.Context;
 using RimMind.Memory.Data;
 using Verse;
 

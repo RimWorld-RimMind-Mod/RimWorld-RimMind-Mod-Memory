@@ -1,7 +1,7 @@
 using HarmonyLib;
 using RimMind.Contracts.Extension;
 using RimMind.Core;
-using RimMind.Core.UI;
+using RimMind.Adapters.UI;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using RimMind.Memory.Injection;
