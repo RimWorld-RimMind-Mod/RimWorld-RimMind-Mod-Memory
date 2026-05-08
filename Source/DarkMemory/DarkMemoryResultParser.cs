@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RimMind.Contracts.Client;
 using RimMind.Core.Client;
 using RimMind.Memory.Data;
 

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
+using RimMind.Contracts.Context;
 using RimMind.Core;
 using RimMind.Kernel.Context;
 using RimMind.Memory.Data;
@@ -12,8 +13,10 @@ namespace RimMind.Memory.Injection
         public static void Register()
         {
             ContextKeyRegistry.Register("working_memory", ContextLayer.L3_State, 0.3f,
-                pawn =>
+                pawnObj =>
                 {
+                    var pawn = pawnObj as Pawn;
+                    if (pawn == null) return new List<ContextEntry>();
                     var wc = RimMindMemoryWorldComponent.Instance;
                     if (wc == null) return new List<ContextEntry>();
                     var wm = wc.GetWorkingMemory(pawn);

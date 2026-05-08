@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RimMind.Contracts.Context;
 using RimMind.Core;
 using RimMind.Kernel.Context;
 using RimMind.Memory.Core;
@@ -17,8 +18,9 @@ namespace RimMind.Memory.Injection
         public static void Register()
         {
             ContextKeyRegistry.Register("memory_pawn", ContextLayer.L3_State, 0.25f,
-                pawn =>
+                pawnObj =>
                 {
+                    var pawn = pawnObj as Pawn;
                     if (pawn == null) return new List<ContextEntry>();
                     var wc = RimMindMemoryWorldComponent.Instance;
                     if (wc == null) return new List<ContextEntry>();
@@ -57,7 +59,7 @@ namespace RimMind.Memory.Injection
                 }, "RimMind-Memory");
 
             ContextKeyRegistry.Register("memory_narrator", ContextLayer.L4_History, 0.6f,
-                pawn =>
+                pawnObj =>
                 {
                     var wc = RimMindMemoryWorldComponent.Instance;
                     if (wc == null) return new List<ContextEntry>();

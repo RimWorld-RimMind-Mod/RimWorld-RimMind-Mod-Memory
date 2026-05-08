@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RimMind.Contracts.Client;
 using RimMind.Core;
 using RimMind.Core.Client;
 using RimMind.Kernel.Context;
@@ -60,7 +61,8 @@ namespace RimMind.Memory.DarkMemory
                 if (pawn.IsFreeNonSlaveColonist)
                     aliveIds.Add(pawn.thingIDNumber);
 
-            _pawnJitter.RemoveWhere(kv => !aliveIds.Contains(kv.Key));
+            var keysToRemove = _pawnJitter.Keys.Where(kv => !aliveIds.Contains(kv)).ToList();
+            foreach (var key in keysToRemove) _pawnJitter.Remove(key);
         }
 
         public override void GameComponentTick()

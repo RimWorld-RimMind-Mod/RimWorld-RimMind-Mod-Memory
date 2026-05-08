@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using RimMind.Contracts.Npc;
 using RimMind.Core.Npc;
 using RimWorld.Planet;
 using Verse;
