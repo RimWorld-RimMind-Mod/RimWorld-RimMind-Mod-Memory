@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimMind.Contracts.Client;
+using RimMind.Contracts.Result;
 using RimMind.Core;
 using RimMind.Adapters.Client;
 using RimMind.Kernel.Json;
@@ -159,10 +160,10 @@ namespace RimMind.Memory.DarkMemory
 
             var schema = RimMind.Kernel.Context.SchemaRegistry.DarkMemoryOutput;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
+            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
-                if (!response.Success) return;
-                ApplyPawnDarkMemory(response.Content, store, settings.darkCount, now);
+                if (result.IsErr) return;
+                ApplyPawnDarkMemory(result.Value.Content, store, settings.darkCount, now);
             });
         }
 
@@ -202,10 +203,10 @@ namespace RimMind.Memory.DarkMemory
 
             var schema = RimMind.Kernel.Context.SchemaRegistry.DarkMemoryOutput;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, response =>
+            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
-                if (!response.Success) return;
-                ApplyNarratorDarkMemory(response.Content, store, settings.narratorDarkCount, now);
+                if (result.IsErr) return;
+                ApplyNarratorDarkMemory(result.Value.Content, store, settings.narratorDarkCount, now);
             });
         }
 
