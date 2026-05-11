@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using RimMind.Contracts.Result;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -32,7 +33,7 @@ namespace RimMind.Memory.Narrator
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_IncidentWorker error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_IncidentWorker error: {ex.Message}");
             }
         }
 

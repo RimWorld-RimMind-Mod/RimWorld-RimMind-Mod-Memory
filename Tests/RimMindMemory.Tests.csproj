@@ -29,4 +29,8 @@
     <Compile Include="../../RimMind-Core/Source/Kernel/Json/JsonRepairHelper.cs" LinkBase="Kernel/Json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../RimMind-Core/Source/Contracts/RimMindCore.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

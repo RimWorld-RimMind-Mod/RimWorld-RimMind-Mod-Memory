@@ -1,3 +1,4 @@
+using RimMind.Contracts.Result;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -65,7 +66,7 @@ namespace RimMind.Memory.Triggers
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_PawnKill error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_PawnKill error: {ex.Message}");
             }
         }
 

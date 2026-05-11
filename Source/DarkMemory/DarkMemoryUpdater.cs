@@ -245,7 +245,7 @@ namespace RimMind.Memory.DarkMemory
             }
             catch (Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Failed to parse dark memory response: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Failed to parse dark memory response: {ex.Message}");
             }
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RimMind.Contracts.Npc;
+using RimMind.Contracts.Result;
 using RimWorld.Planet;
 using Verse;
 using WM = RimMind.Memory.WorkingMemory.WorkingMemory;
@@ -62,11 +63,11 @@ namespace RimMind.Memory.Data
                 var json = JsonConvert.SerializeObject(snapshot, Formatting.None);
                 Task.Run(async () =>
                 {
-                    try { await driver.SaveAllEntriesAsync(json); }
-                    catch (Exception ex) { Log.Warning($"[RimMind-Memory] SaveAllEntriesAsync failed: {ex.Message}"); }
+                    var result = await driver.SaveAllEntriesAsync(json);
+                    if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] SaveAllEntriesAsync failed: {result.Error}");
                 });
             }
-            catch (Exception ex) { Log.Warning($"[RimMind-Memory] SaveAllEntriesToStorage failed: {ex.Message}"); }
+            catch (Exception ex) { RimMindErrors.Warn($"[RimMind-Memory] SaveAllEntriesToStorage failed: {ex.Message}"); }
         }
 
         private void LoadAllEntriesFromStorage()
@@ -76,19 +77,20 @@ namespace RimMind.Memory.Data
 
             Task.Run(async () =>
             {
-                try
+                var result = await driver.LoadAllEntriesAsync();
+                if (result.IsErr)
                 {
-                    var json = await driver.LoadAllEntriesAsync();
-                    if (string.IsNullOrEmpty(json)) return;
-                    var capturedJson = json;
-
-                    LongEventHandler.ExecuteWhenFinished(() =>
-                    {
-                        try { MergeFromSnapshot(capturedJson); }
-                        catch (Exception ex) { Log.Warning($"[RimMind-Memory] MergeFromSnapshot failed: {ex.Message}"); }
-                    });
+                    RimMindErrors.Warn($"[RimMind-Memory] LoadAllEntriesAsync failed: {result.Error}");
+                    return;
                 }
-                catch (Exception ex) { Log.Warning($"[RimMind-Memory] LoadAllEntriesAsync failed: {ex.Message}"); }
+                var json = result.Value;
+                if (string.IsNullOrEmpty(json)) return;
+
+                LongEventHandler.ExecuteWhenFinished(() =>
+                {
+                    try { MergeFromSnapshot(json); }
+                    catch (Exception ex) { RimMindErrors.Warn($"[RimMind-Memory] MergeFromSnapshot failed: {ex.Message}"); }
+                });
             });
         }
 
@@ -166,8 +168,8 @@ namespace RimMind.Memory.Data
             {
                 Task.Run(async () =>
                 {
-                    try { await driver.PutAsync($"NPC-storyteller:narrator_{e.id}", e.content); }
-                    catch { }
+                    var result = await driver.PutAsync($"NPC-storyteller:narrator_{e.id}", e.content);
+                    if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] PutAsync failed: {result.Error}");
                 });
             }
         }

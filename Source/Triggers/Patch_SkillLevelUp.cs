@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Contracts.Result;
 using RimMind.Memory.Data;
 using RimWorld;
 using System.Collections.Generic;
@@ -75,7 +76,7 @@ namespace RimMind.Memory.Triggers
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_SkillLevelUp error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_SkillLevelUp error: {ex.Message}");
             }
         }
     }

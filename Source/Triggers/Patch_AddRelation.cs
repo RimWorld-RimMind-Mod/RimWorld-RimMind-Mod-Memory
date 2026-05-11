@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Contracts.Result;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -55,7 +56,7 @@ namespace RimMind.Memory.Triggers
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_AddRelation error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_AddRelation error: {ex.Message}");
             }
         }
 

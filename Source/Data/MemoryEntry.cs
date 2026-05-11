@@ -1,3 +1,4 @@
+using RimMind.Contracts.Result;
 using Verse;
 
 namespace RimMind.Memory.Data
@@ -24,7 +25,7 @@ namespace RimMind.Memory.Data
             {
                 var originalLength = content.Length;
                 content = content.Substring(0, 2000) + "...";
-                Log.Warning($"[RimMind-Memory] Memory content truncated to 2000 chars (original length: {originalLength})");
+                RimMindErrors.Warn($"[RimMind-Memory] Memory content truncated to 2000 chars (original length: {originalLength})");
             }
 
             return new MemoryEntry

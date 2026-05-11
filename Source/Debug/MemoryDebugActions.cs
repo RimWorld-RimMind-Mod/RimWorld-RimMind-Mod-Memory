@@ -1,5 +1,6 @@
 using System.Text;
 using LudeonTK;
+using RimMind.Contracts.Result;
 using RimMind.Core;
 using RimMind.Memory.Data;
 using RimMind.Memory.DarkMemory;
@@ -16,10 +17,10 @@ namespace RimMind.Memory.Debug
         public static void ForceAddMemory()
         {
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn == null) { Log.Warning("[RimMind-Memory] Select a pawn first."); return; }
+            if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var settings = RimMindMemoryMod.Settings;
             int now = Find.TickManager.TicksGame;
@@ -34,10 +35,10 @@ namespace RimMind.Memory.Debug
         public static void ShowMemoryState()
         {
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn == null) { Log.Warning("[RimMind-Memory] Select a pawn first."); return; }
+            if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var store = wc.GetOrCreatePawnStore(pawn);
             var sb = new StringBuilder();
@@ -64,7 +65,7 @@ namespace RimMind.Memory.Debug
         public static void ClearPawnMemory()
         {
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn == null) { Log.Warning("[RimMind-Memory] Select a pawn first."); return; }
+            if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
@@ -77,7 +78,7 @@ namespace RimMind.Memory.Debug
         public static void ForceAddNarratorMemory()
         {
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var settings = RimMindMemoryMod.Settings;
             int now = Find.TickManager.TicksGame;
@@ -92,7 +93,7 @@ namespace RimMind.Memory.Debug
         public static void ShowNarratorMemory()
         {
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var store = wc.NarratorStore;
             var sb = new StringBuilder("=== Narrator Memory ===\n");
@@ -116,11 +117,11 @@ namespace RimMind.Memory.Debug
         public static void ForcePawnDarkMemory()
         {
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn == null) { Log.Warning("[RimMind-Memory] Select a pawn first."); return; }
+            if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
             if (!RimMindAPI.IsConfigured())
             {
-                Log.Warning("[RimMind-Memory] API not configured, cannot trigger dark memory.");
+                RimMindErrors.Warn("[RimMind-Memory] API not configured, cannot trigger dark memory.");
                 return;
             }
 
@@ -137,12 +138,12 @@ namespace RimMind.Memory.Debug
         {
             if (!RimMindAPI.IsConfigured())
             {
-                Log.Warning("[RimMind-Memory] API not configured, cannot trigger dark narrative.");
+                RimMindErrors.Warn("[RimMind-Memory] API not configured, cannot trigger dark narrative.");
                 return;
             }
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var settings = RimMindMemoryMod.Settings;
             DarkMemoryUpdater.Instance?.TriggerNarratorDarkMemoryUpdate(wc, settings);
@@ -153,7 +154,7 @@ namespace RimMind.Memory.Debug
         public static void TriggerImportanceDecay()
         {
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var settings = RimMindMemoryMod.Settings;
             int decayed = 0;
@@ -178,10 +179,10 @@ namespace RimMind.Memory.Debug
         public static void ShowWorkingMemory()
         {
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn == null) { Log.Warning("[RimMind-Memory] Select a pawn first."); return; }
+            if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var wm = wc.GetOrCreateWorkingMemory(pawn);
             var sb = new StringBuilder();
@@ -196,10 +197,10 @@ namespace RimMind.Memory.Debug
         public static void ClearWorkingMemory()
         {
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn == null) { Log.Warning("[RimMind-Memory] Select a pawn first."); return; }
+            if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             wc.ClearWorkingMemory(pawn);
             Log.Message($"[RimMind-Memory] Cleared working memory for {pawn.Name.ToStringShort}.");
@@ -225,10 +226,10 @@ namespace RimMind.Memory.Debug
         public static void ShowAllPawnMemoryCounts()
         {
             var map = Find.CurrentMap;
-            if (map == null) { Log.Warning("[RimMind-Memory] No current map."); return; }
+            if (map == null) { RimMindErrors.Warn("[RimMind-Memory] No current map."); return; }
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) { Log.Warning("[RimMind-Memory] WorldComponent not initialized."); return; }
+            if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var sb = new StringBuilder("=== All Pawn Memory Counts ===");
             foreach (var pawn in map.mapPawns.FreeColonists)

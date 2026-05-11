@@ -1,3 +1,4 @@
+using RimMind.Contracts.Result;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -30,7 +31,7 @@ namespace RimMind.Memory.Data
                 var evict = src.LastOrDefault(x => !x.isPinned);
                 if (evict == null)
                 {
-                    Log.Warning($"[RimMind-Memory] Cannot enforce limit: all {src.Count} entries in src are pinned (max={srcMax})");
+                    RimMindErrors.Warn($"[RimMind-Memory] Cannot enforce limit: all {src.Count} entries in src are pinned (max={srcMax})");
                     break;
                 }
                 src.Remove(evict);
@@ -44,7 +45,7 @@ namespace RimMind.Memory.Data
                 if (least != null) dst.Remove(least);
                 else
                 {
-                    Log.Warning($"[RimMind-Memory] Cannot enforce limit: all {dst.Count} entries in dst are pinned (max={dstMax})");
+                    RimMindErrors.Warn($"[RimMind-Memory] Cannot enforce limit: all {dst.Count} entries in dst are pinned (max={dstMax})");
                     break;
                 }
             }
