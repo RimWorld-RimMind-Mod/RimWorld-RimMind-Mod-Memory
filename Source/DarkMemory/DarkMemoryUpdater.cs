@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RimMind.Contracts.Client;
-using RimMind.Contracts.Result;
-using RimMind.Core;
-using RimMind.Adapters.Client;
-using RimMind.Kernel.Json;
-using RimMind.Kernel.Context;
-using RimMind.Contracts.Context;
-using RimMind.Kernel.Prompt;
+using RimMind.Application.Common.Interfaces.Client;
+using RimMind.Application.Common.Models.Context;
+using RimMind.Domain.ValueObjects;
+using RimMind.Presentation;
+using RimMind.Presentation.Context;
+using RimMind.Infrastructure.Services.Clients;
+using RimMind.Application.Features.Json;
+using RimMind.Application.Features.Context;
+using RimMind.Application.Common.Interfaces.Context;
+using RimMind.Application.Features.Prompt;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
 using Verse;
@@ -126,7 +128,7 @@ namespace RimMind.Memory.DarkMemory
 
         public void TriggerPawnDarkMemoryUpdate(Pawn pawn, RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
-            if (!RimMindAPI.IsConfigured()) return;
+            if (!RimMind.Presentation.RimMindAPI.IsConfigured()) return;
 
             var store = wc.GetOrCreatePawnStore(pawn);
             int now = Find.TickManager.TicksGame;
@@ -158,9 +160,9 @@ namespace RimMind.Memory.DarkMemory
                 Temperature = 0.5f,
             };
 
-            var schema = RimMind.Kernel.Context.SchemaRegistry.DarkMemoryOutput;
+            var schema = RimMind.Application.Features.Context.SchemaRegistry.DarkMemoryOutput;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
+            RimMind.Presentation.RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
                 if (result.IsErr) return;
                 ApplyPawnDarkMemory(result.Value.Content, store, settings.darkCount, now);
@@ -169,7 +171,7 @@ namespace RimMind.Memory.DarkMemory
 
         public void TriggerNarratorDarkMemoryUpdate(RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
-            if (!RimMindAPI.IsConfigured()) return;
+            if (!RimMind.Presentation.RimMindAPI.IsConfigured()) return;
 
             var store = wc.NarratorStore;
             int now = Find.TickManager.TicksGame;
@@ -201,9 +203,9 @@ namespace RimMind.Memory.DarkMemory
                 Map = Find.Maps.FirstOrDefault(),
             };
 
-            var schema = RimMind.Kernel.Context.SchemaRegistry.DarkMemoryOutput;
+            var schema = RimMind.Application.Features.Context.SchemaRegistry.DarkMemoryOutput;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
+            RimMind.Presentation.RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
                 if (result.IsErr) return;
                 ApplyNarratorDarkMemory(result.Value.Content, store, settings.narratorDarkCount, now);

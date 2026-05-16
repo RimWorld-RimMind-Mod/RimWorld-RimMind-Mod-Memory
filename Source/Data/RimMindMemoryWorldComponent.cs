@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using RimMind.Contracts.Npc;
-using RimMind.Contracts.Result;
+using RimMind.Application.Common.Interfaces.Npc;
+using RimMind.Domain.ValueObjects;
 using RimWorld.Planet;
 using Verse;
 using WM = RimMind.Memory.WorkingMemory.WorkingMemory;
@@ -150,7 +150,7 @@ namespace RimMind.Memory.Data
 
         private IStorageDriver? GetStorageDriver()
         {
-            try { return RimMind.Core.Npc.StorageDriverFactory.GetDriver(); }
+            try { return RimMind.Infrastructure.Persistence.StorageDriverFactory.GetDriver(); }
             catch { return null; }
         }
 

@@ -1,7 +1,7 @@
 using System.Text;
 using LudeonTK;
-using RimMind.Contracts.Result;
-using RimMind.Core;
+using RimMind.Domain.ValueObjects;
+using RimMind.Presentation;
 using RimMind.Memory.Data;
 using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Decay;

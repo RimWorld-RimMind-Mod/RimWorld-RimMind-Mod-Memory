@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RimMind.Contracts.Context;
-using RimMind.Core;
-using RimMind.Kernel.Context;
+using RimMind.Application.Common.Interfaces.Context;
+using RimMind.Application.Common.Models.Context;
+using RimMind.Domain.ValueObjects;
+using RimMind.Presentation;
+using RimMind.Presentation.Context;
+using RimMind.Application.Features.Context;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using Verse;

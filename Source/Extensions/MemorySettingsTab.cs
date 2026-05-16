@@ -1,5 +1,5 @@
 using UnityEngine;
-using RimMind.Contracts.Extension;
+using RimMind.Presentation.Settings;
 using Verse;
 
 namespace RimMind.Memory

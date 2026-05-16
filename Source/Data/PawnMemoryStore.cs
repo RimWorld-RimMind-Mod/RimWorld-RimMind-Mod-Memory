@@ -1,4 +1,4 @@
-using RimMind.Contracts.Result;
+using RimMind.Domain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;

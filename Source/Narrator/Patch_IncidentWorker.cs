@@ -1,6 +1,6 @@
 using System;
 using HarmonyLib;
-using RimMind.Contracts.Result;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;

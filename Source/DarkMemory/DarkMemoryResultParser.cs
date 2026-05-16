@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RimMind.Kernel.Json;
+using RimMind.Application.Features.Json;
 using RimMind.Memory.Data;
 
 namespace RimMind.Memory.DarkMemory
