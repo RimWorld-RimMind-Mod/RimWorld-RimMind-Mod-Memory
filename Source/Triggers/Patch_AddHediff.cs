@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -31,20 +32,19 @@ namespace RimMind.Memory.Triggers
                 string content = BuildContent(pawn, hediff, dinfo);
                 if (content.NullOrEmpty()) return;
 
-                var store = wc.GetOrCreatePawnStore(pawn);
-                store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
+                wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Event, now, importance),
                     settings.maxActive, settings.maxArchive);
 
                 if (importance >= settings.pawnToNarratorThreshold)
                 {
-                    wc.NarratorStore.AddActive(
+                    wc.AddNarratorMemory(
                         MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
                         settings.narratorMaxActive, settings.narratorMaxArchive);
                 }
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_AddHediff error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_AddHediff error: {ex.Message}");
             }
         }
 

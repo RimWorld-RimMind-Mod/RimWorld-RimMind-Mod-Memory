@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -30,16 +31,14 @@ namespace RimMind.Memory.Triggers
                 string relLabel = def.LabelCap.RawText.NullOrEmpty() ? def.defName : def.LabelCap.RawText;
                 string content = "RimMind.Memory.Trigger.EstablishRelation".Translate(otherPawn.Name.ToStringShort, relLabel);
 
-                var store = wc.GetOrCreatePawnStore(pawn);
-                store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
+                wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Event, now, importance),
                     settings.maxActive, settings.maxArchive);
 
                 if (otherPawn.IsFreeNonSlaveColonist && otherPawn.Name != null)
                 {
                     try
                     {
-                        var otherStore = wc.GetOrCreatePawnStore(otherPawn);
-                        otherStore.AddActive(
+                        wc.AddPawnMemory(otherPawn,
                             MemoryEntry.Create(
                                 "RimMind.Memory.Trigger.EstablishRelation".Translate(pawn.Name.ToStringShort, relLabel),
                                 MemoryType.Event, now, importance),
@@ -50,14 +49,14 @@ namespace RimMind.Memory.Triggers
 
                 if (importance >= settings.pawnToNarratorThreshold)
                 {
-                    wc.NarratorStore.AddActive(
+                    wc.AddNarratorMemory(
                         MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
                         settings.narratorMaxActive, settings.narratorMaxArchive);
                 }
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_AddRelation error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_AddRelation error: {ex.Message}");
             }
         }
 

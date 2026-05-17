@@ -1,6 +1,8 @@
 using HarmonyLib;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
+using System.Collections.Generic;
 using Verse;
 
 namespace RimMind.Memory.Triggers
@@ -8,16 +10,39 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(SkillRecord), nameof(SkillRecord.Learn))]
     public static class Patch_SkillLevelUp
     {
-        private static int _previousLevel;
+        private static readonly Dictionary<SkillRecord, int> _previousLevels = new Dictionary<SkillRecord, int>();
+        private static int _lastCleanupTick;
+        private const int CleanupInterval = 60000;
+
+        private static void CleanupDestroyedPawns()
+        {
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (now - _lastCleanupTick < CleanupInterval) return;
+            _lastCleanupTick = now;
+
+            var keysToRemove = new List<SkillRecord>();
+            foreach (var kv in _previousLevels)
+            {
+                var pawn = Traverse.Create(kv.Key).Field("pawn").GetValue<Pawn>();
+                if (pawn == null || pawn.Destroyed)
+                    keysToRemove.Add(kv.Key);
+            }
+            foreach (var key in keysToRemove)
+                _previousLevels.Remove(key);
+        }
 
         static void Prefix(SkillRecord __instance)
         {
-            _previousLevel = __instance.Level;
+            CleanupDestroyedPawns();
+            _previousLevels[__instance] = __instance.Level;
         }
 
         static void Postfix(SkillRecord __instance)
         {
-            if (__instance.Level <= _previousLevel) return;
+            if (!_previousLevels.TryGetValue(__instance, out int prevLevel)) return;
+            _previousLevels.Remove(__instance);
+
+            if (__instance.Level <= prevLevel) return;
             if (!RimMindMemoryMod.Settings.enableMemory) return;
             if (!RimMindMemoryMod.Settings.triggerSkillLevelUp) return;
 
@@ -37,22 +62,21 @@ namespace RimMind.Memory.Triggers
                     ? (__instance.def?.defName ?? "RimMind.Memory.Trigger.Skill".Translate())
                     : __instance.def.LabelCap.RawText;
                 string content = "RimMind.Memory.Trigger.SkillUp".Translate(
-                    skillLabel, __instance.Level.ToString(), _previousLevel.ToString(), __instance.Level.ToString());
+                    skillLabel, __instance.Level.ToString(), prevLevel.ToString(), __instance.Level.ToString());
 
-                var store = wc.GetOrCreatePawnStore(pawn);
-                store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
+                wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Event, now, importance),
                     settings.maxActive, settings.maxArchive);
 
                 if (importance >= settings.pawnToNarratorThreshold)
                 {
-                    wc.NarratorStore.AddActive(
+                    wc.AddNarratorMemory(
                         MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
                         settings.narratorMaxActive, settings.narratorMaxArchive);
                 }
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_SkillLevelUp error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_SkillLevelUp error: {ex.Message}");
             }
         }
     }

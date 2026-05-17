@@ -17,13 +17,14 @@ namespace Verse
 
     public static class Scribe_Values
     {
-        public static void Look<T>(ref T value, string label, T defaultValue = default) { }
+        public static void Look<T>(ref T value, string label, T? defaultValue = default!) { }
     }
 
     public static class Scribe_Collections
     {
         public static void Look<T>(ref System.Collections.Generic.List<T> list, string label, LookMode lookMode) { }
-        public static void Look<TKey, TValue>(ref System.Collections.Generic.Dictionary<TKey, TValue> dict, string label, LookMode keyLookMode, LookMode valueLookMode) { }
+        public static void Look<T>(ref System.Collections.Generic.List<T> list, string label) { }
+        public static void Look<TKey, TValue>(ref System.Collections.Generic.Dictionary<TKey, TValue> dict, string label, LookMode keyLookMode, LookMode valueLookMode) where TKey : notnull { }
     }
 
     public static class Scribe_Deep
@@ -32,6 +33,13 @@ namespace Verse
     }
 
     public enum LookMode { Value, Deep }
+
+    public static class Log
+    {
+        public static void Warning(string msg) { }
+        public static void Message(string msg) { }
+        public static void Error(string msg) { }
+    }
 
     public static class TranslationStubs
     {
@@ -82,7 +90,20 @@ namespace RimWorld.Planet
     public class World { }
 }
 
-public class Pawn
+namespace Verse
 {
-    public int thingIDNumber;
+    public class Pawn
+    {
+        public int thingIDNumber;
+    }
+
+    public static class Find
+    {
+        public static TickManager TickManager = new TickManager();
+    }
+
+    public class TickManager
+    {
+        public int TicksGame = 100000;
+    }
 }

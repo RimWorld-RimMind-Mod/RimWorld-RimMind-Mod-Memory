@@ -1,6 +1,8 @@
 using HarmonyLib;
-using RimMind.Core;
-using RimMind.Core.UI;
+using RimMind.Application.Common.Interfaces.Extension;
+using RimMind.Presentation;
+using RimMind.Presentation.Settings;
+using RimMind.Infrastructure.UI;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using RimMind.Memory.Injection;
@@ -20,8 +22,11 @@ namespace RimMind.Memory
             new Harmony("mcocdaa.RimMindMemory").PatchAll();
 
             MemoryContextProvider.Register();
-            RimMindAPI.RegisterSettingsTab("memory", () => "RimMind.Memory.Settings.TabLabel".Translate(), DrawSettingsContent);
-            RimMindAPI.RegisterModCooldown("DarkMemory", () => 60000);
+            WorkingMemoryProvider.Register();
+            RimMindAPI.Extensions<ISettingsTab>().Register(new MemorySettingsTab(this));
+            RimMindAPI.Extensions<IToggleBehavior>().Register(new MemoryToggleBehavior());
+            RimMindAPI.Extensions<IModCooldown>().Register(new MemoryModCooldown());
+            RimMindAPI.Extensions<ISkipCheck>().Register(new MemoryActionSkipCheck());
             Log.Message("[RimMind-Memory] Initialized.");
         }
 
@@ -35,7 +40,7 @@ namespace RimMind.Memory
         internal static void DrawSettingsContent(Rect inRect)
         {
             Rect contentArea = SettingsUIHelper.SplitContentArea(inRect);
-            Rect bottomBar  = SettingsUIHelper.SplitBottomBar(inRect);
+            Rect bottomBar = SettingsUIHelper.SplitBottomBar(inRect);
 
             float contentH = EstimateSettingsHeight();
             Rect viewRect = new Rect(0f, 0f, contentArea.width - 16f, contentH);
@@ -77,6 +82,11 @@ namespace RimMind.Memory
             listing.Label("  " + "RimMind.Memory.Settings.DarkCount.Desc".Translate());
             GUI.color = Color.white;
             Settings.darkCount = (int)listing.Slider(Settings.darkCount, 1, 10);
+            listing.Label("RimMind.Memory.Settings.WorkingMemoryCapacity".Translate(Settings.workingMemoryCapacity));
+            GUI.color = Color.gray;
+            listing.Label("  " + "RimMind.Memory.Settings.WorkingMemoryCapacity.Desc".Translate());
+            GUI.color = Color.white;
+            Settings.workingMemoryCapacity = (int)listing.Slider(Settings.workingMemoryCapacity, 3, 30);
 
             SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorCapacity".Translate());
             listing.Label("RimMind.Memory.Settings.NarratorMaxActive".Translate(Settings.narratorMaxActive));
@@ -159,14 +169,6 @@ namespace RimMind.Memory
             GUI.color = Color.white;
             Settings.pawnToNarratorThreshold = listing.Slider(Settings.pawnToNarratorThreshold, 0f, 1f);
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Request".Translate());
-            listing.Label("RimMind.Memory.Settings.RequestExpire".Translate($"{Settings.requestExpireTicks / 60000f:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.RequestExpire.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.requestExpireTicks = (int)listing.Slider(Settings.requestExpireTicks, 3600f, 120000f);
-            Settings.requestExpireTicks = (Settings.requestExpireTicks / 1500) * 1500;
-
             SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorMemoryReadonly".Translate());
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null)
@@ -223,7 +225,7 @@ namespace RimMind.Memory
                 Settings.idleGapThresholdTicks = 6000;
                 Settings.narratorEventThreshold = 0.2f;
                 Settings.pawnToNarratorThreshold = 0.8f;
-                Settings.requestExpireTicks = 30000;
+                Settings.workingMemoryCapacity = 10;
             });
 
             Settings.Write();
@@ -234,14 +236,14 @@ namespace RimMind.Memory
             float h = 30f;
             h += 24f;
             h += 24f + 24f * 6;
-            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f + 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f;
-            if (Settings.enableDecay)
-                h += 24f + 32f + 24f + 32f;
-            h += 24f + 24f + 32f + 24f + 32f;
+            h += 24f + 80f * 4;
+            h += 24f + 80f * 3;
+            h += 24f + 80f * 4;
+            h += 24f + 80f * 2;
             h += 24f + 24f;
+            if (Settings.enableDecay)
+                h += 80f * 2;
+            h += 24f + 80f * 2;
 
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc != null)
