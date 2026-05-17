@@ -26,11 +26,11 @@
     <Compile Include="../Source/Decay/ImportanceDecayManager.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemory.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemoryEntry.cs" />
-    <Compile Include="../../RimMind-Core/Source/Kernel/Json/JsonRepairHelper.cs" LinkBase="Kernel/Json" />
+    <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonRepairHelper.cs" LinkBase="Application/Json" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../RimMind-Core/Source/Contracts/RimMindCore.Contracts.csproj" />
+    <ProjectReference Include="../../RimMind-Core/Source/Domain/RimMindCore.Domain.csproj" />
   </ItemGroup>
 
 </Project>
