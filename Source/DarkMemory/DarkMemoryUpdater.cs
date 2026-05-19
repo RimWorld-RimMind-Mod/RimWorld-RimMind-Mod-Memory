@@ -7,7 +7,6 @@ using RimMind.Application.Common.Models.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
 using RimMind.Presentation.Context;
-using RimMind.Infrastructure.Services.Clients;
 using RimMind.Application.Features.Json;
 using RimMind.Application.Features.Context;
 using RimMind.Application.Common.Interfaces.Context;

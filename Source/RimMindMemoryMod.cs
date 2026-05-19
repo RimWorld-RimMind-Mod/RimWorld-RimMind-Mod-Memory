@@ -2,7 +2,7 @@ using HarmonyLib;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Presentation;
 using RimMind.Presentation.Settings;
-using RimMind.Infrastructure.UI;
+using RimMind.Presentation.UI;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using RimMind.Memory.Injection;
