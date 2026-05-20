@@ -5,8 +5,6 @@ using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
-using RimMind.Presentation.Context;
-using RimMind.Application.Features.Context;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using Verse;
@@ -20,7 +18,7 @@ namespace RimMind.Memory.Injection
 
         public static void Register()
         {
-            ContextKeyRegistry.Register("memory_pawn", ContextLayer.L3_State, 0.25f,
+            RimMindAPI.Context.RegisterContextKey("memory_pawn", ContextLayer.L3_State, 0.25f,
                 pawnObj =>
                 {
                     var pawn = pawnObj as Pawn;
@@ -61,7 +59,7 @@ namespace RimMind.Memory.Injection
                     return Wrap(sb.ToString().TrimEnd());
                 }, "RimMind-Memory");
 
-            ContextKeyRegistry.Register("memory_narrator", ContextLayer.L4_History, 0.6f,
+            RimMindAPI.Context.RegisterContextKey("memory_narrator", ContextLayer.L4_History, 0.6f,
                 pawnObj =>
                 {
                     var wc = RimMindMemoryWorldComponent.Instance;

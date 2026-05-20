@@ -26,7 +26,7 @@
     <Compile Include="../Source/Decay/ImportanceDecayManager.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemory.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemoryEntry.cs" />
-    <Compile Include="../../RimMind-Core/Source/backup/DeadCode/JsonRepairHelper.cs" LinkBase="Application/Json" />
+    <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonRepairHelper.cs" LinkBase="Application/Json" />
   </ItemGroup>
 
   <ItemGroup>

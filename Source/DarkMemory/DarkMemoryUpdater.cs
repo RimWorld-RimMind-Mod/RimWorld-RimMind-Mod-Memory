@@ -6,11 +6,7 @@ using RimMind.Application.Common.Interfaces.Client;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
-using RimMind.Presentation.Context;
-using RimMind.Application.Features.Json;
-using RimMind.Application.Features.Context;
 using RimMind.Application.Common.Interfaces.Context;
-using RimMind.Application.Features.Prompt;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
 using Verse;
@@ -152,14 +148,14 @@ namespace RimMind.Memory.DarkMemory
             var ctxRequest = new ContextRequest
             {
                 NpcId = npcId,
-                Scenario = ScenarioIds.Memory,
+                Scenario = RimMindAPI.Context.ScenarioMemory,
                 Budget = 0.4f,
-                CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
+                CurrentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString()),
                 MaxTokens = 400,
                 Temperature = 0.5f,
             };
 
-            var schema = RimMind.Application.Features.Context.SchemaRegistry.DarkMemoryOutput;
+            var schema = RimMindAPI.Context.SchemaDarkMemoryOutput;
 
             RimMind.Presentation.RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
@@ -194,15 +190,15 @@ namespace RimMind.Memory.DarkMemory
             var ctxRequest = new ContextRequest
             {
                 NpcId = "NPC-storyteller",
-                Scenario = ScenarioIds.Memory,
+                Scenario = RimMindAPI.Context.ScenarioMemory,
                 Budget = 0.4f,
-                CurrentQuery = PromptSanitizer.Sanitize(sb.ToString()),
+                CurrentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString()),
                 MaxTokens = 400,
                 Temperature = 0.5f,
                 Map = Find.Maps.FirstOrDefault(),
             };
 
-            var schema = RimMind.Application.Features.Context.SchemaRegistry.DarkMemoryOutput;
+            var schema = RimMindAPI.Context.SchemaDarkMemoryOutput;
 
             RimMind.Presentation.RimMindAPI.RequestStructured(ctxRequest, schema, result =>
             {
@@ -228,7 +224,7 @@ namespace RimMind.Memory.DarkMemory
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(json);
                 if (result?.dark == null)
                 {
-                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(json);
+                    string? repaired = RimMindAPI.Json.TryRepairTruncatedJson(json);
                     if (repaired != null)
                         result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
                 }

@@ -150,7 +150,7 @@ namespace RimMind.Memory.Data
 
         private IStorageDriver? GetStorageDriver()
         {
-            try { return RimMind.Infrastructure.Persistence.StorageDriverFactory.GetDriver(); }
+            try { return RimMind.Presentation.RimMindAPI.Bus.GetStorageDriver(); }
             catch { return null; }
         }
 

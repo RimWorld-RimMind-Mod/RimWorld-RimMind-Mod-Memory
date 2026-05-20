@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RimMind.Application.Features.Json;
+using RimMind.Presentation;
 using RimMind.Memory.Data;
 
 namespace RimMind.Memory.DarkMemory
@@ -19,7 +19,7 @@ namespace RimMind.Memory.DarkMemory
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(json);
                 if (result?.dark == null)
                 {
-                    string? repaired = JsonRepairHelper.TryRepairTruncatedJson(json);
+                    string? repaired = RimMindAPI.Json.TryRepairTruncatedJson(json);
                     if (repaired != null)
                         result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
                 }
