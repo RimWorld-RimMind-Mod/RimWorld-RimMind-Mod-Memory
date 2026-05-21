@@ -9,6 +9,7 @@ namespace RimMind.Memory
         private readonly RimMindMemoryMod _mod;
         public MemorySettingsTab(RimMindMemoryMod mod) { _mod = mod; }
         public string Id => "memory";
+        public string OwnerModId => "RimMindMemory";
         public string Label => "RimMind.Memory.Settings.TabLabel".Translate();
         public void Draw(Rect rect) => RimMindMemoryMod.DrawSettingsContent(rect);
     }
