@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using RimMind.Application.Common.Interfaces.Context;
-using RimMind.Application.Common.Models.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
 using RimMind.Memory.Core;
@@ -13,20 +13,20 @@ namespace RimMind.Memory.Injection
 {
     public static class MemoryContextProvider
     {
-        private static List<ContextEntry> Wrap(string content) =>
-            string.IsNullOrEmpty(content) ? new List<ContextEntry>() : new List<ContextEntry> { new ContextEntry(content) };
-
         public static void Register()
         {
-            RimMindAPI.Context.RegisterContextKey("memory_pawn", ContextLayer.L3_State, 0.25f,
-                pawnObj =>
+            RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
+                "memory_pawn", ContextLayer.L3_State, 0.25f,
+                async (ctx, ct) =>
                 {
-                    var pawn = pawnObj as Pawn;
-                    if (pawn == null) return new List<ContextEntry>();
+                    if (ctx.PawnId <= 0) return null;
+                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
+                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    if (pawn == null) return null;
                     var wc = RimMindMemoryWorldComponent.Instance;
-                    if (wc == null) return new List<ContextEntry>();
+                    if (wc == null) return null;
                     var store = wc.GetOrCreatePawnStore(pawn);
-                    if (store.IsEmpty) return new List<ContextEntry>();
+                    if (store.IsEmpty) return null;
 
                     var settings = RimMindMemoryMod.Settings;
                     var sb = new StringBuilder("RimMind.Memory.Context.RecentMemory".Translate(pawn.Name.ToStringShort));
@@ -56,16 +56,17 @@ namespace RimMind.Memory.Injection
                             sb.AppendLine($"- {d.content}");
                     }
 
-                    return Wrap(sb.ToString().TrimEnd());
-                }, "RimMind-Memory");
+                    return sb.ToString().TrimEnd();
+                }, "RimMind-Memory", stalenessTicks: 1500, invalidationTriggers: new[] { "MemoryEvent" }));
 
-            RimMindAPI.Context.RegisterContextKey("memory_narrator", ContextLayer.L4_History, 0.6f,
-                pawnObj =>
+            RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
+                "memory_narrator", ContextLayer.L4_History, 0.6f,
+                async (ctx, ct) =>
                 {
                     var wc = RimMindMemoryWorldComponent.Instance;
-                    if (wc == null) return new List<ContextEntry>();
+                    if (wc == null) return null;
                     var store = wc.NarratorStore;
-                    if (store.IsEmpty) return new List<ContextEntry>();
+                    if (store.IsEmpty) return null;
 
                     var settings = RimMindMemoryMod.Settings;
                     var sb = new StringBuilder("RimMind.Memory.Context.NarratorMemory".Translate());
@@ -95,8 +96,8 @@ namespace RimMind.Memory.Injection
                             sb.AppendLine($"- {d.content}");
                     }
 
-                    return Wrap(sb.ToString().TrimEnd());
-                }, "RimMind-Memory");
+                    return sb.ToString().TrimEnd();
+                }, "RimMind-Memory", stalenessTicks: 3000, invalidationTriggers: new[] { "MemoryEvent" }));
         }
     }
 }

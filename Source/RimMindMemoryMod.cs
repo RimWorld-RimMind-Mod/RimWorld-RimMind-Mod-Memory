@@ -39,8 +39,8 @@ namespace RimMind.Memory
 
         internal static void DrawSettingsContent(Rect inRect)
         {
-            Rect contentArea = SettingsUIHelper.SplitContentArea(inRect);
-            Rect bottomBar = SettingsUIHelper.SplitBottomBar(inRect);
+            Rect contentArea = SettingsUIDrawer.SplitContentArea(inRect);
+            Rect bottomBar = SettingsUIDrawer.SplitBottomBar(inRect);
 
             float contentH = EstimateSettingsHeight();
             Rect viewRect = new Rect(0f, 0f, contentArea.width - 16f, contentH);
@@ -52,7 +52,7 @@ namespace RimMind.Memory
             listing.CheckboxLabeled("RimMind.Memory.Settings.EnableMemory".Translate(), ref Settings.enableMemory,
                 "RimMind.Memory.Settings.EnableMemory.Desc".Translate());
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.TriggerSources".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.TriggerSources".Translate());
             listing.CheckboxLabeled("RimMind.Memory.Settings.TriggerWorkSession".Translate(), ref Settings.triggerWorkSession,
                 "RimMind.Memory.Settings.TriggerWorkSession.Desc".Translate());
             listing.CheckboxLabeled("RimMind.Memory.Settings.TriggerInjury".Translate(), ref Settings.triggerInjury,
@@ -66,7 +66,7 @@ namespace RimMind.Memory
             listing.CheckboxLabeled("RimMind.Memory.Settings.TriggerRelation".Translate(), ref Settings.triggerRelation,
                 "RimMind.Memory.Settings.TriggerRelation.Desc".Translate());
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.PawnCapacity".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.PawnCapacity".Translate());
             listing.Label("RimMind.Memory.Settings.MaxActive".Translate(Settings.maxActive));
             GUI.color = Color.gray;
             listing.Label("  " + "RimMind.Memory.Settings.MaxActive.Desc".Translate());
@@ -88,7 +88,7 @@ namespace RimMind.Memory
             GUI.color = Color.white;
             Settings.workingMemoryCapacity = (int)listing.Slider(Settings.workingMemoryCapacity, 3, 30);
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorCapacity".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorCapacity".Translate());
             listing.Label("RimMind.Memory.Settings.NarratorMaxActive".Translate(Settings.narratorMaxActive));
             GUI.color = Color.gray;
             listing.Label("  " + "RimMind.Memory.Settings.NarratorMaxActive.Desc".Translate());
@@ -105,7 +105,7 @@ namespace RimMind.Memory
             GUI.color = Color.white;
             Settings.narratorDarkCount = (int)listing.Slider(Settings.narratorDarkCount, 1, 20);
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.InjectRatio".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.InjectRatio".Translate());
             listing.Label("RimMind.Memory.Settings.ActiveInjectRatio".Translate($"{Settings.activeInjectRatio:F2}"));
             GUI.color = Color.gray;
             listing.Label("  " + "RimMind.Memory.Settings.ActiveInjectRatio.Desc".Translate());
@@ -127,7 +127,7 @@ namespace RimMind.Memory
             GUI.color = Color.white;
             Settings.narratorArchiveInjectRatio = listing.Slider(Settings.narratorArchiveInjectRatio, 0f, 1f);
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Aggregation".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Aggregation".Translate());
             listing.Label("RimMind.Memory.Settings.MinAggregationCount".Translate(Settings.minAggregationCount));
             GUI.color = Color.gray;
             listing.Label("  " + "RimMind.Memory.Settings.MinAggregationCount.Desc".Translate());
@@ -140,7 +140,7 @@ namespace RimMind.Memory
             Settings.idleGapThresholdTicks = (int)listing.Slider(Settings.idleGapThresholdTicks, 1500f, 30000f);
             Settings.idleGapThresholdTicks = (Settings.idleGapThresholdTicks / 500) * 500;
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Decay".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Decay".Translate());
             listing.CheckboxLabeled("RimMind.Memory.Settings.EnableDecay".Translate(), ref Settings.enableDecay,
                 "RimMind.Memory.Settings.EnableDecay.Desc".Translate());
             if (Settings.enableDecay)
@@ -157,7 +157,7 @@ namespace RimMind.Memory
                 Settings.minImportanceThreshold = listing.Slider(Settings.minImportanceThreshold, 0f, 0.2f);
             }
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.CollectionControl".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.CollectionControl".Translate());
             listing.Label("RimMind.Memory.Settings.NarratorEventThreshold".Translate($"{Settings.narratorEventThreshold:F2}"));
             GUI.color = Color.gray;
             listing.Label("  " + "RimMind.Memory.Settings.NarratorEventThreshold.Desc".Translate());
@@ -169,7 +169,7 @@ namespace RimMind.Memory
             GUI.color = Color.white;
             Settings.pawnToNarratorThreshold = listing.Slider(Settings.pawnToNarratorThreshold, 0f, 1f);
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorMemoryReadonly".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorMemoryReadonly".Translate());
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null)
             {
@@ -199,7 +199,7 @@ namespace RimMind.Memory
             listing.End();
             Widgets.EndScrollView();
 
-            SettingsUIHelper.DrawBottomBar(bottomBar, () =>
+            SettingsUIDrawer.DrawBottomBar(bottomBar, () =>
             {
                 Settings.enableMemory = true;
                 Settings.triggerWorkSession = true;

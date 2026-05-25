@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimMind.Application.Common.Interfaces.Client;
-using RimMind.Application.Common.Models.Context;
+using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
 using RimMind.Application.Common.Interfaces.Context;
@@ -145,19 +145,19 @@ namespace RimMind.Memory.DarkMemory
             sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
 
             var npcId = $"NPC-{pawn.thingIDNumber}";
-            var ctxRequest = new ContextRequest
-            {
-                NpcId = npcId,
-                Scenario = RimMindAPI.Context.ScenarioMemory,
-                Budget = 0.4f,
-                CurrentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString()),
-                MaxTokens = 400,
-                Temperature = 0.5f,
-            };
+            var currentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString());
 
             var schema = RimMindAPI.Context.SchemaDarkMemoryOutput;
 
-            RimMind.Presentation.RimMindAPI.RequestStructured(ctxRequest, schema, result =>
+            var envelope = LlmRequestEnvelopeBuilder
+                .ForScenario(RimMindAPI.Context.ScenarioMemory)
+                .WithModId("RimMind.Memory")
+                .WithSchema(schema)
+                .WithMaxTokens(400)
+                .WithTemperature(0.5f)
+                .WithNpcId(npcId)
+                .Build();
+            RimMindAPI.Request.Send(envelope, result =>
             {
                 if (result.IsErr) return;
                 ApplyPawnDarkMemory(result.Value.Content, store, settings.darkCount, now);
@@ -187,20 +187,20 @@ namespace RimMind.Memory.DarkMemory
             sb.AppendLine("RimMind.Memory.Prompt.MergeNarrativeInstruction".Translate(settings.narratorDarkCount));
             sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
 
-            var ctxRequest = new ContextRequest
-            {
-                NpcId = "NPC-storyteller",
-                Scenario = RimMindAPI.Context.ScenarioMemory,
-                Budget = 0.4f,
-                CurrentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString()),
-                MaxTokens = 400,
-                Temperature = 0.5f,
-                Map = Find.Maps.FirstOrDefault(),
-            };
+            var npcId = "NPC-storyteller";
+            var currentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString());
 
             var schema = RimMindAPI.Context.SchemaDarkMemoryOutput;
 
-            RimMind.Presentation.RimMindAPI.RequestStructured(ctxRequest, schema, result =>
+            var envelope = LlmRequestEnvelopeBuilder
+                .ForScenario(RimMindAPI.Context.ScenarioMemory)
+                .WithModId("RimMind.Memory")
+                .WithSchema(schema)
+                .WithMaxTokens(400)
+                .WithTemperature(0.5f)
+                .WithNpcId(npcId)
+                .Build();
+            RimMindAPI.Request.Send(envelope, result =>
             {
                 if (result.IsErr) return;
                 ApplyNarratorDarkMemory(result.Value.Content, store, settings.narratorDarkCount, now);

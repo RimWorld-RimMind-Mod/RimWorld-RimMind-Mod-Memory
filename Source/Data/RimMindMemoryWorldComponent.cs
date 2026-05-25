@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using RimMind.Application.Common.Interfaces.Npc;
+using RimMind.Application.Common.Interfaces.Internal;
+using RimMind.Application.Common.Interfaces.Storage;
 using RimMind.Domain.ValueObjects;
 using RimWorld.Planet;
 using Verse;
@@ -46,8 +48,8 @@ namespace RimMind.Memory.Data
 
         private void SaveAllEntriesToStorage()
         {
-            var driver = GetStorageDriver();
-            if (driver == null) return;
+            var sync = GetRemoteSync();
+            if (sync == null) return;
 
             try
             {
@@ -61,10 +63,11 @@ namespace RimMind.Memory.Data
                     narratorDark = _narratorStore.dark.ToList(),
                 };
                 var json = JsonConvert.SerializeObject(snapshot, Formatting.None);
+                var version = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
-                    var result = await driver.SaveAllEntriesAsync(json);
-                    if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] SaveAllEntriesAsync failed: {result.Error}");
+                    var result = await sync.EnqueuePushAsync("rimmind:memory:full", json, version);
+                    if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] Remote push failed: {result.Error}");
                 });
             }
             catch (Exception ex) { RimMindErrors.Warn($"[RimMind-Memory] SaveAllEntriesToStorage failed: {ex.Message}"); }
@@ -72,15 +75,15 @@ namespace RimMind.Memory.Data
 
         private void LoadAllEntriesFromStorage()
         {
-            var driver = GetStorageDriver();
-            if (driver == null) return;
+            var sync = GetRemoteSync();
+            if (sync == null) return;
 
             Task.Run(async () =>
             {
-                var result = await driver.LoadAllEntriesAsync();
+                var result = await sync.SyncOnLoadAsync("rimmind:memory:full", 0);
                 if (result.IsErr)
                 {
-                    RimMindErrors.Warn($"[RimMind-Memory] LoadAllEntriesAsync failed: {result.Error}");
+                    RimMindErrors.Warn($"[RimMind-Memory] Remote pull failed: {result.Error}");
                     return;
                 }
                 var json = result.Value;
@@ -148,9 +151,9 @@ namespace RimMind.Memory.Data
             public List<MemoryEntry>? narratorDark;
         }
 
-        private IStorageDriver? GetStorageDriver()
+        private IRemoteSyncService? GetRemoteSync()
         {
-            try { return RimMind.Presentation.RimMindAPI.Bus.GetStorageDriver(); }
+            try { return RimMindServiceLocator.Get<IRemoteSyncService>(); }
             catch { return null; }
         }
 
@@ -163,13 +166,14 @@ namespace RimMind.Memory.Data
         public void AddNarratorMemory(MemoryEntry e, int maxActive, int maxArchive)
         {
             _narratorStore.AddActive(e, maxActive, maxArchive);
-            var driver = GetStorageDriver();
-            if (driver != null && driver.IsRemote)
+            var sync = GetRemoteSync();
+            if (sync != null && sync.IsConfigured)
             {
                 Task.Run(async () =>
                 {
-                    var result = await driver.PutAsync($"NPC-storyteller:narrator_{e.id}", e.content);
-                    if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] PutAsync failed: {result.Error}");
+                    var key = "rimmind:memory:narrator";
+                    var result = await sync.EnqueuePushAsync(key, e.content, Find.TickManager.TicksGame);
+                    if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] Remote push narrator failed: {result.Error}");
                 });
             }
         }
