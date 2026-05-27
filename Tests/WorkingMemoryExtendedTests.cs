@@ -76,11 +76,12 @@ namespace RimMind.Memory.Tests
         }
 
         [Fact]
-        public void Entries_ReadOnlyList()
+        public void Entries_IsReadOnlyInterface()
         {
             var wm = new WM(5);
             wm.Add("test");
-            Assert.IsType<System.Collections.ObjectModel.ReadOnlyCollection<WME>>(wm.Entries);
+            // Entries 属性返回 IReadOnlyList 接口
+            Assert.IsAssignableFrom<System.Collections.Generic.IReadOnlyList<WME>>(wm.Entries);
         }
 
         [Fact]

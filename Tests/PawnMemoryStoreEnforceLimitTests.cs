@@ -102,22 +102,22 @@ namespace RimMind.Memory.Tests
         }
 
         [Fact]
-        public void EnforceLimit_DstOverMax_RemovesLowestUnpinned()
+        public void EnforceLimit_DstOverMax_RemovesLastUnpinned()
         {
-            // dst 超过限制时移除 importance 最低的非 pinned
+            // dst 超过限制时移除最后一个非 pinned 条目
             var src = new List<MemoryEntry>();
             var dst = new List<MemoryEntry>
             {
                 MakeEntry(1, 0.8f),
-                MakeEntry(2, 0.2f),
-                MakeEntry(3, 0.5f),
+                MakeEntry(2, 0.5f),
+                MakeEntry(3, 0.2f),
             };
 
             PawnMemoryStore.EnforceLimit(src, srcMax: 10, dst, dstMax: 2);
 
             Assert.Equal(2, dst.Count);
-            // 0.2f 应被移除
-            Assert.All(dst, e => Assert.True(e.importance > 0.2f));
+            // LastOrDefault 移除最后一个非pinned，即 0.2f
+            Assert.DoesNotContain(dst, e => e.importance == 0.2f);
         }
 
         [Fact]
