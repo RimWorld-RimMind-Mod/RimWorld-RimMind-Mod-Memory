@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="DarkMemoryResultParserTests.cs" />
+    <Compile Include="../Source/DarkMemory/DarkMemoryResultParserPure.cs" />
   </ItemGroup>
 
   <ItemGroup>
