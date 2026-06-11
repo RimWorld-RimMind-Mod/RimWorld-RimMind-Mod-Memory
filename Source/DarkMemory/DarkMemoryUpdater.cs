@@ -5,7 +5,7 @@ using System.Text;
 using RimMind.Application.Common.Interfaces.Client;
 using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
-using RimMind.Presentation;
+using RimMind.Application.Api;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
@@ -123,7 +123,7 @@ namespace RimMind.Memory.DarkMemory
 
         public void TriggerPawnDarkMemoryUpdate(Pawn pawn, RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
-            if (!RimMind.Presentation.RimMindAPI.IsConfigured()) return;
+            if (!RimMind.Application.Api.RimMindAPI.IsConfigured()) return;
 
             var store = wc.GetOrCreatePawnStore(pawn);
             int now = Find.TickManager.TicksGame;
@@ -166,7 +166,7 @@ namespace RimMind.Memory.DarkMemory
 
         public void TriggerNarratorDarkMemoryUpdate(RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
-            if (!RimMind.Presentation.RimMindAPI.IsConfigured()) return;
+            if (!RimMind.Application.Api.RimMindAPI.IsConfigured()) return;
 
             var store = wc.NarratorStore;
             int now = Find.TickManager.TicksGame;

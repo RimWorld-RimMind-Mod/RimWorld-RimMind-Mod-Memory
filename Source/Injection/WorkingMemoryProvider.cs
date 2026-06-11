@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Domain.ValueObjects;
-using RimMind.Presentation;
+using RimMind.Application.Api;
 using RimMind.Memory.Data;
 using Verse;
 
