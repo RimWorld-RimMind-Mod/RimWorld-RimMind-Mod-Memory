@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RimMind.Application.Api;
+using RimMind.Presentation.Api;
 using RimMind.Memory.Data;
 
 namespace RimMind.Memory.DarkMemory
