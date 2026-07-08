@@ -64,7 +64,10 @@ namespace RimMind.Memory.Data
         {
             if (entry == null || string.IsNullOrEmpty(entry.id)) return;
             if (ContainsId(entry.id)) return;
-            active.Insert(0, entry);
+            if (entry.type == MemoryType.Dark)
+                dark.Add(entry);
+            else
+                active.Insert(0, entry);
         }
 
         public virtual void ExposeData()
