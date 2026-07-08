@@ -94,5 +94,86 @@ namespace RimMind.Memory.Tests
             var store = new MemoryStoreBase();
             Assert.False(store.ContainsId("nonexistent"));
         }
+
+        [Fact]
+        public void AddIfNotExists_AddsWhenNew()
+        {
+            var store = new MemoryStoreBase();
+            var entry = MakeEntry(100, 0.5f);
+            store.AddIfNotExists(entry);
+            Assert.Single(store.active);
+            Assert.Equal(entry.id, store.active[0].id);
+        }
+
+        [Fact]
+        public void AddIfNotExists_SkipsDuplicate()
+        {
+            var store = new MemoryStoreBase();
+            var entry = MakeEntry(100, 0.5f);
+            store.AddIfNotExists(entry);
+            store.AddIfNotExists(entry);
+            Assert.Single(store.active);
+        }
+
+        [Fact]
+        public void AddIfNotExists_NullOrEmptyId_NoOp()
+        {
+            var store = new MemoryStoreBase();
+            store.AddIfNotExists(null);
+            Assert.Empty(store.active);
+            store.AddIfNotExists(new MemoryEntry { id = "", content = "empty", type = MemoryType.Work, tick = 1, importance = 0.5f });
+            Assert.Empty(store.active);
+        }
+
+        [Fact]
+        public void ContainsId_ExistsInArchive_ReturnsTrue()
+        {
+            var store = new MemoryStoreBase();
+            var entry = MakeEntry(100, 0.3f);
+            store.archive.Add(entry);
+            Assert.True(store.ContainsId(entry.id));
+        }
+
+        [Fact]
+        public void ContainsId_ExistsInDark_ReturnsTrue()
+        {
+            var store = new MemoryStoreBase();
+            var entry = MakeEntry(100, 0.9f, type: MemoryType.Dark);
+            store.dark.Add(entry);
+            Assert.True(store.ContainsId(entry.id));
+        }
+
+        [Fact]
+        public void EnforceLimit_DstOverflow_EvictsLeastImportantNonPinned()
+        {
+            var src = new List<MemoryEntry>();
+            var dst = new List<MemoryEntry>
+            {
+                MakeEntry(10, 0.9f),
+                MakeEntry(11, 0.5f),
+            };
+            MemoryStoreBase.EnforceLimit(src, srcMax: 0, dst, dstMax: 1);
+            Assert.Single(dst);
+            Assert.Equal(0.9f, dst[0].importance);
+        }
+
+        [Fact]
+        public void EnforceLimit_InsertsByImportanceOrder()
+        {
+            var src = new List<MemoryEntry>
+            {
+                MakeEntry(1, 0.7f),
+            };
+            var dst = new List<MemoryEntry>
+            {
+                MakeEntry(10, 0.9f),
+                MakeEntry(11, 0.3f),
+            };
+            MemoryStoreBase.EnforceLimit(src, srcMax: 0, dst, dstMax: 10);
+            Assert.Equal(3, dst.Count);
+            Assert.Equal(0.9f, dst[0].importance);
+            Assert.Equal(0.7f, dst[1].importance);
+            Assert.Equal(0.3f, dst[2].importance);
+        }
     }
 }
