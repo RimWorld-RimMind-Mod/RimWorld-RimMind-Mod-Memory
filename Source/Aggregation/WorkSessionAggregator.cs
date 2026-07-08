@@ -104,7 +104,7 @@ namespace RimMind.Memory.Aggregation
         private void RecordSignificantJob(Pawn pawn, string jobDefName, int now, int maxActive, int maxArchive)
         {
             float importance = GetSignificantJobImportance(jobDefName);
-            string content = GetSignificantJobLabel(jobDefName);
+            string content = JobLabel(jobDefName);
 
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
@@ -210,12 +210,6 @@ namespace RimMind.Memory.Aggregation
 
         private static float GetSignificantJobImportance(string defName)
             => SignificantJobImportanceMap.TryGetValue(defName, out var v) ? v : 0.6f;
-
-        private static string GetSignificantJobLabel(string defName)
-        {
-            string key = $"RimMind.Memory.Work.{defName}";
-            return key.CanTranslate() ? key.Translate() : defName;
-        }
 
         private static string JobLabel(string defName)
         {
