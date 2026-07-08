@@ -10,9 +10,9 @@ namespace RimMind.Memory.DarkMemory
     /// 纯逻辑版本的暗记忆结果解析器，不依赖 RimMindAPI 或 RimWorld 运行时。
     /// 供测试项目直接编译使用。
     /// </summary>
-    internal static class DarkMemoryResultParserPure
+    public static class DarkMemoryResultParserPure
     {
-        internal class DarkMemoryResultDto
+        public class DarkMemoryResultDto
         {
             public string[] dark = Array.Empty<string>();
         }

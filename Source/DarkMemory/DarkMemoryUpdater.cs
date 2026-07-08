@@ -222,34 +222,19 @@ namespace RimMind.Memory.DarkMemory
         {
             try
             {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(json);
-                if (result?.dark == null)
-                {
-                    string? repaired = RimMindAPI.Json.TryRepairTruncatedJson(json);
-                    if (repaired != null)
-                        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
-                }
-                if (result?.dark == null) return;
+                var entries = DarkMemoryResultParserPure.Parse(json, darkCount);
+                if (entries == null || entries.Count == 0) return;
 
                 darkStore.Clear();
-                int added = 0;
-                foreach (var text in result.dark)
+                foreach (var text in entries)
                 {
-                    if (string.IsNullOrEmpty(text)) continue;
-                    if (added >= darkCount) break;
                     darkStore.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
-                    added++;
                 }
             }
             catch (Exception ex)
             {
                 RimMindErrors.Warn($"[RimMind-Memory] Failed to parse dark memory response: {ex.Message}");
             }
-        }
-
-        private class DarkMemoryResultDto
-        {
-            public string[] dark = Array.Empty<string>();
         }
     }
 }
