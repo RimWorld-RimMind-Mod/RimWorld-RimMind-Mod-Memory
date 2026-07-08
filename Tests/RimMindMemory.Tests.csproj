@@ -21,6 +21,7 @@
     <Compile Include="../Source/Core/ImportanceDecayCalculator.cs" />
     <Compile Include="../Source/Data/MemoryEntry.cs" />
     <Compile Include="../Source/Data/PawnMemoryStore.cs" />
+    <Compile Include="../Source/Data/MemoryStoreBase.cs" />
     <Compile Include="../Source/Data/NarratorMemoryStore.cs" />
     <Compile Include="../Source/Decay/ImportanceDecayManager.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemory.cs" />
