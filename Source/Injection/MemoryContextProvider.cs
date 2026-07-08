@@ -20,8 +20,7 @@ namespace RimMind.Memory.Injection
                 async (ctx, ct) =>
                 {
                     if (ctx.PawnId <= 0) return null;
-                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
-                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    var pawn = PawnLookup.FindPawnByNumber(ctx.PawnId);
                     if (pawn == null) return null;
                     var wc = RimMindMemoryWorldComponent.Instance;
                     if (wc == null) return null;
