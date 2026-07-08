@@ -25,8 +25,9 @@ Source/
 ├── Settings/RimMindMemorySettings.cs            25项设置
 ├── Data/
 │   ├── MemoryEntry.cs                           记忆条目(MemoryType: Work/Event/Manual/Dark, content≤2000字)
-│   ├── PawnMemoryStore.cs                       三层存储(active/archive/dark) + EnforceLimit
-│   ├── NarratorMemoryStore.cs                   叙事者存储(结构同)
+│   ├── MemoryStoreBase.cs                       三层存储基类(active/archive/dark + AddActive + EnforceLimit)
+│   ├── PawnMemoryStore.cs                       继承MemoryStoreBase(默认AddIfNotExists→active)
+│   ├── NarratorMemoryStore.cs                   继承MemoryStoreBase(AddIfNotExists带isActive参数,Storyteller反射依赖)
 │   └── RimMindMemoryWorldComponent.cs           WorldComponent管理所有存储+WorkingMemory+远端同步
 ├── WorkingMemory/                               工作记忆缓冲区(容量可配置, 已序列化, UpdateCapacity)
 │   ├── WorkingMemory.cs                         滚动缓冲区(capacity可动态更新)
@@ -37,11 +38,12 @@ Source/
 │   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化, CleanupPawnJitter)
 │   └── Patch_StartJob_Memory.cs                 JobTracker Postfix
 ├── Triggers/                                    5个Patch(AddHediff/Kill/MentalBreak/SkillLevelUp/AddRelation)
+│       MemoryTriggerHelper.cs                   触发器辅助(ShouldProcess+WriteMemory+TryUpgradeToNarrator)
 ├── Narrator/Patch_IncidentWorker.cs             叙事者事件Postfix
 ├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(ScenarioIds.Memory, RimMindAPI.RequestStructured)
-│                 DarkMemoryResultParser.cs       ⚠️ 死代码(未被引用)
-├── Decay/ImportanceDecayManager.cs              衰减管理(默认关闭)
-├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs
+│                 DarkMemoryResultParserPure.cs    纯逻辑解析器(生产+测试共用,JSON修复+解析)
+├── Decay/ImportanceDecayManager.cs              衰减管理(默认关闭,单MemoryStoreBase重载)
+├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs + PawnLookup.cs
 ├── UI/BioTabMemoryPatch.cs + Dialog_MemoryLog.cs
 └── Debug/MemoryDebugActions.cs
 ```
@@ -93,7 +95,9 @@ Source/
 - Harmony ID: `mcocdaa.RimMindMemory`，PostFix优先
 - 所有触发器try-catch包裹，日志前缀 `[RimMind-Memory]`
 - 新触发器在 `RimMindMemorySettings` 添加 `triggerXxx` 开关
-- 记忆写入: `wc.AddPawnMemory(pawn, MemoryEntry.Create(...), maxActive, maxArchive)`
+- 记忆写入: `MemoryTriggerHelper.WriteMemory(pawn, content, type, importance)` (自动处理wc获取+Pawn写入+条件Narrator升级)
+- 直接写入(无Narrator升级): `MemoryTriggerHelper.WriteMemory(pawn, content, type, importance, upgradeNarrator: false)`
+- 存储基类: `MemoryStoreBase`(AddActive/EnforceLimit/IsEmpty/ContainsId/AddIfNotExists/ExposeData)
 - 重要度≥`pawnToNarratorThreshold`(默认0.8)时同步写入 `NarratorStore`
 - 单例模式: `Instance => _instance ?? throw new InvalidOperationException(...)`
 - 暗记忆场景: `ScenarioIds.Memory`（非 Personality/Storyteller）
