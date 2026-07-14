@@ -169,10 +169,11 @@ namespace RimMind.Memory.Data
             var sync = GetRemoteSync();
             if (sync != null && sync.IsConfigured)
             {
+                int tick = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
                     var key = "rimmind:memory:narrator";
-                    var result = await sync.EnqueuePushAsync(key, e.content, Find.TickManager.TicksGame);
+                    var result = await sync.EnqueuePushAsync(key, e.content, tick);
                     if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] Remote push narrator failed: {result.Error}");
                 });
             }

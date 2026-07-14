@@ -23,6 +23,7 @@ namespace RimMind.Memory
 
             MemoryContextProvider.Register();
             WorkingMemoryProvider.Register();
+            RimMindAPI.Memory.RegisterBridge(new RimMindMemoryBridge());
             RimMindAPI.Extensions<ISettingsTab>().Register(new MemorySettingsTab(this));
             RimMindAPI.Extensions<IToggleBehavior>().Register(new MemoryToggleBehavior());
             RimMindAPI.Extensions<IModCooldown>().Register(new MemoryModCooldown());
