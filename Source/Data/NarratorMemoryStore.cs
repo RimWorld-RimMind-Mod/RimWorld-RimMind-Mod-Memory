@@ -7,7 +7,7 @@ namespace RimMind.Memory.Data
         // NarratorMemoryStore overrides AddIfNotExists with isActive parameter
         // to route entries to active or archive. Dark entries always go to dark list.
 
-        public void AddIfNotExists(MemoryEntry entry, bool isActive)
+        public void AddIfNotExists(MemoryEntry? entry, bool isActive)
         {
             if (entry == null || string.IsNullOrEmpty(entry.id)) return;
             if (ContainsId(entry.id)) return;

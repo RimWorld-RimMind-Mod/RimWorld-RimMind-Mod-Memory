@@ -60,7 +60,7 @@ namespace RimMind.Memory.Data
                 || dark.Any(e => e.id == id);
         }
 
-        public virtual void AddIfNotExists(MemoryEntry entry)
+        public virtual void AddIfNotExists(MemoryEntry? entry)
         {
             if (entry == null || string.IsNullOrEmpty(entry.id)) return;
             if (ContainsId(entry.id)) return;
