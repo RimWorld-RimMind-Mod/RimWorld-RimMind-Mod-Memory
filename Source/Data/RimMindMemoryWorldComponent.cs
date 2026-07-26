@@ -4,9 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using RimMind.Application.Common.Interfaces.Internal;
-using RimMind.Application.Common.Interfaces.Storage;
 using RimMind.Domain.ValueObjects;
+using RimMind.Presentation.Api;
 using RimWorld.Planet;
 using Verse;
 using WM = RimMind.Memory.WorkingMemory.WorkingMemory;
@@ -48,8 +47,7 @@ namespace RimMind.Memory.Data
 
         private void SaveAllEntriesToStorage()
         {
-            var sync = GetRemoteSync();
-            if (sync == null) return;
+            if (!RimMindAPI.RemoteSync.IsConfigured) return;
 
             try
             {
@@ -66,7 +64,10 @@ namespace RimMind.Memory.Data
                 var version = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
-                    var result = await sync.EnqueuePushAsync("rimmind:memory:full", json, version);
+                    var result = await RimMindAPI.RemoteSync.EnqueuePushAsync(
+                        "rimmind:memory:full",
+                        json,
+                        version);
                     if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] Remote push failed: {result.Error}");
                 });
             }
@@ -75,12 +76,11 @@ namespace RimMind.Memory.Data
 
         private void LoadAllEntriesFromStorage()
         {
-            var sync = GetRemoteSync();
-            if (sync == null) return;
+            if (!RimMindAPI.RemoteSync.IsConfigured) return;
 
             Task.Run(async () =>
             {
-                var result = await sync.SyncOnLoadAsync("rimmind:memory:full", 0);
+                var result = await RimMindAPI.RemoteSync.SyncOnLoadAsync("rimmind:memory:full", 0);
                 if (result.IsErr)
                 {
                     RimMindErrors.Warn($"[RimMind-Memory] Remote pull failed: {result.Error}");
@@ -151,12 +151,6 @@ namespace RimMind.Memory.Data
             public List<MemoryEntry>? narratorDark;
         }
 
-        private IRemoteSyncService? GetRemoteSync()
-        {
-            try { return RimMindServiceLocator.Get<IRemoteSyncService>(); }
-            catch { return null; }
-        }
-
         public void AddPawnMemory(Pawn pawn, MemoryEntry e, int maxActive, int maxArchive)
         {
             var store = GetOrCreatePawnStore(pawn);
@@ -166,14 +160,13 @@ namespace RimMind.Memory.Data
         public void AddNarratorMemory(MemoryEntry e, int maxActive, int maxArchive)
         {
             _narratorStore.AddActive(e, maxActive, maxArchive);
-            var sync = GetRemoteSync();
-            if (sync != null && sync.IsConfigured)
+            if (RimMindAPI.RemoteSync.IsConfigured)
             {
                 int tick = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
                     var key = "rimmind:memory:narrator";
-                    var result = await sync.EnqueuePushAsync(key, e.content, tick);
+                    var result = await RimMindAPI.RemoteSync.EnqueuePushAsync(key, e.content, tick);
                     if (result.IsErr) RimMindErrors.Warn($"[RimMind-Memory] Remote push narrator failed: {result.Error}");
                 });
             }
