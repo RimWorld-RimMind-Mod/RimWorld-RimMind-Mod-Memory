@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
 using RimWorld.Planet;
@@ -51,16 +48,7 @@ namespace RimMind.Memory.Data
 
             try
             {
-                var snapshot = new MemoryStorageSnapshot
-                {
-                    pawnStores = _pawnStores.ToDictionary(
-                        kv => kv.Key,
-                        kv => kv.Value.active.Concat(kv.Value.archive).Concat(kv.Value.dark).ToList()),
-                    narratorActive = _narratorStore.active.ToList(),
-                    narratorArchive = _narratorStore.archive.ToList(),
-                    narratorDark = _narratorStore.dark.ToList(),
-                };
-                var json = JsonConvert.SerializeObject(snapshot, Formatting.None);
+                string json = MemorySnapshotService.Serialize(_pawnStores, _narratorStore);
                 var version = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
@@ -80,75 +68,26 @@ namespace RimMind.Memory.Data
 
             Task.Run(async () =>
             {
-                var result = await RimMindAPI.RemoteSync.SyncOnLoadAsync("rimmind:memory:full", 0);
-                if (result.IsErr)
-                {
-                    RimMindErrors.Warn($"[RimMind-Memory] Remote pull failed: {result.Error}");
-                    return;
-                }
-                var json = result.Value;
-                if (string.IsNullOrEmpty(json)) return;
-
-                LongEventHandler.ExecuteWhenFinished(() =>
-                {
-                    try { MergeFromSnapshot(json); }
-                    catch (Exception ex) { RimMindErrors.Warn($"[RimMind-Memory] MergeFromSnapshot failed: {ex.Message}"); }
-                });
+                await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
+                    () => RimMindAPI.RemoteSync.SyncOnLoadAsync("rimmind:memory:full", 0),
+                    LongEventHandler.ExecuteWhenFinished,
+                    MergeFromSnapshot,
+                    message => RimMindErrors.Warn($"[RimMind-Memory] {message}"));
             });
         }
 
         private void MergeFromSnapshot(string? json)
         {
-            if (string.IsNullOrEmpty(json)) return;
-            var snapshot = JsonConvert.DeserializeObject<MemoryStorageSnapshot>(json!);
-            if (snapshot == null) return;
-
             var settings = RimMindMemoryMod.Settings;
-
-            if (snapshot.pawnStores != null)
-            {
-                foreach (var kv in snapshot.pawnStores)
-                {
-                    var store = GetOrCreatePawnStoreById(kv.Key);
-                    foreach (var entry in kv.Value)
-                        store.AddIfNotExists(entry);
-                    PawnMemoryStore.EnforceLimit(store.active, settings.maxActive, store.archive, settings.maxArchive);
-                    PawnMemoryStore.EnforceLimit(store.archive, settings.maxArchive, store.dark, int.MaxValue);
-                }
-            }
-
-            if (snapshot.narratorActive != null)
-                foreach (var entry in snapshot.narratorActive)
-                    _narratorStore.AddIfNotExists(entry, isActive: true);
-
-            if (snapshot.narratorArchive != null)
-                foreach (var entry in snapshot.narratorArchive)
-                    _narratorStore.AddIfNotExists(entry, isActive: false);
-
-            if (snapshot.narratorDark != null)
-                foreach (var entry in snapshot.narratorDark)
-                    _narratorStore.AddIfNotExists(entry, isActive: false);
-
-            PawnMemoryStore.EnforceLimit(_narratorStore.active, settings.narratorMaxActive, _narratorStore.archive, settings.narratorMaxArchive);
-            PawnMemoryStore.EnforceLimit(_narratorStore.archive, settings.narratorMaxArchive, _narratorStore.dark, int.MaxValue);
-        }
-
-        private PawnMemoryStore GetOrCreatePawnStoreById(int thingId)
-        {
-            if (!_pawnStores.TryGetValue(thingId, out var store))
-            {
-                store = new PawnMemoryStore();
-                _pawnStores[thingId] = store;
-            }
-            return store;
-        }
-
-        private class MemoryStorageSnapshot
-        {
-            public Dictionary<int, List<MemoryEntry>>? pawnStores;
-            public List<MemoryEntry>? narratorActive;
-            public List<MemoryEntry>? narratorArchive;
-            public List<MemoryEntry>? narratorDark;
+            MemorySnapshotService.Merge(
+                json,
+                _pawnStores,
+                _narratorStore,
+                new MemorySnapshotLimits(
+                    settings.maxActive,
+                    settings.maxArchive,
+                    settings.narratorMaxActive,
+                    settings.narratorMaxArchive));
         }
 
         public void AddPawnMemory(Pawn pawn, MemoryEntry e, int maxActive, int maxArchive)

@@ -7,6 +7,7 @@
     <AssemblyName>RimMindMemory.Tests</AssemblyName>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +18,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="VerseStubs.cs" />
+    <Compile Include="Contracts\**\*.cs" />
     <Compile Include="../Source/Core/TimeFormatter.cs" />
     <Compile Include="../Source/Core/ImportanceDecayCalculator.cs" />
     <Compile Include="../Source/Data/MemoryEntry.cs" />
     <Compile Include="../Source/Data/PawnMemoryStore.cs" />
     <Compile Include="../Source/Data/MemoryStoreBase.cs" />
     <Compile Include="../Source/Data/NarratorMemoryStore.cs" />
+    <Compile Include="../Source/Data/MemorySnapshotService.cs" />
     <Compile Include="../Source/Decay/ImportanceDecayManager.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemory.cs" />
     <Compile Include="../Source/WorkingMemory/WorkingMemoryEntry.cs" />

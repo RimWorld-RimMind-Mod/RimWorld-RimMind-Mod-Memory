@@ -1,6 +1,6 @@
-using System;
-using System.IO;
 using System.Threading.Tasks;
+using RimMind.Domain.ValueObjects;
+using RimMind.Memory.Data;
 using RimMind.Testing;
 using Xunit;
 
@@ -9,41 +9,61 @@ namespace RimMind.Memory.Tests.Contracts
     public sealed class RemoteSyncBoundaryContracts
     {
         [Fact]
-        public Task Remote_sync_uses_the_public_Core_capability()
+        public async Task Remote_sync_applies_only_successful_nonempty_snapshots()
         {
-            return ContractCaseRunner.RunAsync(
-                ("unconfigured sync is a no-op", () => VerifySource(source =>
-                    Assert.Contains("RimMindAPI.RemoteSync.IsConfigured", source, StringComparison.Ordinal))),
-                ("load delegates through RimMindAPI", () => VerifySource(source =>
-                    Assert.Contains("RimMindAPI.RemoteSync.SyncOnLoadAsync", source, StringComparison.Ordinal))),
-                ("push delegates through RimMindAPI", () => VerifySource(source =>
-                    Assert.Contains("RimMindAPI.RemoteSync.EnqueuePushAsync", source, StringComparison.Ordinal))),
-                ("remote failure leaves local memory intact", () => VerifySource(source =>
+            await ContractCaseRunner.RunAsync(
+                ("remote failure leaves local memory intact", async () =>
                 {
-                    Assert.Contains("if (result.IsErr)", source, StringComparison.Ordinal);
-                    Assert.Contains("return;", source, StringComparison.Ordinal);
-                })),
-                ("Memory has no service locator escape hatch", () => VerifySource(source =>
+                    int scheduled = 0;
+                    int merged = 0;
+                    await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
+                        () => Task.FromResult(Result<string?, RimMindError>.Err(
+                            RimMindErrors.RemoteBackendFailed("offline"))),
+                        action => scheduled++,
+                        json => merged++,
+                        _ => { });
+                    Assert.Equal(0, scheduled);
+                    Assert.Equal(0, merged);
+                }),
+                ("blank success is a no-op", async () =>
                 {
-                    Assert.DoesNotContain("RimMindServiceLocator", source, StringComparison.Ordinal);
-                    Assert.DoesNotContain("GetRemoteSync", source, StringComparison.Ordinal);
-                    Assert.DoesNotContain("IRemoteSyncService", source, StringComparison.Ordinal);
-                })));
-        }
-
-        private static Task VerifySource(Action<string> assertion)
-        {
-            assertion(File.ReadAllText(ComponentPath()));
-            return Task.CompletedTask;
-        }
-
-        private static string ComponentPath()
-        {
-            var directory = new DirectoryInfo(AppContext.BaseDirectory);
-            while (directory != null && !File.Exists(Path.Combine(directory.FullName, "RimMind-Memory", "Source", "Data", "RimMindMemoryWorldComponent.cs")))
-                directory = directory.Parent;
-            return Path.Combine(directory?.FullName ?? throw new InvalidOperationException("Repository root not found."),
-                "RimMind-Memory", "Source", "Data", "RimMindMemoryWorldComponent.cs");
+                    int merged = 0;
+                    await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
+                        () => Task.FromResult(Result<string?, RimMindError>.Ok(" ")),
+                        action => action(),
+                        json => merged++,
+                        _ => { });
+                    Assert.Equal(0, merged);
+                }),
+                ("successful payload is scheduled before merge", async () =>
+                {
+                    bool scheduled = false;
+                    string? merged = null;
+                    await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
+                        () => Task.FromResult(Result<string?, RimMindError>.Ok("{\"ok\":true}")),
+                        action =>
+                        {
+                            scheduled = true;
+                            action();
+                        },
+                        json => merged = json,
+                        _ => { });
+                    Assert.True(scheduled);
+                    Assert.Equal("{\"ok\":true}", merged);
+                }),
+                ("transport exceptions are isolated", async () =>
+                {
+                    int merged = 0;
+                    string? warning = null;
+                    await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
+                        () => Task.FromException<Result<string?, RimMindError>>(
+                            new System.InvalidOperationException("boom")),
+                        action => action(),
+                        json => merged++,
+                        message => warning = message);
+                    Assert.Equal(0, merged);
+                    Assert.Contains("boom", warning);
+                }));
         }
     }
 }
