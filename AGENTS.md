@@ -2,6 +2,10 @@
 
 三层记忆系统(Active/Archive/Dark)，追踪小人活动与地图事件，为AI Prompt提供时间上下文。
 
+## Start here
+
+先读 `Source/README.md`。通常只需继续打开公共 Bridge、WorldComponent、目标 Store、生产者或 Provider 中的一条路径，不要从所有 Harmony Patch 开始搜索。
+
 ## 项目定位
 
 监听游戏事件(工作/受伤/死亡/技能/关系/叙事者)生成MemoryEntry → PawnMemoryStore(三层存储+溢出淘汰) + NarratorMemoryStore → 工作会话聚合(连续同类合并) → 暗记忆每日AI生成(≤50字/条) → 重要度衰减(可选) → ContextKeyRegistry注入上下文。公开 `RimMindMemoryAPI.AddMemory` 供其他模组写入，`GetNarratorMemories` 读取叙事者记忆。
@@ -21,8 +25,11 @@
 
 ```
 Source/
-├── RimMindMemoryMod.cs / RimMindMemoryAPI.cs   Mod入口 + 公开API(AddMemory/GetNarratorMemories)
-├── Settings/RimMindMemorySettings.cs            25项设置
+├── README.md                                      入口到测试的运行时阅读地图
+├── RimMindMemoryMod.cs / RimMindMemoryAPI.cs      组合根 + 公开兼容API
+├── Settings/
+│   ├── RimMindMemorySettings.cs                   25项设置与存档字段
+│   └── MemorySettingsDrawer.cs                    原生/Core设置页共享绘制实现
 ├── Data/
 │   ├── MemoryEntry.cs                           记忆条目(MemoryType: Work/Event/Manual/Dark, content≤2000字)
 │   ├── MemoryStoreBase.cs                       三层存储基类(active/archive/dark + AddActive + EnforceLimit)
@@ -102,6 +109,7 @@ Source/
 - 单例模式: `Instance => _instance ?? throw new InvalidOperationException(...)`
 - 暗记忆场景: `ScenarioIds.Memory`（非 Personality/Storyteller）
 - MemoryEntry.Create 自动截断 content 至 2000 字符
+- 设置入口只转发到 `MemorySettingsDrawer`；Mod 入口不承载控件布局
 
 ## 操作边界
 
