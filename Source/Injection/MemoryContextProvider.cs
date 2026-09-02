@@ -13,6 +13,9 @@ namespace RimMind.Memory.Injection
 {
     public static class MemoryContextProvider
     {
+        private const string PublicProviderOwner = "RimMind.Memory";
+        private const int PublicProviderPriority = 100;
+
         public static void Register()
         {
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
@@ -97,6 +100,54 @@ namespace RimMind.Memory.Injection
 
                     return sb.ToString().TrimEnd();
                 }, "RimMind-Memory", stalenessTicks: 3000, invalidationTriggers: new[] { "MemoryEvent" }));
+
+            RegisterPublicProviders();
+        }
+
+        private static void RegisterPublicProviders()
+        {
+            RimMindAPI.Providers.RegisterPawnProvider(
+                "memory.pawn_brief",
+                PublicProviderOwner,
+                BuildPawnBrief,
+                PublicProviderPriority,
+                overrideExisting: true);
+
+            RimMindAPI.Providers.RegisterStaticProvider(
+                "memory.narrator_brief",
+                PublicProviderOwner,
+                BuildNarratorBrief,
+                PublicProviderPriority);
+        }
+
+        private static string BuildPawnBrief(Pawn pawn)
+        {
+            var store = RimMindMemoryWorldComponent.Instance?.GetOrCreatePawnStore(pawn);
+            if (store == null || store.IsEmpty) return string.Empty;
+
+            var sb = new StringBuilder("[RimMind Memory]");
+            foreach (var memory in store.active.Take(5))
+                sb.AppendLine($"- {memory.content}");
+
+            if (store.dark.Count > 0)
+            {
+                sb.AppendLine("[Long-term]");
+                foreach (var memory in store.dark.Take(5))
+                    sb.AppendLine($"- {memory.content}");
+            }
+
+            return sb.ToString().TrimEnd();
+        }
+
+        private static string BuildNarratorBrief()
+        {
+            var store = RimMindMemoryWorldComponent.Instance?.NarratorStore;
+            if (store == null || store.IsEmpty) return string.Empty;
+
+            var sb = new StringBuilder("[RimMind Storyteller]");
+            foreach (var memory in store.active.Take(5))
+                sb.AppendLine($"- {memory.content}");
+            return sb.ToString().TrimEnd();
         }
     }
 }

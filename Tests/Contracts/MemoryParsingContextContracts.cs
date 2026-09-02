@@ -17,6 +17,7 @@ namespace RimMind.Memory.Tests.Contracts
         {
             ContractCaseRunner.Run(
                 ("pawn and narrator requests carry the merge input", DarkMemoryRequestsCarryMergeInput),
+                ("public providers retain the bridge brief contract", PublicProvidersRetainBridgeBriefContract),
                 ("invalid JSON returns no replacement value", () =>
                     Assert.Null(DarkMemoryResultParserPure.Parse("not-json", 3))),
                 ("missing dark field preserves an empty result", () =>
@@ -100,6 +101,20 @@ namespace RimMind.Memory.Tests.Contracts
 
             AssertRequestCarriesMergeInput(source, pawnStart, narratorStart, "Pawn");
             AssertRequestCarriesMergeInput(source, narratorStart, source.Length, "Narrator");
+        }
+
+        private static void PublicProvidersRetainBridgeBriefContract()
+        {
+            string source = ReadMemorySource("Injection/MemoryContextProvider.cs");
+
+            Assert.Contains("\"memory.pawn_brief\"", source, StringComparison.Ordinal);
+            Assert.Contains("\"memory.narrator_brief\"", source, StringComparison.Ordinal);
+            Assert.Contains("RimMindAPI.Providers.RegisterPawnProvider", source, StringComparison.Ordinal);
+            Assert.Contains("RimMindAPI.Providers.RegisterStaticProvider", source, StringComparison.Ordinal);
+            Assert.Contains("[RimMind Memory]", source, StringComparison.Ordinal);
+            Assert.Contains("[Long-term]", source, StringComparison.Ordinal);
+            Assert.Contains("[RimMind Storyteller]", source, StringComparison.Ordinal);
+            Assert.Contains("Take(5)", source, StringComparison.Ordinal);
         }
 
         private static void AssertRequestCarriesMergeInput(

@@ -36,6 +36,7 @@ RimWorld settings or Core settings tab
 - `RimMindMemoryWorldComponent` owns persistent per-game state.
 - `MemoryStoreBase` owns shared three-layer rules; derived stores express target-specific entry behavior.
 - Providers read state and format context. They do not own storage transitions.
+- `MemoryContextProvider` also publishes synchronous pawn and narrator briefs through Core's public provider registry for optional consumers; Verse reads occur on the main thread.
 - Network and serialization work stays behind the snapshot and Core storage boundaries.
 - Verse and Unity side effects remain on the main thread.
 
