@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using RimMind.Memory.Core;
 using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Data;
@@ -11,9 +13,10 @@ namespace RimMind.Memory.Tests.Contracts
     public sealed class MemoryParsingContextContracts
     {
         [Fact]
-        public void Dark_memory_parsing_preserves_safe_fallbacks_and_limits()
+        public void Dark_memory_request_input_and_parsing_preserve_contracts()
         {
             ContractCaseRunner.Run(
+                ("pawn and narrator requests carry the merge input", DarkMemoryRequestsCarryMergeInput),
                 ("invalid JSON returns no replacement value", () =>
                     Assert.Null(DarkMemoryResultParserPure.Parse("not-json", 3))),
                 ("missing dark field preserves an empty result", () =>
@@ -80,6 +83,87 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.Equal(0.01f, Assert.Single(store.active).importance);
                     Assert.Equal(0.01f, Assert.Single(store.dark).importance);
                 }));
+        }
+
+        private static void DarkMemoryRequestsCarryMergeInput()
+        {
+            string source = ReadMemorySource("DarkMemory/DarkMemoryUpdater.cs");
+            int pawnStart = source.IndexOf(
+                "var npcId = $\"NPC-{pawn.thingIDNumber}\";",
+                StringComparison.Ordinal);
+            int narratorStart = source.IndexOf(
+                "var npcId = \"NPC-storyteller\";",
+                StringComparison.Ordinal);
+
+            Assert.True(pawnStart >= 0, "Pawn request block was not found.");
+            Assert.True(narratorStart > pawnStart, "Narrator request block was not found.");
+
+            AssertRequestCarriesMergeInput(source, pawnStart, narratorStart, "Pawn");
+            AssertRequestCarriesMergeInput(source, narratorStart, source.Length, "Narrator");
+        }
+
+        private static void AssertRequestCarriesMergeInput(
+            string source,
+            int start,
+            int end,
+            string requestName)
+        {
+            int builderStart = source.IndexOf(
+                "var envelope = LlmRequestEnvelopeBuilder",
+                start,
+                StringComparison.Ordinal);
+            Assert.True(
+                builderStart >= start && builderStart < end,
+                $"{requestName} request envelope builder was not found in its request block.");
+
+            int npcIdCall = source.IndexOf(
+                ".WithNpcId(npcId)",
+                builderStart,
+                StringComparison.Ordinal);
+            int inputCall = source.IndexOf(
+                ".WithGameStateInfo(currentQuery)",
+                builderStart,
+                StringComparison.Ordinal);
+            int buildCall = source.IndexOf(
+                ".Build();",
+                builderStart,
+                StringComparison.Ordinal);
+
+            Assert.True(
+                npcIdCall >= builderStart && npcIdCall < end,
+                $"{requestName} request does not set npcId in its envelope builder.");
+            Assert.True(
+                inputCall >= builderStart && inputCall < end,
+                $"{requestName} request does not carry currentQuery in its envelope builder.");
+            Assert.True(
+                buildCall >= builderStart && buildCall < end,
+                $"{requestName} request envelope build was not found in its request block.");
+            Assert.True(
+                builderStart < npcIdCall,
+                $"{requestName} request sets npcId before its envelope builder.");
+            Assert.True(
+                npcIdCall < inputCall,
+                $"{requestName} request carries currentQuery before setting npcId.");
+            Assert.True(
+                inputCall < buildCall,
+                $"{requestName} request builds before carrying currentQuery.");
+        }
+
+        private static string ReadMemorySource(string relativePath)
+        {
+            DirectoryInfo? directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory != null &&
+                   !Directory.Exists(Path.Combine(directory.FullName, "RimMind-Memory", "Source")))
+            {
+                directory = directory.Parent;
+            }
+
+            Assert.NotNull(directory);
+            return File.ReadAllText(Path.Combine(
+                directory!.FullName,
+                "RimMind-Memory",
+                "Source",
+                relativePath.Replace('/', Path.DirectorySeparatorChar)));
         }
 
         [Fact]

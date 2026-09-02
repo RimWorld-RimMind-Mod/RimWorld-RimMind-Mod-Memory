@@ -157,6 +157,7 @@ namespace RimMind.Memory.DarkMemory
                 .WithMaxTokens(400)
                 .WithTemperature(0.5f)
                 .WithNpcId(npcId)
+                .WithGameStateInfo(currentQuery)
                 .Build();
             RimMindAPI.Request.Send(envelope, result =>
             {
@@ -200,6 +201,7 @@ namespace RimMind.Memory.DarkMemory
                 .WithMaxTokens(400)
                 .WithTemperature(0.5f)
                 .WithNpcId(npcId)
+                .WithGameStateInfo(currentQuery)
                 .Build();
             RimMindAPI.Request.Send(envelope, result =>
             {
