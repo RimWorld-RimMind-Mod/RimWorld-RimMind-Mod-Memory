@@ -47,7 +47,7 @@ Source/
 ├── Triggers/                                    5个Patch(AddHediff/Kill/MentalBreak/SkillLevelUp/AddRelation)
 │       MemoryTriggerHelper.cs                   触发器辅助(ShouldProcess+WriteMemory+TryUpgradeToNarrator)
 ├── Narrator/Patch_IncidentWorker.cs             叙事者事件Postfix
-├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(ScenarioIds.Memory, RimMindAPI.RequestStructured)
+├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(ScenarioIds.Memory, LlmRequestEnvelopeBuilder + RimMindAPI.Request.Send)
 │                 DarkMemoryResultParserPure.cs    纯逻辑解析器(生产+测试共用,JSON修复+解析)
 ├── Decay/ImportanceDecayManager.cs              衰减管理(默认关闭,单MemoryStoreBase重载)
 ├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs + PawnLookup.cs
@@ -82,7 +82,7 @@ Source/
 | API | 用途 | 状态 |
 |-----|------|------|
 | ContextKeyRegistry.Register | 注入记忆上下文 | ✅ 使用中 |
-| RimMindAPI.RequestStructured | 暗记忆AI生成 | ✅ 使用中 |
+| LlmRequestEnvelopeBuilder + RimMindAPI.Request.Send | 暗记忆AI生成 | ✅ 使用中 |
 | SchemaRegistry.DarkMemoryOutput | 暗记忆JSON Schema | ✅ 使用中 |
 | RimMindAPI.RegisterSettingsTab | 设置页标签 | ✅ 使用中 |
 | RimMindAPI.RegisterModCooldown | 冷却注册 | ✅ 使用中 |
@@ -124,7 +124,7 @@ Source/
 - 修改暗记忆生成的AI请求参数
 
 ### 🚫 绝对禁止
-- 后台线程调用 `RimMindAPI.RequestStructured`
+- 后台线程读取 Verse 记忆状态或调用 `RimMindAPI.Request.Send`
 - 修改 `MemoryType` 枚举值(影响已持久化数据)
 - 绕过 `RimMindMemoryAPI.AddMemory` 直接操作WorldComponent
 - DarkMemoryUpdater Prompt构建硬编码文本(应通过翻译键)

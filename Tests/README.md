@@ -33,8 +33,7 @@ seam. Its active contract covers layer round-trips, cross-layer deduplication,
 legacy routing and capacity enforcement without compiling the Verse world
 component.
 
-## Retired legacy tests
+## Support files
 
-Files outside `Contracts/` are retained on disk but excluded from compilation.
-Their behavior mapping is recorded in the root contract mapping document.
-Deletion requires explicit owner approval for each exact file path; directories are never deleted.
+`VerseStubs.cs` and project metadata remain outside `Contracts/`; no retired
+legacy test sources remain in this directory.
