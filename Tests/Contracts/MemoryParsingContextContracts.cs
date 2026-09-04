@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using RimMind.Memory.Core;
 using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Data;
@@ -17,7 +18,7 @@ namespace RimMind.Memory.Tests.Contracts
         {
             ContractCaseRunner.Run(
                 ("pawn and narrator requests carry the merge input", DarkMemoryRequestsCarryMergeInput),
-                ("public providers retain the bridge brief contract", PublicProvidersRetainBridgeBriefContract),
+                ("public providers retain the side-effect-free bridge brief contract", PublicProvidersRetainBridgeBriefContract),
                 ("invalid JSON returns no replacement value", () =>
                     Assert.Null(DarkMemoryResultParserPure.Parse("not-json", 3))),
                 ("missing dark field preserves an empty result", () =>
@@ -105,16 +106,119 @@ namespace RimMind.Memory.Tests.Contracts
 
         private static void PublicProvidersRetainBridgeBriefContract()
         {
-            string source = ReadMemorySource("Injection/MemoryContextProvider.cs");
+            string worldSource = ReadMemorySource("Data/RimMindMemoryWorldComponent.cs");
+            string providerSource = ReadMemorySource("Injection/MemoryContextProvider.cs");
 
-            Assert.Contains("\"memory.pawn_brief\"", source, StringComparison.Ordinal);
-            Assert.Contains("\"memory.narrator_brief\"", source, StringComparison.Ordinal);
-            Assert.Contains("RimMindAPI.Providers.RegisterPawnProvider", source, StringComparison.Ordinal);
-            Assert.Contains("RimMindAPI.Providers.RegisterStaticProvider", source, StringComparison.Ordinal);
-            Assert.Contains("[RimMind Memory]", source, StringComparison.Ordinal);
-            Assert.Contains("[Long-term]", source, StringComparison.Ordinal);
-            Assert.Contains("[RimMind Storyteller]", source, StringComparison.Ordinal);
-            Assert.Contains("Take(5)", source, StringComparison.Ordinal);
+            string pawnStoreQuery = SliceSource(
+                worldSource,
+                "internal PawnMemoryStore? GetPawnStore(Pawn pawn)",
+                "public NarratorMemoryStore NarratorStore");
+            Assert.Contains(
+                "return _pawnStores.TryGetValue(pawn.thingIDNumber, out var store) ? store : null;",
+                pawnStoreQuery,
+                StringComparison.Ordinal);
+            Assert.DoesNotContain("_pawnStores[", pawnStoreQuery, StringComparison.Ordinal);
+
+            Assert.DoesNotContain("GetOrCreatePawnStore", providerSource, StringComparison.Ordinal);
+            Assert.Equal(2, CountOccurrences(providerSource, "GetPawnStore(pawn)"));
+            Assert.Contains("var store = wc.GetPawnStore(pawn);", providerSource, StringComparison.Ordinal);
+            Assert.Contains(
+                "var store = RimMindMemoryWorldComponent.Instance?.GetPawnStore(pawn);",
+                providerSource,
+                StringComparison.Ordinal);
+
+            string registerMethod = SliceSource(
+                providerSource,
+                "public static void Register()",
+                "private static void RegisterPublicProviders()");
+            Assert.Equal(
+                2,
+                CountOccurrences(registerMethod, "RimMindAPI.Context.ContextKeys.Register"));
+            int secondContextRegistration = registerMethod.LastIndexOf(
+                "RimMindAPI.Context.ContextKeys.Register",
+                StringComparison.Ordinal);
+            int publicProviderRegistration = registerMethod.IndexOf(
+                "RegisterPublicProviders();",
+                StringComparison.Ordinal);
+            Assert.True(
+                publicProviderRegistration > secondContextRegistration,
+                "Public providers must be registered after both context providers.");
+
+            Assert.Contains(
+                "private const string PublicProviderOwner = \"RimMind.Memory\";",
+                providerSource,
+                StringComparison.Ordinal);
+            Assert.Contains(
+                "private const int PublicProviderPriority = 100;",
+                providerSource,
+                StringComparison.Ordinal);
+
+            string publicProviders = RemoveWhitespace(SliceSource(
+                providerSource,
+                "private static void RegisterPublicProviders()",
+                "private static string BuildPawnBrief(Pawn pawn)"));
+            Assert.Contains(
+                "RimMindAPI.Providers.RegisterPawnProvider(\"memory.pawn_brief\",PublicProviderOwner,BuildPawnBrief,PublicProviderPriority,overrideExisting:true);",
+                publicProviders,
+                StringComparison.Ordinal);
+            Assert.Contains(
+                "RimMindAPI.Providers.RegisterStaticProvider(\"memory.narrator_brief\",PublicProviderOwner,BuildNarratorBrief,PublicProviderPriority);",
+                publicProviders,
+                StringComparison.Ordinal);
+
+            string pawnBrief = SliceSource(
+                providerSource,
+                "private static string BuildPawnBrief(Pawn pawn)",
+                "private static string BuildNarratorBrief()");
+            string narratorBrief = providerSource.Substring(providerSource.IndexOf(
+                "private static string BuildNarratorBrief()",
+                StringComparison.Ordinal));
+
+            Assert.Equal(3, CountOccurrences(providerSource, "Take(5)"));
+            Assert.Contains("store.active.Take(5)", pawnBrief, StringComparison.Ordinal);
+            Assert.Contains("if (store.dark.Count > 0)", pawnBrief, StringComparison.Ordinal);
+            Assert.Contains("store.dark.Take(5)", pawnBrief, StringComparison.Ordinal);
+            Assert.Contains(
+                "new StringBuilder(\"[RimMind Memory]\")",
+                pawnBrief,
+                StringComparison.Ordinal);
+            Assert.Contains("sb.AppendLine(\"[Long-term]\");", pawnBrief, StringComparison.Ordinal);
+            Assert.Contains("store.active.Take(5)", narratorBrief, StringComparison.Ordinal);
+            Assert.Contains(
+                "new StringBuilder(\"[RimMind Storyteller]\")",
+                narratorBrief,
+                StringComparison.Ordinal);
+            Assert.Equal(3, CountOccurrences(providerSource, "sb.AppendLine($\"- {memory.content}\");"));
+            Assert.Equal(1, CountOccurrences(pawnBrief, "return sb.ToString().TrimEnd();"));
+            Assert.Equal(1, CountOccurrences(narratorBrief, "return sb.ToString().TrimEnd();"));
+        }
+
+        private static string SliceSource(string source, string startMarker, string endMarker)
+        {
+            int start = source.IndexOf(startMarker, StringComparison.Ordinal);
+            int end = source.IndexOf(endMarker, start + startMarker.Length, StringComparison.Ordinal);
+
+            Assert.True(start >= 0, $"Source marker was not found: {startMarker}");
+            Assert.True(end > start, $"Source marker was not found after {startMarker}: {endMarker}");
+            return source.Substring(start, end - start);
+        }
+
+        private static int CountOccurrences(string source, string value)
+        {
+            int count = 0;
+            int index = 0;
+            while ((index = source.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+            {
+                count++;
+                index += value.Length;
+            }
+
+            return count;
+        }
+
+        private static string RemoveWhitespace(string value)
+        {
+            return string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
         }
 
         private static void AssertRequestCarriesMergeInput(

@@ -34,6 +34,11 @@ namespace RimMind.Memory.Data
             return store;
         }
 
+        internal PawnMemoryStore? GetPawnStore(Pawn pawn)
+        {
+            return _pawnStores.TryGetValue(pawn.thingIDNumber, out var store) ? store : null;
+        }
+
         public NarratorMemoryStore NarratorStore => _narratorStore;
 
         public IEnumerable<PawnMemoryStore> AllPawnStores => _pawnStores.Values;

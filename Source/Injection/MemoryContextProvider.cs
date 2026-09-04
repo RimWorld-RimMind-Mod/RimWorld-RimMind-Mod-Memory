@@ -27,7 +27,8 @@ namespace RimMind.Memory.Injection
                     if (pawn == null) return null;
                     var wc = RimMindMemoryWorldComponent.Instance;
                     if (wc == null) return null;
-                    var store = wc.GetOrCreatePawnStore(pawn);
+                    var store = wc.GetPawnStore(pawn);
+                    if (store == null) return null;
                     if (store.IsEmpty) return null;
 
                     var settings = RimMindMemoryMod.Settings;
@@ -122,7 +123,7 @@ namespace RimMind.Memory.Injection
 
         private static string BuildPawnBrief(Pawn pawn)
         {
-            var store = RimMindMemoryWorldComponent.Instance?.GetOrCreatePawnStore(pawn);
+            var store = RimMindMemoryWorldComponent.Instance?.GetPawnStore(pawn);
             if (store == null || store.IsEmpty) return string.Empty;
 
             var sb = new StringBuilder("[RimMind Memory]");
