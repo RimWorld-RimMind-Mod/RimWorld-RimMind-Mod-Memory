@@ -1,222 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <!-- TimeFormatter.cs -->
-    <RimMind.Memory.Time.JustNow>刚才</RimMind.Memory.Time.JustNow>
-    <RimMind.Memory.Time.HoursAgo>约{0}h前</RimMind.Memory.Time.HoursAgo>
-    <RimMind.Memory.Time.Today>今天</RimMind.Memory.Time.Today>
-    <RimMind.Memory.Time.DaysAgo>{0}天前</RimMind.Memory.Time.DaysAgo>
-    <RimMind.Memory.Time.GameDate>日{0} {1}:00</RimMind.Memory.Time.GameDate>
-    <RimMind.Memory.Time.TimeContent>{0}：{1}</RimMind.Memory.Time.TimeContent>
-
-    <!-- WorkSessionAggregator.cs -->
-    <RimMind.Memory.Work.Session>{0} ×{1}  约{2}游戏时</RimMind.Memory.Work.Session>
-    <RimMind.Memory.Work.Idle>休息/待机 约{0}游戏时</RimMind.Memory.Work.Idle>
-
-    <!-- Work Labels - WorkSessionAggregator.cs -->
-    <RimMind.Memory.Work.Sow>种植</RimMind.Memory.Work.Sow>
-    <RimMind.Memory.Work.PlantSeed>种植</RimMind.Memory.Work.PlantSeed>
-    <RimMind.Memory.Work.Replant>移植</RimMind.Memory.Work.Replant>
-    <RimMind.Memory.Work.Harvest>收获</RimMind.Memory.Work.Harvest>
-    <RimMind.Memory.Work.HarvestDesignated>收获</RimMind.Memory.Work.HarvestDesignated>
-    <RimMind.Memory.Work.CutPlant>砍伐</RimMind.Memory.Work.CutPlant>
-    <RimMind.Memory.Work.CutPlantDesignated>砍伐</RimMind.Memory.Work.CutPlantDesignated>
-    <RimMind.Memory.Work.FinishFrame>建造</RimMind.Memory.Work.FinishFrame>
-    <RimMind.Memory.Work.PlaceNoCostFrame>建造</RimMind.Memory.Work.PlaceNoCostFrame>
-    <RimMind.Memory.Work.Deconstruct>拆除</RimMind.Memory.Work.Deconstruct>
-    <RimMind.Memory.Work.Uninstall>拆除</RimMind.Memory.Work.Uninstall>
-    <RimMind.Memory.Work.Repair>修理</RimMind.Memory.Work.Repair>
-    <RimMind.Memory.Work.FixBrokenDownBuilding>修理</RimMind.Memory.Work.FixBrokenDownBuilding>
-    <RimMind.Memory.Work.Mine>挖掘</RimMind.Memory.Work.Mine>
-    <RimMind.Memory.Work.Clean>清洁</RimMind.Memory.Work.Clean>
-    <RimMind.Memory.Work.HaulToCell>搬运</RimMind.Memory.Work.HaulToCell>
-    <RimMind.Memory.Work.HaulToContainer>搬运</RimMind.Memory.Work.HaulToContainer>
-    <RimMind.Memory.Work.HaulToTransporter>搬运</RimMind.Memory.Work.HaulToTransporter>
-    <RimMind.Memory.Work.HaulToPortal>搬运</RimMind.Memory.Work.HaulToPortal>
-    <RimMind.Memory.Work.HaulCorpseToPublicPlace>搬运</RimMind.Memory.Work.HaulCorpseToPublicPlace>
-    <RimMind.Memory.Work.DoBill>加工</RimMind.Memory.Work.DoBill>
-    <RimMind.Memory.Work.Research>研究</RimMind.Memory.Work.Research>
-    <RimMind.Memory.Work.Hunt>狩猎</RimMind.Memory.Work.Hunt>
-    <RimMind.Memory.Work.BeatFire>消防</RimMind.Memory.Work.BeatFire>
-    <RimMind.Memory.Work.ExtinguishSelf>消防</RimMind.Memory.Work.ExtinguishSelf>
-    <RimMind.Memory.Work.SmoothFloor>精炼</RimMind.Memory.Work.SmoothFloor>
-    <RimMind.Memory.Work.RemoveFloor>精炼</RimMind.Memory.Work.RemoveFloor>
-    <RimMind.Memory.Work.SmoothWall>精炼</RimMind.Memory.Work.SmoothWall>
-    <RimMind.Memory.Work.BuildRoof>建屋顶</RimMind.Memory.Work.BuildRoof>
-    <RimMind.Memory.Work.RemoveRoof>拆屋顶</RimMind.Memory.Work.RemoveRoof>
-    <RimMind.Memory.Work.PaintBuilding>涂装</RimMind.Memory.Work.PaintBuilding>
-    <RimMind.Memory.Work.PaintFloor>涂装</RimMind.Memory.Work.PaintFloor>
-    <RimMind.Memory.Work.RemovePaintBuilding>除漆</RimMind.Memory.Work.RemovePaintBuilding>
-    <RimMind.Memory.Work.RemovePaintFloor>除漆</RimMind.Memory.Work.RemovePaintFloor>
-    <RimMind.Memory.Work.OperateDeepDrill>深钻</RimMind.Memory.Work.OperateDeepDrill>
-    <RimMind.Memory.Work.OperateScanner>扫描</RimMind.Memory.Work.OperateScanner>
-    <RimMind.Memory.Work.ExtractTree>伐木</RimMind.Memory.Work.ExtractTree>
-    <RimMind.Memory.Work.Refuel>加燃料</RimMind.Memory.Work.Refuel>
-    <RimMind.Memory.Work.RearmTurret>装填</RimMind.Memory.Work.RearmTurret>
-    <RimMind.Memory.Work.ClearSnow>除雪</RimMind.Memory.Work.ClearSnow>
-    <RimMind.Memory.Work.ManTurret>操控炮塔</RimMind.Memory.Work.ManTurret>
-
-    <!-- Significant Job Labels - WorkSessionAggregator.cs -->
-    <RimMind.Memory.Work.AttackMelee>参与战斗</RimMind.Memory.Work.AttackMelee>
-    <RimMind.Memory.Work.AttackStatic>参与战斗</RimMind.Memory.Work.AttackStatic>
-    <RimMind.Memory.Work.Rescue>救助</RimMind.Memory.Work.Rescue>
-    <RimMind.Memory.Work.TendPatient>治疗伤员</RimMind.Memory.Work.TendPatient>
-    <RimMind.Memory.Work.FeedPatient>喂食病人</RimMind.Memory.Work.FeedPatient>
-    <RimMind.Memory.Work.DeliverFood>送餐</RimMind.Memory.Work.DeliverFood>
-    <RimMind.Memory.Work.Slaughter>屠宰</RimMind.Memory.Work.Slaughter>
-    <RimMind.Memory.Work.Tame>驯服</RimMind.Memory.Work.Tame>
-    <RimMind.Memory.Work.Train>训练</RimMind.Memory.Work.Train>
-    <RimMind.Memory.Work.Milk>挤奶</RimMind.Memory.Work.Milk>
-    <RimMind.Memory.Work.Shear>剪毛</RimMind.Memory.Work.Shear>
-    <RimMind.Memory.Work.PrisonerAttemptRecruit>招募囚犯</RimMind.Memory.Work.PrisonerAttemptRecruit>
-
-    <!-- DarkMemoryUpdater.cs - Prompt -->
-    <RimMind.Memory.Prompt.PawnTodayMemory>{0} 今天的记忆：</RimMind.Memory.Prompt.PawnTodayMemory>
-    <RimMind.Memory.Prompt.ExistingImpression>现有长期印象（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingImpression>
-    <RimMind.Memory.Prompt.MergeInstruction>请将今日记忆融入已有印象，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeInstruction>
-    <RimMind.Memory.Prompt.JsonTemplate>{{"dark":["...","..."]}}</RimMind.Memory.Prompt.JsonTemplate>
-    <RimMind.Memory.Prompt.DarkMemorySystem>你是一个RimWorld殖民地的记忆摘要器。将每日记忆融入长期印象，保持简洁。只输出JSON。</RimMind.Memory.Prompt.DarkMemorySystem>
-    <RimMind.Memory.Prompt.ColonyTodayEvents>殖民地今天的事件：</RimMind.Memory.Prompt.ColonyTodayEvents>
-    <RimMind.Memory.Prompt.ExistingNarrative>现有长期叙事（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingNarrative>
-    <RimMind.Memory.Prompt.MergeNarrativeInstruction>请将今日事件融入已有叙事，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeNarrativeInstruction>
-    <RimMind.Memory.Prompt.DarkNarrativeSystem>你是RimWorld殖民地的叙事摘要器。将每日事件融入长期叙事，保持简洁。只输出JSON。</RimMind.Memory.Prompt.DarkNarrativeSystem>
-
-    <!-- Five-section System Prompt - Pawn Dark Memory -->
-    <RimMind.Memory.Prompt.System.Role>[角色] 你是 RimWorld 殖民地的记忆摘要师，负责将小人的日常记忆合并为长期印象。</RimMind.Memory.Prompt.System.Role>
-    <RimMind.Memory.Prompt.System.Goal>[目标] 将今日记忆合并到现有长期印象中，保持简洁且信息完整。</RimMind.Memory.Prompt.System.Goal>
-    <RimMind.Memory.Prompt.System.Process>[流程]\n1. 阅读今日发生的所有记忆\n2. 阅读现有的长期印象\n3. 将今日记忆的关键信息融入现有印象（更新/合并/新增）\n4. 移除最不相关的旧印象以保持数量限制\n5. 确保每条印象包含时间或场景定位</RimMind.Memory.Prompt.System.Process>
-    <RimMind.Memory.Prompt.System.Constraint>[约束]\n- 保持指定条数，不多不少\n- 每条 ≤50 字\n- 优先保留高重要性记忆\n- 合并相似主题的印象\n- 每条应包含时间/场景定位词</RimMind.Memory.Prompt.System.Constraint>
-    <RimMind.Memory.Prompt.System.Example>[示例]\n输入：今日记忆=["采矿6小时","被海盗袭击受伤","与Alex聊天"]，现有印象=["擅长采矿","与Alex关系好"]\n输出：{{"dark":["资深矿工，经常长时间采矿","上个月被海盗袭击受伤，对袭击保持警惕","与Alex关系亲密，经常聊天"]}}</RimMind.Memory.Prompt.System.Example>
-    <RimMind.Memory.Prompt.System.Output>[输出] 只返回以下 JSON 格式：\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.System.Output>
-    <RimMind.Memory.Prompt.System.Fallback>[兜底] 如果无法合并，返回现有印象不变。</RimMind.Memory.Prompt.System.Fallback>
-
-    <!-- Five-section System Prompt - Narrator Dark Memory -->
-    <RimMind.Memory.Prompt.NarratorSystem.Role>[角色] 你是 RimWorld 殖民地的叙事摘要师，负责将每日事件合并为长期叙事。</RimMind.Memory.Prompt.NarratorSystem.Role>
-    <RimMind.Memory.Prompt.NarratorSystem.Goal>[目标] 将今日事件合并到现有长期叙事中，保持简洁且信息完整。</RimMind.Memory.Prompt.NarratorSystem.Goal>
-    <RimMind.Memory.Prompt.NarratorSystem.Process>[流程]\n1. 阅读今日殖民地发生的所有事件\n2. 阅读现有的长期叙事\n3. 将今日事件的关键信息融入现有叙事\n4. 移除最不相关的旧叙事以保持数量限制\n5. 确保每条叙事包含时间或场景定位</RimMind.Memory.Prompt.NarratorSystem.Process>
-    <RimMind.Memory.Prompt.NarratorSystem.Constraint>[约束]\n- 保持指定条数，不多不少\n- 每条 ≤50 字\n- 优先保留高重要性事件\n- 合并相似主题的叙事\n- 每条应包含时间/场景定位词</RimMind.Memory.Prompt.NarratorSystem.Constraint>
-    <RimMind.Memory.Prompt.NarratorSystem.Example>[示例]\n输入：今日事件=["海盗袭击","商人来访","新殖民者加入"]，现有叙事=["殖民地刚建立"]\n输出：{{"dark":["殖民地建立初期，经历了海盗袭击","曾有商人来访，建立了贸易联系","最近有新殖民者加入，壮大了队伍"]}}</RimMind.Memory.Prompt.NarratorSystem.Example>
-    <RimMind.Memory.Prompt.NarratorSystem.Output>[输出] 只返回以下 JSON 格式：\n{{"dark":["...","..."]}}</RimMind.Memory.Prompt.NarratorSystem.Output>
-    <RimMind.Memory.Prompt.NarratorSystem.Fallback>[兜底] 如果无法合并，返回现有叙事不变。</RimMind.Memory.Prompt.NarratorSystem.Fallback>
-
-    <!-- MemoryContextProvider.cs - Context -->
-    <RimMind.Memory.Context.RecentMemory>[{0} 近期记忆]</RimMind.Memory.Context.RecentMemory>
-    <RimMind.Memory.Context.ArchiveMemory>[{0} 存档记忆（按重要度）]</RimMind.Memory.Context.ArchiveMemory>
-    <RimMind.Memory.Context.DarkMemory>\n[{0} 长期印象（AI生成）]</RimMind.Memory.Context.DarkMemory>
-    <RimMind.Memory.Context.NarratorMemory>[殖民地叙事记忆]</RimMind.Memory.Context.NarratorMemory>
-    <RimMind.Memory.Context.NarratorArchive>[存档叙事（按重要度）]</RimMind.Memory.Context.NarratorArchive>
-    <RimMind.Memory.Context.NarratorDark>\n[长期叙事（AI生成）]</RimMind.Memory.Context.NarratorDark>
-    <RimMind.Memory.Context.Map>[地图]</RimMind.Memory.Context.Map>
-    <RimMind.Memory.Context.FromFaction>（{0}来自{1}）</RimMind.Memory.Context.FromFaction>
-
-    <!-- RimMindMemoryMod.cs - Settings UI -->
-    <RimMind.Memory.Settings.TabLabel>记忆</RimMind.Memory.Settings.TabLabel>
-    <RimMind.Memory.Settings.EnableMemory>启用记忆系统</RimMind.Memory.Settings.EnableMemory>
-    <RimMind.Memory.Settings.EnableMemory.Desc>开启后，殖民者会自动记录游戏中的事件，形成个人记忆。</RimMind.Memory.Settings.EnableMemory.Desc>
-    <RimMind.Memory.Settings.TriggerSources>触发来源</RimMind.Memory.Settings.TriggerSources>
-    <RimMind.Memory.Settings.TriggerWorkSession>工作阶段结束</RimMind.Memory.Settings.TriggerWorkSession>
-    <RimMind.Memory.Settings.TriggerWorkSession.Desc>当一个工作阶段结束时，自动记录工作内容作为记忆。</RimMind.Memory.Settings.TriggerWorkSession.Desc>
-    <RimMind.Memory.Settings.TriggerInjury>受伤 / 患病</RimMind.Memory.Settings.TriggerInjury>
-    <RimMind.Memory.Settings.TriggerInjury.Desc>当殖民者受伤或患病时，自动记录为记忆。</RimMind.Memory.Settings.TriggerInjury.Desc>
-    <RimMind.Memory.Settings.TriggerMentalBreak>精神崩溃</RimMind.Memory.Settings.TriggerMentalBreak>
-    <RimMind.Memory.Settings.TriggerMentalBreak.Desc>当殖民者精神崩溃时，自动记录为记忆。</RimMind.Memory.Settings.TriggerMentalBreak.Desc>
-    <RimMind.Memory.Settings.TriggerDeath>亲近者死亡</RimMind.Memory.Settings.TriggerDeath>
-    <RimMind.Memory.Settings.TriggerDeath.Desc>当殖民者的亲友死亡时，自动记录为记忆。</RimMind.Memory.Settings.TriggerDeath.Desc>
-    <RimMind.Memory.Settings.TriggerSkillLevelUp>技能升级</RimMind.Memory.Settings.TriggerSkillLevelUp>
-    <RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>当殖民者技能升级时，自动记录为记忆。</RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>
-    <RimMind.Memory.Settings.TriggerRelation>关系变化</RimMind.Memory.Settings.TriggerRelation>
-    <RimMind.Memory.Settings.TriggerRelation.Desc>当殖民者与他人建立或改变关系时，自动记录为记忆。</RimMind.Memory.Settings.TriggerRelation.Desc>
-    <RimMind.Memory.Settings.PawnCapacity>小人记忆容量</RimMind.Memory.Settings.PawnCapacity>
-    <RimMind.Memory.Settings.MaxActive>活跃记忆上限：{0}</RimMind.Memory.Settings.MaxActive>
-    <RimMind.Memory.Settings.MaxActive.Desc>活跃记忆是最近发生的、重要度较高的记忆，会被注入 AI 上下文。</RimMind.Memory.Settings.MaxActive.Desc>
-    <RimMind.Memory.Settings.MaxArchive>存档记忆上限：{0}</RimMind.Memory.Settings.MaxArchive>
-    <RimMind.Memory.Settings.MaxArchive.Desc>存档记忆是重要度降低后归档的旧记忆，按比例注入上下文。</RimMind.Memory.Settings.MaxArchive.Desc>
-    <RimMind.Memory.Settings.DarkCount>暗记忆条数：{0}</RimMind.Memory.Settings.DarkCount>
-    <RimMind.Memory.Settings.DarkCount.Desc>暗记忆是 AI 将每日记忆压缩后的长期印象，每条不超过50字。</RimMind.Memory.Settings.DarkCount.Desc>
-    <RimMind.Memory.Settings.NarratorCapacity>叙事者记忆容量</RimMind.Memory.Settings.NarratorCapacity>
-    <RimMind.Memory.Settings.NarratorMaxActive>活跃叙事上限：{0}</RimMind.Memory.Settings.NarratorMaxActive>
-    <RimMind.Memory.Settings.NarratorMaxActive.Desc>叙事者的活跃事件记录上限。</RimMind.Memory.Settings.NarratorMaxActive.Desc>
-    <RimMind.Memory.Settings.NarratorMaxArchive>存档叙事上限：{0}</RimMind.Memory.Settings.NarratorMaxArchive>
-    <RimMind.Memory.Settings.NarratorMaxArchive.Desc>叙事者的存档事件记录上限。</RimMind.Memory.Settings.NarratorMaxArchive.Desc>
-    <RimMind.Memory.Settings.NarratorDarkCount>暗叙事条数：{0}</RimMind.Memory.Settings.NarratorDarkCount>
-    <RimMind.Memory.Settings.NarratorDarkCount.Desc>叙事者的 AI 压缩长期叙事条数。</RimMind.Memory.Settings.NarratorDarkCount.Desc>
-    <RimMind.Memory.Settings.InjectRatio>注入比例</RimMind.Memory.Settings.InjectRatio>
-    <RimMind.Memory.Settings.ActiveInjectRatio>活跃注入比例：{0}</RimMind.Memory.Settings.ActiveInjectRatio>
-    <RimMind.Memory.Settings.ActiveInjectRatio.Desc>活跃记忆注入 AI 上下文的比例。1.0 = 全部注入，0.5 = 注入一半。</RimMind.Memory.Settings.ActiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.ArchiveInjectRatio>存档注入比例：{0}</RimMind.Memory.Settings.ArchiveInjectRatio>
-    <RimMind.Memory.Settings.ArchiveInjectRatio.Desc>存档记忆注入 AI 上下文的比例。存档记忆较多时，降低比例可节省 Token。</RimMind.Memory.Settings.ArchiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.NarratorActiveInjectRatio>叙事者活跃注入比例：{0}</RimMind.Memory.Settings.NarratorActiveInjectRatio>
-    <RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>叙事者活跃叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.NarratorArchiveInjectRatio>叙事者存档注入比例：{0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
-    <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>叙事者存档叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
-    <RimMind.Memory.Settings.Section.Decay>记忆衰减</RimMind.Memory.Settings.Section.Decay>
-    <RimMind.Memory.Settings.Section.Request>请求设置</RimMind.Memory.Settings.Section.Request>
-    <RimMind.Memory.Settings.RequestExpire>请求过期：{0} 游戏天</RimMind.Memory.Settings.RequestExpire>
-    <RimMind.Memory.Settings.RequestExpire.Desc>暗记忆生成请求超过此时间未获得响应则自动取消。</RimMind.Memory.Settings.RequestExpire.Desc>
-    <RimMind.Memory.Settings.EnableDecay>启用重要度衰减</RimMind.Memory.Settings.EnableDecay>
-    <RimMind.Memory.Settings.EnableDecay.Desc>开启后，记忆的重要度会随时间降低，低于阈值时自动归档。</RimMind.Memory.Settings.EnableDecay.Desc>
-    <RimMind.Memory.Settings.DecayRate>衰减速率：{0}%/天</RimMind.Memory.Settings.DecayRate>
-    <RimMind.Memory.Settings.DecayRate.Desc>每个游戏日重要度降低的百分比。数值越大，记忆越快被归档。</RimMind.Memory.Settings.DecayRate.Desc>
-    <RimMind.Memory.Settings.MinThreshold>最低阈值：{0}</RimMind.Memory.Settings.MinThreshold>
-    <RimMind.Memory.Settings.MinThreshold.Desc>重要度低于此阈值的记忆会被自动归档。</RimMind.Memory.Settings.MinThreshold.Desc>
-    <RimMind.Memory.Settings.Section.Aggregation>工作会话聚合</RimMind.Memory.Settings.Section.Aggregation>
-    <RimMind.Memory.Settings.MinAggregationCount>最小聚合次数：{0}</RimMind.Memory.Settings.MinAggregationCount>
-    <RimMind.Memory.Settings.MinAggregationCount.Desc>同类工作达到此次数后才聚合为一条记忆。数值越低记录越细粒度。</RimMind.Memory.Settings.MinAggregationCount.Desc>
-    <RimMind.Memory.Settings.IdleGapThreshold>空闲间隔阈值：{0} 游戏时</RimMind.Memory.Settings.IdleGapThreshold>
-    <RimMind.Memory.Settings.IdleGapThreshold.Desc>两次有意义工作之间的间隔超过此时长，记录为休息/待机。</RimMind.Memory.Settings.IdleGapThreshold.Desc>
-    <RimMind.Memory.Settings.CollectionControl>采集控制</RimMind.Memory.Settings.CollectionControl>
-    <RimMind.Memory.Settings.NarratorEventThreshold>叙事者事件阈值：{0}</RimMind.Memory.Settings.NarratorEventThreshold>
-    <RimMind.Memory.Settings.NarratorEventThreshold.Desc>事件重要度达到此阈值才会被叙事者记录。</RimMind.Memory.Settings.NarratorEventThreshold.Desc>
-    <RimMind.Memory.Settings.PawnToNarratorThreshold>小人→叙事者阈值：{0}</RimMind.Memory.Settings.PawnToNarratorThreshold>
-    <RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>小人记忆重要度达到此阈值才会同步到叙事者。</RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>
-    <RimMind.Memory.Settings.NarratorMemoryReadonly>叙事者记忆（只读）：</RimMind.Memory.Settings.NarratorMemoryReadonly>
-    <RimMind.Memory.Settings.NeedLoadGame>  需要载入游戏后查看</RimMind.Memory.Settings.NeedLoadGame>
-    <RimMind.Memory.Settings.LongTermNarrative>  长期叙事（AI 生成）：</RimMind.Memory.Settings.LongTermNarrative>
-    <RimMind.Memory.Settings.ActiveNarrative>  活跃叙事（{0}/{1}）：</RimMind.Memory.Settings.ActiveNarrative>
-    <RimMind.Memory.Settings.ArchiveNarrativeCount>  存档叙事：{0} 条</RimMind.Memory.Settings.ArchiveNarrativeCount>
-
-    <!-- Patch_AddHediff.cs - Trigger -->
-    <RimMind.Memory.Trigger.FullBody>全身</RimMind.Memory.Trigger.FullBody>
-    <RimMind.Memory.Trigger.UnknownSource>未知来源</RimMind.Memory.Trigger.UnknownSource>
-    <RimMind.Memory.Trigger.AttackedBy>被{0}攻击致{1}（{2}）</RimMind.Memory.Trigger.AttackedBy>
-    <RimMind.Memory.Trigger.Contracted>患上{0}（{1}）</RimMind.Memory.Trigger.Contracted>
-
-    <!-- Patch_PawnKill.cs - Trigger -->
-    <RimMind.Memory.Trigger.Unknown>未知</RimMind.Memory.Trigger.Unknown>
-    <RimMind.Memory.Trigger.RelationDeath>{0}{1}死亡</RimMind.Memory.Trigger.RelationDeath>
-    <RimMind.Memory.Trigger.Death>{0}死亡</RimMind.Memory.Trigger.Death>
-    <RimMind.Memory.Trigger.ColonistDeath>殖民者{0}死亡</RimMind.Memory.Trigger.ColonistDeath>
-    <RimMind.Memory.Trigger.KilledBy>（被{0}杀死）</RimMind.Memory.Trigger.KilledBy>
-
-    <!-- Patch_SkillLevelUp.cs - Trigger -->
-    <RimMind.Memory.Trigger.Skill>技能</RimMind.Memory.Trigger.Skill>
-    <RimMind.Memory.Trigger.SkillUp>{0}技能提升至{1}级（{2}→{3}）</RimMind.Memory.Trigger.SkillUp>
-
-    <!-- Patch_MentalBreak.cs - Trigger -->
-    <RimMind.Memory.Trigger.MentalBreak>{0}精神崩溃：{1}</RimMind.Memory.Trigger.MentalBreak>
-
-    <!-- Patch_AddRelation.cs - Trigger -->
-    <RimMind.Memory.Trigger.EstablishRelation>与{0}建立{1}关系</RimMind.Memory.Trigger.EstablishRelation>
-
-    <!-- BioTabMemoryPatch.cs - UI -->
-    <RimMind.Memory.UI.MemoryTab>记忆</RimMind.Memory.UI.MemoryTab>
-    <RimMind.Memory.UI.MemorySummary>活跃{0} / 存档{1} / 暗记忆{2}</RimMind.Memory.UI.MemorySummary>
-    <RimMind.Memory.UI.NoMemory>暂无记忆记录</RimMind.Memory.UI.NoMemory>
-
-    <!-- Dialog_MemoryLog.cs - UI -->
-    <RimMind.Memory.UI.MemoryLogTitle>{0} 的记忆</RimMind.Memory.UI.MemoryLogTitle>
-    <RimMind.Memory.UI.AddMemoryManually>手动添加记忆</RimMind.Memory.UI.AddMemoryManually>
-    <RimMind.Memory.UI.DarkMemoryReadonly>长期印象（只读，AI 生成）</RimMind.Memory.UI.DarkMemoryReadonly>
-    <RimMind.Memory.UI.ActiveMemory>活跃记忆（{0}/{1}）</RimMind.Memory.UI.ActiveMemory>
-    <RimMind.Memory.UI.ArchiveMemoryUI>存档记忆（{0}/{1}）</RimMind.Memory.UI.ArchiveMemoryUI>
-    <RimMind.Memory.UI.InputMemoryContent>输入记忆内容：</RimMind.Memory.UI.InputMemoryContent>
-    <RimMind.Memory.UI.Add>添加</RimMind.Memory.UI.Add>
-    <RimMind.Memory.UI.Cancel>取消</RimMind.Memory.UI.Cancel>
-    <RimMind.Memory.UI.MemoryAdded>[RimMind] 已为 {0} 添加记忆</RimMind.Memory.UI.MemoryAdded>
-
-    <!-- NarratorSettingsTab.cs - UI -->
-    <RimMind.Memory.UI.NotInitialized>记忆系统未初始化（需要载入游戏）</RimMind.Memory.UI.NotInitialized>
-    <RimMind.Memory.UI.NarratorMemory>殖民地叙事者记忆</RimMind.Memory.UI.NarratorMemory>
-    <RimMind.Memory.UI.LongTermNarrative>长期叙事（只读，AI 生成）：</RimMind.Memory.UI.LongTermNarrative>
-    <RimMind.Memory.UI.ActiveNarrative>活跃叙事（{0}/{1}）</RimMind.Memory.UI.ActiveNarrative>
-    <RimMind.Memory.UI.ClearAll>全部清空</RimMind.Memory.UI.ClearAll>
+  <!-- TimeFormatter.cs -->
+  <RimMind.Memory.Time.JustNow>刚才</RimMind.Memory.Time.JustNow>
+  <RimMind.Memory.Time.HoursAgo>约{0}h前</RimMind.Memory.Time.HoursAgo>
+  <RimMind.Memory.Time.Today>今天</RimMind.Memory.Time.Today>
+  <RimMind.Memory.Time.DaysAgo>{0}天前</RimMind.Memory.Time.DaysAgo>
+  <RimMind.Memory.Time.GameDate>日{0} {1}:00</RimMind.Memory.Time.GameDate>
+  <RimMind.Memory.Time.TimeContent>{0}：{1}</RimMind.Memory.Time.TimeContent>
+  <!-- WorkSessionAggregator.cs -->
+  <RimMind.Memory.Work.Session>{0} ×{1}  约{2}游戏时</RimMind.Memory.Work.Session>
+  <RimMind.Memory.Work.Idle>休息/待机 约{0}游戏时</RimMind.Memory.Work.Idle>
+  <!-- Work Labels - WorkSessionAggregator.cs -->
+  <RimMind.Memory.Work.Sow>种植</RimMind.Memory.Work.Sow>
+  <RimMind.Memory.Work.PlantSeed>种植</RimMind.Memory.Work.PlantSeed>
+  <RimMind.Memory.Work.Replant>移植</RimMind.Memory.Work.Replant>
+  <RimMind.Memory.Work.Harvest>收获</RimMind.Memory.Work.Harvest>
+  <RimMind.Memory.Work.HarvestDesignated>收获</RimMind.Memory.Work.HarvestDesignated>
+  <RimMind.Memory.Work.CutPlant>砍伐</RimMind.Memory.Work.CutPlant>
+  <RimMind.Memory.Work.CutPlantDesignated>砍伐</RimMind.Memory.Work.CutPlantDesignated>
+  <RimMind.Memory.Work.FinishFrame>建造</RimMind.Memory.Work.FinishFrame>
+  <RimMind.Memory.Work.PlaceNoCostFrame>建造</RimMind.Memory.Work.PlaceNoCostFrame>
+  <RimMind.Memory.Work.Deconstruct>拆除</RimMind.Memory.Work.Deconstruct>
+  <RimMind.Memory.Work.Uninstall>拆除</RimMind.Memory.Work.Uninstall>
+  <RimMind.Memory.Work.Repair>修理</RimMind.Memory.Work.Repair>
+  <RimMind.Memory.Work.FixBrokenDownBuilding>修理</RimMind.Memory.Work.FixBrokenDownBuilding>
+  <RimMind.Memory.Work.Mine>挖掘</RimMind.Memory.Work.Mine>
+  <RimMind.Memory.Work.Clean>清洁</RimMind.Memory.Work.Clean>
+  <RimMind.Memory.Work.HaulToCell>搬运</RimMind.Memory.Work.HaulToCell>
+  <RimMind.Memory.Work.HaulToContainer>搬运</RimMind.Memory.Work.HaulToContainer>
+  <RimMind.Memory.Work.HaulToTransporter>搬运</RimMind.Memory.Work.HaulToTransporter>
+  <RimMind.Memory.Work.HaulToPortal>搬运</RimMind.Memory.Work.HaulToPortal>
+  <RimMind.Memory.Work.HaulCorpseToPublicPlace>搬运</RimMind.Memory.Work.HaulCorpseToPublicPlace>
+  <RimMind.Memory.Work.DoBill>加工</RimMind.Memory.Work.DoBill>
+  <RimMind.Memory.Work.Research>研究</RimMind.Memory.Work.Research>
+  <RimMind.Memory.Work.Hunt>狩猎</RimMind.Memory.Work.Hunt>
+  <RimMind.Memory.Work.BeatFire>消防</RimMind.Memory.Work.BeatFire>
+  <RimMind.Memory.Work.ExtinguishSelf>消防</RimMind.Memory.Work.ExtinguishSelf>
+  <RimMind.Memory.Work.SmoothFloor>精炼</RimMind.Memory.Work.SmoothFloor>
+  <RimMind.Memory.Work.RemoveFloor>精炼</RimMind.Memory.Work.RemoveFloor>
+  <RimMind.Memory.Work.SmoothWall>精炼</RimMind.Memory.Work.SmoothWall>
+  <RimMind.Memory.Work.BuildRoof>建屋顶</RimMind.Memory.Work.BuildRoof>
+  <RimMind.Memory.Work.RemoveRoof>拆屋顶</RimMind.Memory.Work.RemoveRoof>
+  <RimMind.Memory.Work.PaintBuilding>涂装</RimMind.Memory.Work.PaintBuilding>
+  <RimMind.Memory.Work.PaintFloor>涂装</RimMind.Memory.Work.PaintFloor>
+  <RimMind.Memory.Work.RemovePaintBuilding>除漆</RimMind.Memory.Work.RemovePaintBuilding>
+  <RimMind.Memory.Work.RemovePaintFloor>除漆</RimMind.Memory.Work.RemovePaintFloor>
+  <RimMind.Memory.Work.OperateDeepDrill>深钻</RimMind.Memory.Work.OperateDeepDrill>
+  <RimMind.Memory.Work.OperateScanner>扫描</RimMind.Memory.Work.OperateScanner>
+  <RimMind.Memory.Work.ExtractTree>伐木</RimMind.Memory.Work.ExtractTree>
+  <RimMind.Memory.Work.Refuel>加燃料</RimMind.Memory.Work.Refuel>
+  <RimMind.Memory.Work.RearmTurret>装填</RimMind.Memory.Work.RearmTurret>
+  <RimMind.Memory.Work.ClearSnow>除雪</RimMind.Memory.Work.ClearSnow>
+  <RimMind.Memory.Work.ManTurret>操控炮塔</RimMind.Memory.Work.ManTurret>
+  <!-- Significant Job Labels - WorkSessionAggregator.cs -->
+  <RimMind.Memory.Work.AttackMelee>参与战斗</RimMind.Memory.Work.AttackMelee>
+  <RimMind.Memory.Work.AttackStatic>参与战斗</RimMind.Memory.Work.AttackStatic>
+  <RimMind.Memory.Work.Rescue>救助</RimMind.Memory.Work.Rescue>
+  <RimMind.Memory.Work.TendPatient>治疗伤员</RimMind.Memory.Work.TendPatient>
+  <RimMind.Memory.Work.FeedPatient>喂食病人</RimMind.Memory.Work.FeedPatient>
+  <RimMind.Memory.Work.DeliverFood>送餐</RimMind.Memory.Work.DeliverFood>
+  <RimMind.Memory.Work.Slaughter>屠宰</RimMind.Memory.Work.Slaughter>
+  <RimMind.Memory.Work.Tame>驯服</RimMind.Memory.Work.Tame>
+  <RimMind.Memory.Work.Train>训练</RimMind.Memory.Work.Train>
+  <RimMind.Memory.Work.Milk>挤奶</RimMind.Memory.Work.Milk>
+  <RimMind.Memory.Work.Shear>剪毛</RimMind.Memory.Work.Shear>
+  <RimMind.Memory.Work.PrisonerAttemptRecruit>招募囚犯</RimMind.Memory.Work.PrisonerAttemptRecruit>
+  <!-- DarkMemoryUpdater.cs - Prompt -->
+  <RimMind.Memory.Prompt.PawnTodayMemory>{0} 今天的记忆：</RimMind.Memory.Prompt.PawnTodayMemory>
+  <RimMind.Memory.Prompt.ExistingImpression>现有长期印象（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingImpression>
+  <RimMind.Memory.Prompt.MergeInstruction>请将今日记忆融入已有印象，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeInstruction>
+  <RimMind.Memory.Prompt.JsonTemplate>{{"dark":["...","..."]}}</RimMind.Memory.Prompt.JsonTemplate>
+  <RimMind.Memory.Prompt.ColonyTodayEvents>殖民地今天的事件：</RimMind.Memory.Prompt.ColonyTodayEvents>
+  <RimMind.Memory.Prompt.ExistingNarrative>现有长期叙事（每条 ≤50 字，可演进）：</RimMind.Memory.Prompt.ExistingNarrative>
+  <RimMind.Memory.Prompt.MergeNarrativeInstruction>请将今日事件融入已有叙事，输出 JSON（保持 {0} 条，每条 ≤50 字）：</RimMind.Memory.Prompt.MergeNarrativeInstruction>
+  <!-- MemoryContextProvider.cs - Context -->
+  <RimMind.Memory.Context.RecentMemory>[{0} 近期记忆]</RimMind.Memory.Context.RecentMemory>
+  <RimMind.Memory.Context.ArchiveMemory>[{0} 存档记忆（按重要度）]</RimMind.Memory.Context.ArchiveMemory>
+  <RimMind.Memory.Context.DarkMemory>\n[{0} 长期印象（AI生成）]</RimMind.Memory.Context.DarkMemory>
+  <RimMind.Memory.Context.NarratorMemory>[殖民地叙事记忆]</RimMind.Memory.Context.NarratorMemory>
+  <RimMind.Memory.Context.NarratorArchive>[存档叙事（按重要度）]</RimMind.Memory.Context.NarratorArchive>
+  <RimMind.Memory.Context.NarratorDark>\n[长期叙事（AI生成）]</RimMind.Memory.Context.NarratorDark>
+  <RimMind.Memory.Context.Map>[地图]</RimMind.Memory.Context.Map>
+  <RimMind.Memory.Context.FromFaction>（{0}来自{1}）</RimMind.Memory.Context.FromFaction>
+  <RimMind.Memory.Context.WorkingMemory>[工作记忆 - {0}]</RimMind.Memory.Context.WorkingMemory>
+  <!-- RimMindMemoryMod.cs - Settings UI -->
+  <RimMind.Memory.Settings.TabLabel>记忆</RimMind.Memory.Settings.TabLabel>
+  <RimMind.Memory.Settings.EnableMemory>启用记忆系统</RimMind.Memory.Settings.EnableMemory>
+  <RimMind.Memory.Settings.EnableMemory.Desc>开启后，殖民者会自动记录游戏中的事件，形成个人记忆。</RimMind.Memory.Settings.EnableMemory.Desc>
+  <RimMind.Memory.Settings.TriggerSources>触发来源</RimMind.Memory.Settings.TriggerSources>
+  <RimMind.Memory.Settings.TriggerWorkSession>工作阶段结束</RimMind.Memory.Settings.TriggerWorkSession>
+  <RimMind.Memory.Settings.TriggerWorkSession.Desc>当一个工作阶段结束时，自动记录工作内容作为记忆。</RimMind.Memory.Settings.TriggerWorkSession.Desc>
+  <RimMind.Memory.Settings.TriggerInjury>受伤 / 患病</RimMind.Memory.Settings.TriggerInjury>
+  <RimMind.Memory.Settings.TriggerInjury.Desc>当殖民者受伤或患病时，自动记录为记忆。</RimMind.Memory.Settings.TriggerInjury.Desc>
+  <RimMind.Memory.Settings.TriggerMentalBreak>精神崩溃</RimMind.Memory.Settings.TriggerMentalBreak>
+  <RimMind.Memory.Settings.TriggerMentalBreak.Desc>当殖民者精神崩溃时，自动记录为记忆。</RimMind.Memory.Settings.TriggerMentalBreak.Desc>
+  <RimMind.Memory.Settings.TriggerDeath>亲近者死亡</RimMind.Memory.Settings.TriggerDeath>
+  <RimMind.Memory.Settings.TriggerDeath.Desc>当殖民者的亲友死亡时，自动记录为记忆。</RimMind.Memory.Settings.TriggerDeath.Desc>
+  <RimMind.Memory.Settings.TriggerSkillLevelUp>技能升级</RimMind.Memory.Settings.TriggerSkillLevelUp>
+  <RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>当殖民者技能升级时，自动记录为记忆。</RimMind.Memory.Settings.TriggerSkillLevelUp.Desc>
+  <RimMind.Memory.Settings.TriggerRelation>关系变化</RimMind.Memory.Settings.TriggerRelation>
+  <RimMind.Memory.Settings.TriggerRelation.Desc>当殖民者与他人建立或改变关系时，自动记录为记忆。</RimMind.Memory.Settings.TriggerRelation.Desc>
+  <RimMind.Memory.Settings.PawnCapacity>小人记忆容量</RimMind.Memory.Settings.PawnCapacity>
+  <RimMind.Memory.Settings.MaxActive>活跃记忆上限：{0}</RimMind.Memory.Settings.MaxActive>
+  <RimMind.Memory.Settings.MaxActive.Desc>活跃记忆是最近发生的、重要度较高的记忆，会被注入 AI 上下文。</RimMind.Memory.Settings.MaxActive.Desc>
+  <RimMind.Memory.Settings.MaxArchive>存档记忆上限：{0}</RimMind.Memory.Settings.MaxArchive>
+  <RimMind.Memory.Settings.MaxArchive.Desc>存档记忆是重要度降低后归档的旧记忆，按比例注入上下文。</RimMind.Memory.Settings.MaxArchive.Desc>
+  <RimMind.Memory.Settings.DarkCount>暗记忆条数：{0}</RimMind.Memory.Settings.DarkCount>
+  <RimMind.Memory.Settings.DarkCount.Desc>暗记忆是 AI 将每日记忆压缩后的长期印象，每条不超过50字。</RimMind.Memory.Settings.DarkCount.Desc>
+  <RimMind.Memory.Settings.WorkingMemoryCapacity>工作记忆容量：{0}</RimMind.Memory.Settings.WorkingMemoryCapacity>
+  <RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>工作记忆是当前正在发生的短期记忆，会被注入 AI 上下文。容量越大，短期上下文越丰富，但消耗更多 Token。</RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>
+  <RimMind.Memory.Settings.NarratorCapacity>叙事者记忆容量</RimMind.Memory.Settings.NarratorCapacity>
+  <RimMind.Memory.Settings.NarratorMaxActive>活跃叙事上限：{0}</RimMind.Memory.Settings.NarratorMaxActive>
+  <RimMind.Memory.Settings.NarratorMaxActive.Desc>叙事者的活跃事件记录上限。</RimMind.Memory.Settings.NarratorMaxActive.Desc>
+  <RimMind.Memory.Settings.NarratorMaxArchive>存档叙事上限：{0}</RimMind.Memory.Settings.NarratorMaxArchive>
+  <RimMind.Memory.Settings.NarratorMaxArchive.Desc>叙事者的存档事件记录上限。</RimMind.Memory.Settings.NarratorMaxArchive.Desc>
+  <RimMind.Memory.Settings.NarratorDarkCount>暗叙事条数：{0}</RimMind.Memory.Settings.NarratorDarkCount>
+  <RimMind.Memory.Settings.NarratorDarkCount.Desc>叙事者的 AI 压缩长期叙事条数。</RimMind.Memory.Settings.NarratorDarkCount.Desc>
+  <RimMind.Memory.Settings.InjectRatio>注入比例</RimMind.Memory.Settings.InjectRatio>
+  <RimMind.Memory.Settings.ActiveInjectRatio>活跃注入比例：{0}</RimMind.Memory.Settings.ActiveInjectRatio>
+  <RimMind.Memory.Settings.ActiveInjectRatio.Desc>活跃记忆注入 AI 上下文的比例。1.0 = 全部注入，0.5 = 注入一半。</RimMind.Memory.Settings.ActiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.ArchiveInjectRatio>存档注入比例：{0}</RimMind.Memory.Settings.ArchiveInjectRatio>
+  <RimMind.Memory.Settings.ArchiveInjectRatio.Desc>存档记忆注入 AI 上下文的比例。存档记忆较多时，降低比例可节省 Token。</RimMind.Memory.Settings.ArchiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.NarratorActiveInjectRatio>叙事者活跃注入比例：{0}</RimMind.Memory.Settings.NarratorActiveInjectRatio>
+  <RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>叙事者活跃叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.NarratorArchiveInjectRatio>叙事者存档注入比例：{0}</RimMind.Memory.Settings.NarratorArchiveInjectRatio>
+  <RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>叙事者存档叙事注入 AI 上下文的比例。</RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc>
+  <RimMind.Memory.Settings.Section.Decay>记忆衰减</RimMind.Memory.Settings.Section.Decay>
+  <RimMind.Memory.Settings.EnableDecay>启用重要度衰减</RimMind.Memory.Settings.EnableDecay>
+  <RimMind.Memory.Settings.EnableDecay.Desc>开启后，记忆的重要度会随时间降低，低于阈值时自动归档。</RimMind.Memory.Settings.EnableDecay.Desc>
+  <RimMind.Memory.Settings.DecayRate>衰减速率：{0}%/天</RimMind.Memory.Settings.DecayRate>
+  <RimMind.Memory.Settings.DecayRate.Desc>每个游戏日重要度降低的百分比。数值越大，记忆越快被归档。</RimMind.Memory.Settings.DecayRate.Desc>
+  <RimMind.Memory.Settings.MinThreshold>最低阈值：{0}</RimMind.Memory.Settings.MinThreshold>
+  <RimMind.Memory.Settings.MinThreshold.Desc>重要度低于此阈值的记忆会被自动归档。</RimMind.Memory.Settings.MinThreshold.Desc>
+  <RimMind.Memory.Settings.Section.Aggregation>工作会话聚合</RimMind.Memory.Settings.Section.Aggregation>
+  <RimMind.Memory.Settings.MinAggregationCount>最小聚合次数：{0}</RimMind.Memory.Settings.MinAggregationCount>
+  <RimMind.Memory.Settings.MinAggregationCount.Desc>同类工作达到此次数后才聚合为一条记忆。数值越低记录越细粒度。</RimMind.Memory.Settings.MinAggregationCount.Desc>
+  <RimMind.Memory.Settings.IdleGapThreshold>空闲间隔阈值：{0} 游戏时</RimMind.Memory.Settings.IdleGapThreshold>
+  <RimMind.Memory.Settings.IdleGapThreshold.Desc>两次有意义工作之间的间隔超过此时长，记录为休息/待机。</RimMind.Memory.Settings.IdleGapThreshold.Desc>
+  <RimMind.Memory.Settings.CollectionControl>采集控制</RimMind.Memory.Settings.CollectionControl>
+  <RimMind.Memory.Settings.NarratorEventThreshold>叙事者事件阈值：{0}</RimMind.Memory.Settings.NarratorEventThreshold>
+  <RimMind.Memory.Settings.NarratorEventThreshold.Desc>事件重要度达到此阈值才会被叙事者记录。</RimMind.Memory.Settings.NarratorEventThreshold.Desc>
+  <RimMind.Memory.Settings.PawnToNarratorThreshold>小人→叙事者阈值：{0}</RimMind.Memory.Settings.PawnToNarratorThreshold>
+  <RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>小人记忆重要度达到此阈值才会同步到叙事者。</RimMind.Memory.Settings.PawnToNarratorThreshold.Desc>
+  <RimMind.Memory.Settings.NarratorMemoryReadonly>叙事者记忆（只读）：</RimMind.Memory.Settings.NarratorMemoryReadonly>
+  <RimMind.Memory.Settings.NeedLoadGame>  需要载入游戏后查看</RimMind.Memory.Settings.NeedLoadGame>
+  <RimMind.Memory.Settings.LongTermNarrative>  长期叙事（AI 生成）：</RimMind.Memory.Settings.LongTermNarrative>
+  <RimMind.Memory.Settings.ActiveNarrative>  活跃叙事（{0}/{1}）：</RimMind.Memory.Settings.ActiveNarrative>
+  <RimMind.Memory.Settings.ArchiveNarrativeCount>  存档叙事：{0} 条</RimMind.Memory.Settings.ArchiveNarrativeCount>
+  <!-- Patch_AddHediff.cs - Trigger -->
+  <RimMind.Memory.Trigger.FullBody>全身</RimMind.Memory.Trigger.FullBody>
+  <RimMind.Memory.Trigger.UnknownSource>未知来源</RimMind.Memory.Trigger.UnknownSource>
+  <RimMind.Memory.Trigger.AttackedBy>被{0}攻击致{1}（{2}）</RimMind.Memory.Trigger.AttackedBy>
+  <RimMind.Memory.Trigger.Contracted>患上{0}（{1}）</RimMind.Memory.Trigger.Contracted>
+  <!-- Patch_PawnKill.cs - Trigger -->
+  <RimMind.Memory.Trigger.Unknown>未知</RimMind.Memory.Trigger.Unknown>
+  <RimMind.Memory.Trigger.RelationDeath>{0}{1}死亡</RimMind.Memory.Trigger.RelationDeath>
+  <RimMind.Memory.Trigger.Death>{0}死亡</RimMind.Memory.Trigger.Death>
+  <RimMind.Memory.Trigger.ColonistDeath>殖民者{0}死亡</RimMind.Memory.Trigger.ColonistDeath>
+  <RimMind.Memory.Trigger.KilledBy>（被{0}杀死）</RimMind.Memory.Trigger.KilledBy>
+  <!-- Patch_SkillLevelUp.cs - Trigger -->
+  <RimMind.Memory.Trigger.Skill>技能</RimMind.Memory.Trigger.Skill>
+  <RimMind.Memory.Trigger.SkillUp>{0}技能提升至{1}级（{2}→{3}）</RimMind.Memory.Trigger.SkillUp>
+  <!-- Patch_MentalBreak.cs - Trigger -->
+  <RimMind.Memory.Trigger.MentalBreak>{0}精神崩溃：{1}</RimMind.Memory.Trigger.MentalBreak>
+  <!-- Patch_AddRelation.cs - Trigger -->
+  <RimMind.Memory.Trigger.EstablishRelation>与{0}建立{1}关系</RimMind.Memory.Trigger.EstablishRelation>
+  <!-- BioTabMemoryPatch.cs - UI -->
+  <RimMind.Memory.UI.MemoryTab>记忆</RimMind.Memory.UI.MemoryTab>
+  <RimMind.Memory.UI.MemorySummary>活跃{0} / 存档{1} / 暗记忆{2}</RimMind.Memory.UI.MemorySummary>
+  <RimMind.Memory.UI.NoMemory>暂无记忆记录</RimMind.Memory.UI.NoMemory>
+  <!-- Dialog_MemoryLog.cs - UI -->
+  <RimMind.Memory.UI.MemoryLogTitle>{0} 的记忆</RimMind.Memory.UI.MemoryLogTitle>
+  <RimMind.Memory.UI.AddMemoryManually>手动添加记忆</RimMind.Memory.UI.AddMemoryManually>
+  <RimMind.Memory.UI.DarkMemoryReadonly>长期印象（只读，AI 生成）</RimMind.Memory.UI.DarkMemoryReadonly>
+  <RimMind.Memory.UI.ActiveMemory>活跃记忆（{0}/{1}）</RimMind.Memory.UI.ActiveMemory>
+  <RimMind.Memory.UI.ArchiveMemoryUI>存档记忆（{0}/{1}）</RimMind.Memory.UI.ArchiveMemoryUI>
+  <RimMind.Memory.UI.InputMemoryContent>输入记忆内容：</RimMind.Memory.UI.InputMemoryContent>
+  <RimMind.Memory.UI.Add>添加</RimMind.Memory.UI.Add>
+  <RimMind.Memory.UI.Cancel>取消</RimMind.Memory.UI.Cancel>
+  <RimMind.Memory.UI.MemoryAdded>[RimMind] 已为 {0} 添加记忆</RimMind.Memory.UI.MemoryAdded>
 </LanguageData>

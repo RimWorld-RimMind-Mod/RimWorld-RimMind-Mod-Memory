@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -12,8 +13,7 @@ namespace RimMind.Memory.Triggers
         static void Postfix(MentalStateHandler __instance, MentalStateDef stateDef, bool __result)
         {
             if (!__result) return;
-            if (!RimMindMemoryMod.Settings.enableMemory) return;
-            if (!RimMindMemoryMod.Settings.triggerMentalBreak) return;
+            if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerMentalBreak)) return;
 
             try
             {
@@ -21,27 +21,14 @@ namespace RimMind.Memory.Triggers
                 if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Name == null) return;
                 if (stateDef == null) return;
 
-                var wc = RimMindMemoryWorldComponent.Instance;
-                if (wc == null) return;
-
-                var settings = RimMindMemoryMod.Settings;
-                int now = Find.TickManager.TicksGame;
-
                 float importance = EstimateImportance(stateDef);
                 string label = stateDef.LabelCap.RawText.NullOrEmpty() ? stateDef.defName : stateDef.LabelCap.RawText;
                 string content = "RimMind.Memory.Trigger.MentalBreak".Translate(pawn.Name.ToStringShort, label);
-
-                var store = wc.GetOrCreatePawnStore(pawn);
-                store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
-                    settings.maxActive, settings.maxArchive);
-
-                wc.NarratorStore.AddActive(
-                    MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
-                    settings.narratorMaxActive, settings.narratorMaxArchive);
+                MemoryTriggerHelper.WriteMemory(pawn, content, MemoryType.Event, importance);
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_MentalBreak error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_MentalBreak error: {ex.Message}");
             }
         }
 

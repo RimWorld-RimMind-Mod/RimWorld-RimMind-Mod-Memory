@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -11,8 +12,7 @@ namespace RimMind.Memory.Triggers
     {
         static void Postfix(Pawn_HealthTracker __instance, Hediff hediff, DamageInfo? dinfo)
         {
-            if (!RimMindMemoryMod.Settings.enableMemory) return;
-            if (!RimMindMemoryMod.Settings.triggerInjury) return;
+            if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerInjury)) return;
 
             var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
             if (pawn == null || !pawn.IsFreeNonSlaveColonist) return;
@@ -22,29 +22,14 @@ namespace RimMind.Memory.Triggers
 
             try
             {
-                var wc = RimMindMemoryWorldComponent.Instance;
-                if (wc == null) return;
-
-                var settings = RimMindMemoryMod.Settings;
-                int now = Find.TickManager.TicksGame;
                 float importance = EstimateImportance(hediff);
                 string content = BuildContent(pawn, hediff, dinfo);
                 if (content.NullOrEmpty()) return;
-
-                var store = wc.GetOrCreatePawnStore(pawn);
-                store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance),
-                    settings.maxActive, settings.maxArchive);
-
-                if (importance >= settings.pawnToNarratorThreshold)
-                {
-                    wc.NarratorStore.AddActive(
-                        MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", MemoryType.Event, now, importance, pawn.ThingID),
-                        settings.narratorMaxActive, settings.narratorMaxArchive);
-                }
+                MemoryTriggerHelper.WriteMemory(pawn, content, MemoryType.Event, importance);
             }
             catch (System.Exception ex)
             {
-                Log.Warning($"[RimMind-Memory] Patch_AddHediff error: {ex.Message}");
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_AddHediff error: {ex.Message}");
             }
         }
 

@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimWorld;
 using Verse;
@@ -14,19 +15,26 @@ namespace RimMind.Memory.Narrator
             if (!__result) return;
             if (!RimMindMemoryMod.Settings.enableMemory) return;
 
-            float importance = GetIncidentImportance(__instance.def);
-            var settings = RimMindMemoryMod.Settings;
-            if (importance < settings.narratorEventThreshold) return;
+            try
+            {
+                float importance = GetIncidentImportance(__instance.def);
+                var settings = RimMindMemoryMod.Settings;
+                if (importance < settings.narratorEventThreshold) return;
 
-            var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null) return;
+                var wc = RimMindMemoryWorldComponent.Instance;
+                if (wc == null) return;
 
-            int now = Find.TickManager.TicksGame;
-            string content = $"[{"RimMind.Memory.Context.Map".Translate()}] {BuildNarratorText(__instance.def, parms)}";
+                int now = Find.TickManager.TicksGame;
+                string content = $"[{"RimMind.Memory.Context.Map".Translate()}] {BuildNarratorText(__instance.def, parms)}";
 
-            wc.NarratorStore.AddActive(
-                MemoryEntry.Create(content, MemoryType.Event, now, importance),
-                settings.narratorMaxActive, settings.narratorMaxArchive);
+                wc.AddNarratorMemory(
+                    MemoryEntry.Create(content, MemoryType.Event, now, importance),
+                    settings.narratorMaxActive, settings.narratorMaxArchive);
+            }
+            catch (System.Exception ex)
+            {
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_IncidentWorker error: {ex.Message}");
+            }
         }
 
         private static float GetIncidentImportance(IncidentDef def)

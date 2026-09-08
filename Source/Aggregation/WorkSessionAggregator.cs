@@ -11,7 +11,7 @@ namespace RimMind.Memory.Aggregation
     public class WorkSessionAggregator : GameComponent
     {
         private static WorkSessionAggregator? _instance;
-        public static WorkSessionAggregator Instance => _instance!;
+        public static WorkSessionAggregator Instance => _instance ?? throw new InvalidOperationException("WorkSessionAggregator not initialized");
 
         private readonly Dictionary<int, PawnSession> _sessions = new Dictionary<int, PawnSession>();
 
@@ -20,11 +20,11 @@ namespace RimMind.Memory.Aggregation
         public WorkSessionAggregator(Game game) { _instance = this; }
 
         public override void StartedNewGame() { _sessions.Clear(); }
-        public override void LoadedGame()     { _sessions.Clear(); }
+        public override void LoadedGame() { _sessions.Clear(); }
 
         public void OnJobStarted(Pawn pawn, Job job, int maxActive, int maxArchive, int idleGapThresholdTicks, int minAggregationCount)
         {
-            if (pawn == null || job == null) return;
+            if (pawn == null || job == null || job.def == null) return;
             int now = Find.TickManager.TicksGame;
             int pawnId = pawn.thingIDNumber;
             string jobDefName = job.def.defName;
@@ -94,8 +94,7 @@ namespace RimMind.Memory.Aggregation
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) { session.Reset(); return; }
 
-            var store = wc.GetOrCreatePawnStore(pawn);
-            store.AddActive(MemoryEntry.Create(content, MemoryType.Work, now, importance), maxActive, maxArchive);
+            wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, importance), maxActive, maxArchive);
 
             TryUpgradeToNarrator(pawn, content, now, importance, wc);
 
@@ -105,13 +104,12 @@ namespace RimMind.Memory.Aggregation
         private void RecordSignificantJob(Pawn pawn, string jobDefName, int now, int maxActive, int maxArchive)
         {
             float importance = GetSignificantJobImportance(jobDefName);
-            string content = GetSignificantJobLabel(jobDefName);
+            string content = JobLabel(jobDefName);
 
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
 
-            var store = wc.GetOrCreatePawnStore(pawn);
-            store.AddActive(MemoryEntry.Create(content, MemoryType.Event, now, importance), maxActive, maxArchive);
+            wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Event, now, importance), maxActive, maxArchive);
 
             TryUpgradeToNarrator(pawn, content, now, importance, wc);
         }
@@ -129,8 +127,7 @@ namespace RimMind.Memory.Aggregation
                 var wc = RimMindMemoryWorldComponent.Instance;
                 if (wc != null)
                 {
-                    var store = wc.GetOrCreatePawnStore(pawn);
-                    store.AddActive(MemoryEntry.Create(content, MemoryType.Work, now, 0.3f), maxActive, maxArchive);
+                    wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, 0.3f), maxActive, maxArchive);
                 }
                 session.lastMeaningfulJobTick = now;
             }
@@ -148,7 +145,7 @@ namespace RimMind.Memory.Aggregation
             if (importance >= settings.pawnToNarratorThreshold)
             {
                 string narratorContent = $"[{pawn.Name.ToStringShort}] {content}";
-                wc.NarratorStore.AddActive(
+                wc.AddNarratorMemory(
                     MemoryEntry.Create(narratorContent, MemoryType.Event, now, importance, pawn.ThingID),
                     settings.narratorMaxActive, settings.narratorMaxArchive);
             }
@@ -213,12 +210,6 @@ namespace RimMind.Memory.Aggregation
 
         private static float GetSignificantJobImportance(string defName)
             => SignificantJobImportanceMap.TryGetValue(defName, out var v) ? v : 0.6f;
-
-        private static string GetSignificantJobLabel(string defName)
-        {
-            string key = $"RimMind.Memory.Work.{defName}";
-            return key.CanTranslate() ? key.Translate() : defName;
-        }
 
         private static string JobLabel(string defName)
         {

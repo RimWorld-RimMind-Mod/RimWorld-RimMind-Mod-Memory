@@ -1,0 +1,12 @@
+using RimMind.Application.Common.Interfaces.Extension;
+
+namespace RimMind.Memory
+{
+    internal sealed class MemoryActionSkipCheck : ISkipCheck
+    {
+        public string Id => "memory.action";
+        public string OwnerModId => "RimMindMemory";
+        public SkipCheckKind Kind => SkipCheckKind.Action;
+        public bool ShouldSkip(in SkipCheckArgs args) => !RimMindMemoryMod.Settings.enableMemory;
+    }
+}
