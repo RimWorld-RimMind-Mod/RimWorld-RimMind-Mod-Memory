@@ -107,8 +107,6 @@
   <RimMind.Memory.Settings.MaxArchive.Desc>Archive memories are older memories with reduced importance, injected proportionally.</RimMind.Memory.Settings.MaxArchive.Desc>
   <RimMind.Memory.Settings.DarkCount>Dark Memory Count: {0}</RimMind.Memory.Settings.DarkCount>
   <RimMind.Memory.Settings.DarkCount.Desc>Dark memories are AI-compressed long-term impressions, each no more than 50 characters.</RimMind.Memory.Settings.DarkCount.Desc>
-  <RimMind.Memory.Settings.WorkingMemoryCapacity>Working Memory Capacity: {0}</RimMind.Memory.Settings.WorkingMemoryCapacity>
-  <RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>Working memory is short-term memory of current events, injected into AI context. Larger capacity provides richer context but consumes more tokens.</RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>
   <RimMind.Memory.Settings.NarratorCapacity>Narrator Memory Capacity</RimMind.Memory.Settings.NarratorCapacity>
   <RimMind.Memory.Settings.NarratorMaxActive>Active Narrative Limit: {0}</RimMind.Memory.Settings.NarratorMaxActive>
   <RimMind.Memory.Settings.NarratorMaxActive.Desc>Maximum active event records for the narrator.</RimMind.Memory.Settings.NarratorMaxActive.Desc>

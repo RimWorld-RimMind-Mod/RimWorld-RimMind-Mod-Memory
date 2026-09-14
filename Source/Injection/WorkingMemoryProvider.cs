@@ -12,6 +12,7 @@ namespace RimMind.Memory.Injection
 {
     public static class WorkingMemoryProvider
     {
+        // Compatibility reader for saved entries, not an active memory-production path.
         public static void Register()
         {
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(

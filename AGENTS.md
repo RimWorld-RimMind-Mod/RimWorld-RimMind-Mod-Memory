@@ -28,7 +28,7 @@ Source/
 ├── README.md                                      入口到测试的运行时阅读地图
 ├── RimMindMemoryMod.cs / RimMindMemoryAPI.cs      组合根 + 公开兼容API
 ├── Settings/
-│   ├── RimMindMemorySettings.cs                   25项设置与存档字段
+│   ├── RimMindMemorySettings.cs                   运行设置与旧设置兼容字段
 │   └── MemorySettingsDrawer.cs                    原生/Core设置页共享绘制实现
 ├── Data/
 │   ├── MemoryEntry.cs                           记忆条目(MemoryType: Work/Event/Manual/Dark, content≤2000字)
@@ -36,11 +36,11 @@ Source/
 │   ├── PawnMemoryStore.cs                       继承MemoryStoreBase(默认AddIfNotExists→active)
 │   ├── NarratorMemoryStore.cs                   继承MemoryStoreBase(AddIfNotExists带isActive参数,Storyteller反射依赖)
 │   └── RimMindMemoryWorldComponent.cs           WorldComponent管理所有存储+WorkingMemory+远端同步
-├── WorkingMemory/                               工作记忆缓冲区(容量可配置, 已序列化, UpdateCapacity)
-│   ├── WorkingMemory.cs                         滚动缓冲区(capacity可动态更新)
+├── WorkingMemory/                               旧存档兼容数据，无新写入/容量调整路径
+│   ├── WorkingMemory.cs                         保留旧类型与Scribe标签，读取不裁剪已有数据
 │   └── WorkingMemoryEntry.cs                    工作记忆条目(content/source/relevance)
 ├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator)
-│       WorkingMemoryProvider.cs                 注册ContextKey(working_memory)
+│       WorkingMemoryProvider.cs                 只读旧工作记忆ContextKey(working_memory)
 ├── Aggregation/
 │   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化, CleanupPawnJitter)
 │   └── Patch_StartJob_Memory.cs                 JobTracker Postfix
@@ -75,7 +75,7 @@ Source/
 |-----|-------|----------|------|
 | memory_pawn | L3_State | 0.25 | Pawn的active+archive+dark |
 | memory_narrator | L4_History | 0.6 | 叙事者active+archive+dark |
-| working_memory | L3_State | 0.3 | Pawn工作记忆 |
+| working_memory | L3_State | 0.3 | 仅旧存档工作记忆；新游戏不创建空缓冲区 |
 
 ## Core API 使用情况
 
@@ -110,6 +110,7 @@ Source/
 - 暗记忆场景: `ScenarioIds.Memory`（非 Personality/Storyteller）
 - MemoryEntry.Create 自动截断 content 至 2000 字符
 - 设置入口只转发到 `MemorySettingsDrawer`；Mod 入口不承载控件布局
+- 新记忆只写入 Pawn/Narrator 三层存储；WorkingMemory 只保留旧存档读取、查看和手动清理，不能恢复无生产者的容量设置。
 
 ## 操作边界
 

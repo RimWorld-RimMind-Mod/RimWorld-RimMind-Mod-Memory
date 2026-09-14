@@ -17,12 +17,33 @@ namespace Verse
 
     public static class Scribe_Values
     {
-        public static void Look<T>(ref T value, string label, T? defaultValue = default!) { }
+        public static void Look<T>(ref T value, string label, T? defaultValue = default!)
+        {
+            if (ScribeFixture.Values == null) return;
+            if (ScribeFixture.Loading)
+                value = ScribeFixture.Values.TryGetValue(label, out var saved) ? (T)saved : defaultValue!;
+            else
+                ScribeFixture.Values[label] = value!;
+        }
+    }
+
+    // Only the external Scribe boundary is replaced; tests execute production ExposeData.
+    public static class ScribeFixture
+    {
+        public static Dictionary<string, object>? Values;
+        public static bool Loading;
     }
 
     public static class Scribe_Collections
     {
-        public static void Look<T>(ref System.Collections.Generic.List<T> list, string label, LookMode lookMode) { }
+        public static void Look<T>(ref System.Collections.Generic.List<T> list, string label, LookMode lookMode)
+        {
+            if (ScribeFixture.Values == null) return;
+            if (ScribeFixture.Loading)
+                list = ScribeFixture.Values.TryGetValue(label, out var saved) ? new List<T>((List<T>)saved) : null!;
+            else
+                ScribeFixture.Values[label] = new List<T>(list);
+        }
         public static void Look<T>(ref System.Collections.Generic.List<T> list, string label) { }
         public static void Look<TKey, TValue>(ref System.Collections.Generic.Dictionary<TKey, TValue> dict, string label, LookMode keyLookMode, LookMode valueLookMode) where TKey : notnull { }
     }

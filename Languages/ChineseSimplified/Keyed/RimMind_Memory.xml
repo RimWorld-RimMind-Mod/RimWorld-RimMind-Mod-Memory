@@ -107,8 +107,6 @@
   <RimMind.Memory.Settings.MaxArchive.Desc>存档记忆是重要度降低后归档的旧记忆，按比例注入上下文。</RimMind.Memory.Settings.MaxArchive.Desc>
   <RimMind.Memory.Settings.DarkCount>暗记忆条数：{0}</RimMind.Memory.Settings.DarkCount>
   <RimMind.Memory.Settings.DarkCount.Desc>暗记忆是 AI 将每日记忆压缩后的长期印象，每条不超过50字。</RimMind.Memory.Settings.DarkCount.Desc>
-  <RimMind.Memory.Settings.WorkingMemoryCapacity>工作记忆容量：{0}</RimMind.Memory.Settings.WorkingMemoryCapacity>
-  <RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>工作记忆是当前正在发生的短期记忆，会被注入 AI 上下文。容量越大，短期上下文越丰富，但消耗更多 Token。</RimMind.Memory.Settings.WorkingMemoryCapacity.Desc>
   <RimMind.Memory.Settings.NarratorCapacity>叙事者记忆容量</RimMind.Memory.Settings.NarratorCapacity>
   <RimMind.Memory.Settings.NarratorMaxActive>活跃叙事上限：{0}</RimMind.Memory.Settings.NarratorMaxActive>
   <RimMind.Memory.Settings.NarratorMaxActive.Desc>叙事者的活跃事件记录上限。</RimMind.Memory.Settings.NarratorMaxActive.Desc>

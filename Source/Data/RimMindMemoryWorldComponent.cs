@@ -124,21 +124,7 @@ namespace RimMind.Memory.Data
             return result;
         }
 
-        public WM GetOrCreateWorkingMemory(Pawn pawn)
-        {
-            int id = pawn.thingIDNumber;
-            if (!_workingMemories.TryGetValue(id, out var wm))
-            {
-                wm = new WM(RimMindMemoryMod.Settings.workingMemoryCapacity);
-                _workingMemories[id] = wm;
-            }
-            else
-            {
-                wm.UpdateCapacity(RimMindMemoryMod.Settings.workingMemoryCapacity);
-            }
-            return wm;
-        }
-
+        // Read legacy save data only; inspecting context must not create a new buffer.
         public WM? GetWorkingMemory(Pawn pawn)
         {
             return _workingMemories.TryGetValue(pawn.thingIDNumber, out var wm) ? wm : null;

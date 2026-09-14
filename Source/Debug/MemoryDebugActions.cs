@@ -184,7 +184,12 @@ namespace RimMind.Memory.Debug
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
-            var wm = wc.GetOrCreateWorkingMemory(pawn);
+            var wm = wc.GetWorkingMemory(pawn);
+            if (wm == null || wm.IsEmpty)
+            {
+                Log.Message("[RimMind-Memory] No legacy working memory for the selected pawn.");
+                return;
+            }
             var sb = new StringBuilder();
             sb.AppendLine($"=== {pawn.Name.ToStringShort} Working Memory ({wm.Entries.Count}/{wm.Capacity}) ===");
             foreach (var e in wm.Entries)
@@ -217,7 +222,6 @@ namespace RimMind.Memory.Debug
             sb.AppendLine($"enableDecay: {s.enableDecay}  decayRate: {s.decayRate}  minImportanceThreshold: {s.minImportanceThreshold}");
             sb.AppendLine($"activeInjectRatio: {s.activeInjectRatio}  archiveInjectRatio: {s.archiveInjectRatio}");
             sb.AppendLine($"narratorActiveInjectRatio: {s.narratorActiveInjectRatio}  narratorArchiveInjectRatio: {s.narratorArchiveInjectRatio}");
-            sb.AppendLine($"workingMemoryCapacity: {s.workingMemoryCapacity}");
             sb.AppendLine($"pawnToNarratorThreshold: {s.pawnToNarratorThreshold}  narratorEventThreshold: {s.narratorEventThreshold}");
             Log.Message(sb.ToString());
         }

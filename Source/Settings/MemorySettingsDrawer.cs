@@ -57,11 +57,6 @@ namespace RimMind.Memory
             listing.Label("  " + "RimMind.Memory.Settings.DarkCount.Desc".Translate());
             GUI.color = Color.white;
             Settings.darkCount = (int)listing.Slider(Settings.darkCount, 1, 10);
-            listing.Label("RimMind.Memory.Settings.WorkingMemoryCapacity".Translate(Settings.workingMemoryCapacity));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.WorkingMemoryCapacity.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.workingMemoryCapacity = (int)listing.Slider(Settings.workingMemoryCapacity, 3, 30);
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorCapacity".Translate());
             listing.Label("RimMind.Memory.Settings.NarratorMaxActive".Translate(Settings.narratorMaxActive));
@@ -200,7 +195,6 @@ namespace RimMind.Memory
                 Settings.idleGapThresholdTicks = 6000;
                 Settings.narratorEventThreshold = 0.2f;
                 Settings.pawnToNarratorThreshold = 0.8f;
-                Settings.workingMemoryCapacity = 10;
             });
 
             Settings.Write();
@@ -211,7 +205,7 @@ namespace RimMind.Memory
             float h = 30f;
             h += 24f;
             h += 24f + 24f * 6;
-            h += 24f + 80f * 4;
+            h += 24f + 80f * 3;
             h += 24f + 80f * 3;
             h += 24f + 80f * 4;
             h += 24f + 80f * 2;

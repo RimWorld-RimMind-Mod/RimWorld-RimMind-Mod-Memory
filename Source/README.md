@@ -1,6 +1,6 @@
 # Memory runtime map
 
-RimMind-Memory owns per-game pawn, narrator, and working memory. It has no
+RimMind-Memory owns per-game pawn and narrator memory. It has no
 request coordinator: external writes enter through Core's memory capability,
 and event producers write to the same world-component state owner.
 
@@ -20,7 +20,7 @@ and event producers write to the same world-component state owner.
 game event or external API
   -> MemoryTriggerHelper or RimMindMemoryBridge
   -> RimMindMemoryWorldComponent
-  -> PawnMemoryStore / NarratorMemoryStore / WorkingMemory
+  -> PawnMemoryStore / NarratorMemoryStore
   -> context providers and snapshot synchronization
 ```
 
@@ -36,6 +36,7 @@ RimWorld settings or Core settings tab
 - `RimMindMemoryWorldComponent` owns persistent per-game state.
 - `MemoryStoreBase` owns shared three-layer rules; derived stores express target-specific entry behavior.
 - Providers read state and format context. They do not own storage transitions.
+- `WorkingMemory/` preserves old save types and Scribe labels only. Its provider and debug viewer read existing entries without creating buffers or trimming data; new memories use the three-layer stores. The old capacity setting is no longer exposed.
 - `MemoryContextProvider` also publishes synchronous pawn and narrator briefs through Core's public provider registry for optional consumers; Verse reads occur on the main thread.
 - Network and serialization work stays behind the snapshot and Core storage boundaries.
 - Verse and Unity side effects remain on the main thread.
@@ -47,5 +48,5 @@ dotnet test RimMind-Memory/Tests/RimMindMemory.Tests.csproj -c Release
 dotnet build RimMind-Memory/Source/RimMindMemory.csproj -c Release
 ```
 
-The permanent suite contains eight aggregate Facts. The game Autotester remains
-separate and is currently blocked by missing resources.
+Count discovered cases with the root test-budget script (all projects per mod < 1000).
+The game Autotester remains separate and is currently blocked by missing resources.

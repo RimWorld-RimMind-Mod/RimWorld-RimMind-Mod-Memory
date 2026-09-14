@@ -33,7 +33,8 @@ namespace RimMind.Memory
         public int idleGapThresholdTicks = 6000;
         public float narratorEventThreshold = 0.2f;
         public float pawnToNarratorThreshold = 0.8f;
-        public int workingMemoryCapacity = 10;
+        // Retained for old ModSettings only; no active working-memory producer exists.
+        private int workingMemoryCapacity = 10;
 
         public override void ExposeData()
         {

@@ -3,54 +3,17 @@ using Verse;
 
 namespace RimMind.Memory.WorkingMemory
 {
+    // Save compatibility only. New memories use PawnMemoryStore / NarratorMemoryStore.
+    // Keep the type and Scribe labels so existing entries remain readable and resavable.
     public class WorkingMemory : IExposable
     {
-        public const int DefaultCapacity = 10;
-
+        private const int DefaultCapacity = 10;
         private List<WorkingMemoryEntry> _entries = new List<WorkingMemoryEntry>();
-        private int _capacity;
+        private int _capacity = DefaultCapacity;
 
         public int Capacity => _capacity;
         public IReadOnlyList<WorkingMemoryEntry> Entries => _entries;
         public bool IsEmpty => _entries.Count == 0;
-
-        public WorkingMemory(int capacity = DefaultCapacity)
-        {
-            _capacity = capacity > 0 ? capacity : DefaultCapacity;
-        }
-
-        public void Add(string content, string source = "", float relevance = 0.5f)
-        {
-            if (string.IsNullOrEmpty(content)) return;
-
-            var entry = new WorkingMemoryEntry(content, source, relevance);
-            _entries.Add(entry);
-
-            while (_entries.Count > _capacity)
-                _entries.RemoveAt(0);
-        }
-
-        public void Add(WorkingMemoryEntry entry)
-        {
-            if (entry == null || string.IsNullOrEmpty(entry.Content)) return;
-            _entries.Add(entry);
-
-            while (_entries.Count > _capacity)
-                _entries.RemoveAt(0);
-        }
-
-        public void UpdateCapacity(int newCapacity)
-        {
-            if (newCapacity <= 0) newCapacity = DefaultCapacity;
-            _capacity = newCapacity;
-            while (_entries.Count > _capacity)
-                _entries.RemoveAt(0);
-        }
-
-        public void Clear()
-        {
-            _entries.Clear();
-        }
 
         public void ExposeData()
         {

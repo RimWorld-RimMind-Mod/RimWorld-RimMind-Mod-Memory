@@ -101,51 +101,72 @@ namespace RimMind.Memory.Tests.Contracts
         }
 
         [Fact]
-        public void Working_memory_preserves_transient_capacity_contracts()
+        public void Legacy_working_memory_loads_and_resaves_without_trimming_existing_entries()
         {
-            ContractCaseRunner.Run(
-                ("invalid capacity uses the stable default", () =>
+            var entry = new RimMind.Memory.WorkingMemory.WorkingMemoryEntry();
+            try
+            {
+                Verse.ScribeFixture.Loading = true;
+                Verse.ScribeFixture.Values = new Dictionary<string, object>
                 {
-                    Assert.Equal(WM.DefaultCapacity, new WM(0).Capacity);
-                    Assert.Equal(WM.DefaultCapacity, new WM(-1).Capacity);
-                }),
-                ("overflow evicts the oldest transient entry", () =>
+                    ["Content"] = "remember the visitor",
+                    ["Timestamp"] = 420,
+                    ["Source"] = "dialogue",
+                    ["Relevance"] = 0.8f
+                };
+                entry.ExposeData();
+                Assert.Equal("remember the visitor", entry.Content);
+                Assert.Equal(420, entry.Timestamp);
+                Assert.Equal("dialogue", entry.Source);
+                Assert.Equal(0.8f, entry.Relevance);
+
+                // Loading constructs the saved IExposable type without caller arguments.
+                var memory = System.Activator.CreateInstance<WM>();
+                Verse.ScribeFixture.Values = new Dictionary<string, object>
                 {
-                    var memory = new WM(2);
-                    memory.Add("first");
-                    memory.Add("second");
-                    memory.Add("third");
+                    ["capacity"] = 1,
+                    ["entries"] = new List<RimMind.Memory.WorkingMemory.WorkingMemoryEntry> { entry, entry }
+                };
+                memory.ExposeData();
+                Assert.Equal(1, memory.Capacity);
+                Assert.Equal(2, memory.Entries.Count);
+                Assert.False(memory.IsEmpty);
 
-                    Assert.Collection(
-                        memory.Entries,
-                        entry => Assert.Equal("second", entry.Content),
-                        entry => Assert.Equal("third", entry.Content));
-                }),
-                ("capacity changes retain the newest entries", () =>
-                {
-                    var memory = new WM(4);
-                    memory.Add("one");
-                    memory.Add("two");
-                    memory.Add("three");
+                Verse.ScribeFixture.Loading = false;
+                Verse.ScribeFixture.Values = new Dictionary<string, object>();
+                memory.ExposeData();
+                var saved = Verse.ScribeFixture.Values;
+                Verse.ScribeFixture.Loading = true;
+                var reloaded = System.Activator.CreateInstance<WM>();
+                reloaded.ExposeData();
+                Assert.Equal(1, saved["capacity"]);
+                Assert.Equal(2, reloaded.Entries.Count);
+                Assert.Equal("remember the visitor", reloaded.Entries[0].Content);
+            }
+            finally
+            {
+                Verse.ScribeFixture.Values = null;
+                Verse.ScribeFixture.Loading = false;
+            }
+        }
 
-                    memory.UpdateCapacity(2);
-
-                    Assert.Equal(2, memory.Capacity);
-                    Assert.Equal("two", memory.Entries[0].Content);
-                    Assert.Equal("three", memory.Entries[1].Content);
-                }),
-                ("clear removes transient entries without mutating stores", () =>
-                {
-                    var memory = new WM(2);
-                    var store = new PawnMemoryStore();
-                    memory.Add("transient");
-                    store.AddIfNotExists(Entry("durable", 1, 0.5f));
-
-                    memory.Clear();
-
-                    Assert.True(memory.IsEmpty);
-                    Assert.Equal("durable", Assert.Single(store.active).id);
-                }));
+        [Fact]
+        public void Legacy_working_memory_missing_from_save_is_empty()
+        {
+            try
+            {
+                Verse.ScribeFixture.Loading = true;
+                Verse.ScribeFixture.Values = new Dictionary<string, object>();
+                var memory = System.Activator.CreateInstance<WM>();
+                memory.ExposeData();
+                Assert.True(memory.IsEmpty);
+                Assert.Empty(memory.Entries);
+            }
+            finally
+            {
+                Verse.ScribeFixture.Values = null;
+                Verse.ScribeFixture.Loading = false;
+            }
         }
 
         [Fact]
