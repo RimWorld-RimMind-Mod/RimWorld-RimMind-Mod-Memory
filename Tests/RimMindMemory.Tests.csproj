@@ -22,6 +22,7 @@
     <Compile Include="Contracts\**\*.cs" />
     <Compile Include="../Source/Core/TimeFormatter.cs" />
     <Compile Include="../Source/Core/ImportanceDecayCalculator.cs" />
+    <Compile Include="../Source/Core/MemoryRetrievalScorer.cs" />
     <Compile Include="../Source/Data/MemoryEntry.cs" />
     <Compile Include="../Source/Data/PawnMemoryStore.cs" />
     <Compile Include="../Source/Data/MemoryStoreBase.cs" />

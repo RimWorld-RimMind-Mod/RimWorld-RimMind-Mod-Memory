@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using RimMind.Testing;
 using WM = RimMind.Memory.WorkingMemory.WorkingMemory;
@@ -237,6 +238,47 @@ namespace RimMind.Memory.Tests.Contracts
 
                     Assert.Single(target[9].active);
                     Assert.Single(target[9].archive);
+                }));
+        }
+
+        [Fact]
+        public void Memory_retrieval_scorer_ranks_by_pinned_importance_and_recency()
+        {
+            ContractCaseRunner.Run(
+                ("pinned entries receive highest retrieval priority", () =>
+                {
+                    var pinnedOld = Entry("pinned-old", 100, 0.1f, pinned: true);
+                    var unpinnedRecent = Entry("recent-high", 60000, 0.9f, pinned: false);
+
+                    float pinnedScore = MemoryRetrievalScorer.CalculateScore(pinnedOld, 60000);
+                    float unpinnedScore = MemoryRetrievalScorer.CalculateScore(unpinnedRecent, 60000);
+
+                    Assert.True(pinnedScore > unpinnedScore);
+                }),
+                ("recent high importance entry ranks above old low importance entry", () =>
+                {
+                    var oldLow = Entry("old-low", 100, 0.2f);
+                    var recentHigh = Entry("recent-high", 60000, 0.8f);
+
+                    float oldScore = MemoryRetrievalScorer.CalculateScore(oldLow, 60000);
+                    float recentScore = MemoryRetrievalScorer.CalculateScore(recentHigh, 60000);
+
+                    Assert.True(recentScore > oldScore);
+                }),
+                ("select top scored limits count and preserves chronological order in result", () =>
+                {
+                    var m1 = Entry("m1", 1000, 0.9f);
+                    var m2 = Entry("m2", 5000, 0.1f);
+                    var m3 = Entry("m3", 10000, 0.8f);
+
+                    var top = MemoryRetrievalScorer.SelectTopScored(new[] { m1, m2, m3 }, 2, 10000);
+
+                    Assert.Equal(2, top.Count);
+                    Assert.Contains(m1, top);
+                    Assert.Contains(m3, top);
+                    Assert.DoesNotContain(m2, top);
+                    Assert.Equal("m1", top[0].id);
+                    Assert.Equal("m3", top[1].id);
                 }));
         }
 

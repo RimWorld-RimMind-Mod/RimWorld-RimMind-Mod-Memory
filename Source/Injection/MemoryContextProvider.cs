@@ -35,13 +35,13 @@ namespace RimMind.Memory.Injection
                     var sb = new StringBuilder("RimMind.Memory.Context.RecentMemory".Translate(pawn.Name.ToStringShort));
                     sb.AppendLine();
 
+                    int now = Find.TickManager.TicksGame;
                     int activeInject = (int)(settings.maxActive * settings.activeInjectRatio);
-                    var fromActive = store.active.Take(activeInject).ToList();
+                    var fromActive = MemoryRetrievalScorer.SelectTopScored(store.active, activeInject, now);
 
                     int archiveInject = (int)(settings.maxArchive * settings.archiveInjectRatio);
-                    var fromArchive = store.archive.Take(archiveInject).ToList();
+                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(store.archive, archiveInject, now);
 
-                    int now = Find.TickManager.TicksGame;
                     foreach (var e in fromActive)
                         sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
 
@@ -75,13 +75,13 @@ namespace RimMind.Memory.Injection
                     var sb = new StringBuilder("RimMind.Memory.Context.NarratorMemory".Translate());
                     sb.AppendLine();
 
+                    int now = Find.TickManager.TicksGame;
                     int activeInject = (int)(settings.narratorMaxActive * settings.narratorActiveInjectRatio);
-                    var fromActive = store.active.Take(activeInject).ToList();
+                    var fromActive = MemoryRetrievalScorer.SelectTopScored(store.active, activeInject, now);
 
                     int archiveInject = (int)(settings.narratorMaxArchive * settings.narratorArchiveInjectRatio);
-                    var fromArchive = store.archive.Take(archiveInject).ToList();
+                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(store.archive, archiveInject, now);
 
-                    int now = Find.TickManager.TicksGame;
                     foreach (var e in fromActive)
                         sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
 
