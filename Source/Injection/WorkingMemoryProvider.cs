@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
@@ -29,12 +30,23 @@ namespace RimMind.Memory.Injection
 
                     var sb = new StringBuilder();
                     sb.AppendLine("RimMind.Memory.Context.WorkingMemory".Translate(pawn.Name.ToStringShort));
+                    string? currentJobReport = pawn.CurJob?.GetReport(pawn);
+                    bool hasEntries = false;
                     foreach (var entry in wm.Entries)
+                    {
+                        if (!string.IsNullOrEmpty(currentJobReport) && !string.IsNullOrEmpty(entry.Content)
+                            && entry.Content.IndexOf(currentJobReport, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            continue;
+                        }
                         sb.AppendLine($"- {entry.Content}");
+                        hasEntries = true;
+                    }
 
+                    if (!hasEntries) return null;
                     var result = sb.ToString().TrimEnd();
                     return string.IsNullOrEmpty(result) ? null : result;
-                }, "RimMind-Memory", stalenessTicks: 750, invalidationTriggers: new[] { "MemoryEvent" }));
+                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 750, invalidationTriggers: new[] { "MemoryEvent" }));
         }
     }
 }

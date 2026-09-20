@@ -1,12 +1,13 @@
 using System;
+using RimMind.Domain.Common;
 using Verse;
 
 namespace RimMind.Memory.Core
 {
     public static class TimeFormatter
     {
-        private const int TicksPerHour = 2500;
-        private const int TicksPerDay = 60000;
+        private const int TicksPerHour = RimMindTime.TicksPerHour;
+        private const int TicksPerDay = RimMindTime.TicksPerDay;
 
         public static string FormatTimeAgo(int eventTick, int nowTick)
         {

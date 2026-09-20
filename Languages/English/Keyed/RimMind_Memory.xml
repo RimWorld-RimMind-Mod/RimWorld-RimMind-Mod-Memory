@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
+  <RimMind.Memory.SettingsTitle>RimMind - Memory</RimMind.Memory.SettingsTitle>
   <!-- TimeFormatter.cs -->
   <RimMind.Memory.Time.JustNow>Just now</RimMind.Memory.Time.JustNow>
   <RimMind.Memory.Time.HoursAgo>About {0}h ago</RimMind.Memory.Time.HoursAgo>

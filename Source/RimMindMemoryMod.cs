@@ -1,5 +1,6 @@
 using HarmonyLib;
 using RimMind.Application.Common.Interfaces.Extension;
+using RimMind.Presentation;
 using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
 using RimMind.Memory.Core;
@@ -9,14 +10,14 @@ using Verse;
 
 namespace RimMind.Memory
 {
-    public class RimMindMemoryMod : Mod
+    public class RimMindMemoryMod : RimMindSubmodBase<RimMindMemorySettings>
     {
-        public static RimMindMemorySettings Settings = null!;
+        public static new RimMindMemorySettings Settings = null!;
 
         public RimMindMemoryMod(ModContentPack content) : base(content)
         {
-            Settings = GetSettings<RimMindMemorySettings>();
-            new Harmony("mcocdaa.RimMindMemory").PatchAll();
+            Settings = base.Settings;
+            InitializeHarmony();
 
             MemoryContextProvider.Register();
             WorkingMemoryProvider.Register();
@@ -27,8 +28,6 @@ namespace RimMind.Memory
             RimMindAPI.Extensions<ISkipCheck>().Register(new MemoryActionSkipCheck());
             Log.Message("[RimMind-Memory] Initialized.");
         }
-
-        public override string SettingsCategory() => "RimMind - Memory";
 
         public override void DoSettingsWindowContents(Rect rect) =>
             MemorySettingsDrawer.Draw(rect);

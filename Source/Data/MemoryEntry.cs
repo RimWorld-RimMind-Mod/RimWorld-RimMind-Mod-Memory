@@ -16,10 +16,11 @@ namespace RimMind.Memory.Data
         public float importance;
         public bool isPinned;
         public string? pawnId;
+        public string? targetPawnId;
 
         public MemoryEntry() { }
 
-        public static MemoryEntry Create(string content, MemoryType type, int tick, float importance, string? pawnId = null)
+        public static MemoryEntry Create(string content, MemoryType type, int tick, float importance, string? pawnId = null, string? targetPawnId = null)
         {
             if (content.Length > 2000)
             {
@@ -37,6 +38,7 @@ namespace RimMind.Memory.Data
                 importance = importance,
                 isPinned = type == MemoryType.Dark,
                 pawnId = pawnId,
+                targetPawnId = targetPawnId,
             };
         }
 
@@ -50,6 +52,7 @@ namespace RimMind.Memory.Data
             Scribe_Values.Look(ref importance, "importance");
             Scribe_Values.Look(ref isPinned, "isPinned");
             Scribe_Values.Look(ref pawnId, "pawnId", null);
+            Scribe_Values.Look(ref targetPawnId, "targetPawnId", null);
 #pragma warning restore CS8601
         }
 

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
@@ -35,12 +36,17 @@ namespace RimMind.Memory.Injection
                     var sb = new StringBuilder("RimMind.Memory.Context.RecentMemory".Translate(pawn.Name.ToStringShort));
                     sb.AppendLine();
 
+                    int? recipientId = RimMindAPI.Chat.GetActiveDialogueRecipient(pawn.thingIDNumber);
+                    Pawn? recipient = recipientId.HasValue && recipientId.Value > 0 ? PawnLookup.FindPawnByNumber(recipientId.Value) : null;
+                    string? targetPawnId = recipient?.thingIDNumber.ToString();
+                    string? targetName = recipient?.Name?.ToStringShort;
+
                     int now = Find.TickManager.TicksGame;
                     int activeInject = (int)(settings.maxActive * settings.activeInjectRatio);
-                    var fromActive = MemoryRetrievalScorer.SelectTopScored(store.active, activeInject, now);
+                    var fromActive = MemoryRetrievalScorer.SelectTopScored(store.active, activeInject, now, targetPawnId, targetName);
 
                     int archiveInject = (int)(settings.maxArchive * settings.archiveInjectRatio);
-                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(store.archive, archiveInject, now);
+                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(store.archive, archiveInject, now, targetPawnId, targetName);
 
                     foreach (var e in fromActive)
                         sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
@@ -60,7 +66,7 @@ namespace RimMind.Memory.Injection
                     }
 
                     return sb.ToString().TrimEnd();
-                }, "RimMind-Memory", stalenessTicks: 1500, invalidationTriggers: new[] { "MemoryEvent" }));
+                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 1500, invalidationTriggers: new[] { "MemoryEvent" }));
 
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
                 "memory_narrator", ContextLayer.L4_History, 0.6f,
@@ -100,7 +106,7 @@ namespace RimMind.Memory.Injection
                     }
 
                     return sb.ToString().TrimEnd();
-                }, "RimMind-Memory", stalenessTicks: 3000, invalidationTriggers: new[] { "MemoryEvent" }));
+                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 3000, invalidationTriggers: new[] { "MemoryEvent" }));
 
             RegisterPublicProviders();
         }
