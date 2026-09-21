@@ -77,8 +77,12 @@ namespace RimMind.Memory.DarkMemory
 
             foreach (var map in Find.Maps)
             {
-                foreach (var pawn in map.mapPawns.FreeColonists.ToList())
+                var colonists = map.mapPawns?.FreeColonists;
+                if (colonists == null) continue;
+                for (int i = 0; i < colonists.Count; i++)
                 {
+                    var pawn = colonists[i];
+                    if (pawn == null) continue;
                     int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
                     if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
                     TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
@@ -91,17 +95,22 @@ namespace RimMind.Memory.DarkMemory
                 }
             }
 
-            foreach (var pawn in (Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>()).ToList())
+            var worldPawns = Find.WorldPawns?.AllPawnsAlive;
+            if (worldPawns != null)
             {
-                if (!pawn.IsFreeNonSlaveColonist) continue;
-                int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
-                if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
-                TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
-
-                if (settings.enableDecay)
+                for (int i = 0; i < worldPawns.Count; i++)
                 {
-                    var store = wc.GetOrCreatePawnStore(pawn);
-                    ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                    var pawn = worldPawns[i];
+                    if (pawn == null || !pawn.IsFreeNonSlaveColonist) continue;
+                    int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
+                    if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
+                    TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
+
+                    if (settings.enableDecay)
+                    {
+                        var store = wc.GetOrCreatePawnStore(pawn);
+                        ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                    }
                 }
             }
 
