@@ -1,18 +1,51 @@
 RimMind - Memory
+[h1]RimMind - Memory (三层记忆与时间沉淀)[/h1]
 
 你的殖民者终于有记忆了。
+[i]你的殖民者终于拥有了记忆——不仅活在当下，更沉淀着过去的荣光、创伤与羁绊。[/i]
+[i]Your colonists finally remember — Not just living in the moment, but carrying past triumphs, traumas, and bonds.[/i]
 
 在原版 RimWorld 里，小人被海盗砍伤、经历精神崩溃、和爱人结婚——然后转头就忘。昨天差点死掉？不记得了。上个月连续挖了十天矿？毫无印象。RimMind-Memory 让殖民者真正记住发生在他们身上的一切。
+[hr]
+[h2]📖 中文介绍 / Chinese Overview[/h2]
 
 三层记忆，越久越深
+[b]RimMind-Memory[/b] 为殖民者与整个殖民地构建了由浅入深的三层记忆体系。在原版游戏中，小人经历九死一生的围攻、目睹至亲离世，往往转眼就如同从未发生。而 RimMind-Memory 让每一段过往都在小人心中留下不可磨灭的印记。
 
 活跃记忆是"最近发生了什么"——刚被袭击、刚升了技能、刚和谁吵了架。存档记忆是"过去的重要片段"——按重要度排列，琐事淡去，关键时刻长留。最有趣的是暗记忆：AI 每天把当日记忆凝练成不超过 50 字的长期印象。一个连续挖矿的小人会逐渐形成"资深矿工，经常长时间工作"的印象；被海盗袭击受伤后，会沉淀出"对袭击保持警惕"。这些印象永久保留，构成了殖民者性格的底色——而且会随着经历不断演进。
+[h3]🌟 核心特性[/h3]
+[list]
+[*] [b]三层递进式记忆架构[/b]：
+  [list]
+  [*] [b]活跃记忆 (Working Memory)[/b]：记录刚发生的小事、近期的争执与偶遇。
+  [*] [b]情节归档记忆 (Episodic Memory)[/b]：筛选并归档真正重大的里程碑事件（战斗救护、重伤、结婚、奇迹生还）。
+  [*] [b]暗记忆与潜意识 (Dark / Semantic Memory)[/b]：由 AI 每日自动凝练出深层印象（例如：“经历多次严寒袭击后，对食物短缺与危机高度警惕”），化为小人性格的恒久底色！
+  [/list]
+[*] [b]记忆自然衰减与重点固定 (Pinning)[/b]：普通琐事会随着游戏天数自然淡忘，关键记忆可手动加星固定，永久保留。
+[*] [b]全地图与殖民地大事件史诗[/b]：独立记录整个殖民地的编年史，供叙事者与小人决策调用。
+[*] [b]100% 存档安全持久化[/b]：所有记忆随游戏存档无损保存与反序列化，读档不失忆。
+[/list]
 
 暗记忆是最值得体验的部分。它不是简单的摘要，而是 AI 对殖民者经历的"理解"。一个经历了多次袭击的小人，暗记忆会从"遭遇袭击受伤"逐渐演变为"对危险保持高度警觉"；一个长期照顾病人的医生，会沉淀出"富有同情心，经常照料伤员"。你会在记忆面板里看到这些印象一条条生长，像是在读一本人物小传。
+[hr]
+[h2]🌐 English Overview[/h2]
 
 工作也有记忆
+[b]RimMind-Memory[/b] constructs a rich three-tier cognitive memory architecture for individual colonists and the colony as a whole. Rather than instantly forgetting past perils or companions, pawns accumulate enduring experiences.
 
 搬运了 12 次货物、挖了 4 小时矿、救了受伤的队友——不再是转瞬即逝的 Job 日志。连续同类工作会被智能合并为一条记忆，不会刷屏。而救援、战斗等重要行为则单独记录，不会被日常琐事淹没。你甚至能看到小人的空闲时段——"休息/待机 约2.4游戏时"，仿佛他们真的偷了个懒。
+[h3]🌟 Key Highlights[/h3]
+[list]
+[*] [b]Three-Tier Memory Architecture[/b]:
+  [list]
+  [*] [b]Working Memory[/b]: Tracks immediate real-time happenings, minor discussions, and work stints.
+  [*] [b]Episodic Memory[/b]: Archives high-salience milestones such as miraculous survival, loss of loved ones, or heroic rescues.
+  [*] [b]Dark / Semantic Memory[/b]: Subconscious impressions distilled by the LLM that permanently shape the colonist's core identity.
+  [/list]
+[*] [b]Natural Decay & Memory Pinning[/b]: Trivial memories gradually fade over seasons unless pinned by the player as key life moments.
+[*] [b]Colony Chronicle[/b]: Preserves colony-wide historical events for use in storytelling and collective reflection.
+[*] [b]Savegame Serialization[/b]: Perfectly serialized into save files via WorldComponent.
+[/list]
 
 叙事者：殖民地的编年史
 
@@ -44,3 +77,9 @@ Memory 是 RimMind 生态的基础。当 Personality 生成人格、Advisor 做�
 - RimMind-Dialogue：对话中殖民者会引用自己的记忆
 - RimMind-Advisor：工作决策会考虑过去的经验
 - RimMind-Storyteller：叙事者结合记忆选择更合理的事件
+[hr]
+[h2]⚙️ 依赖与推荐 / Requirements & Recommendations[/h2]
+[list]
+[*] [b]必需前置 (Required)[/b]: Harmony, [b]RimMind-Core[/b]
+[*] [b]推荐搭配 (Recommended)[/b]: [b]RimMind-Personality[/b]、[b]RimMind-Advisor[/b]
+[/list]
