@@ -35,6 +35,13 @@ graph TD
     Core --> BridgeRimTalk["Bridge-RimTalk"]
 ```
 
+## 🎮 实机特性展示 / In-Game Showcase
+
+![RimMind-Memory In-Game Showcase](docs/images/showcase.jpg)
+
+- **三层记忆与报文检视器 (ContextPayloadInspector)**：情景记忆（近期具体事件）、摘要记忆（阶段生活总结）与反思记忆（核心价值信念）分层沉淀。
+- **4-Zone 上下文精确透视**：通过报文分析器实时检视注入 LLM 的 Token 负载、冗余条目与 KV-Cache 前缀稳定性，确保长线游戏记忆不臃肿且不击穿缓存。
+
 ## 安装步骤
 
 ### 从源码安装
@@ -216,6 +223,13 @@ RimMind is an AI-driven RimWorld mod suite that connects to Large Language Model
 | RimMind-Bridge-RimChat | Coordination & mutual exclusion layer with RimChat mod | Core, RimChat | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat) |
 | RimMind-Bridge-RimTalk | Dialogue bubbles & context bridge with RimTalk mod | Core, RimTalk | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimTalk) |
 | RimMind-Extension-ModelService | Extended model gateway, OpenCode Go subscription & multi-endpoint load balancing | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService) |
+
+## 🎮 In-Game Showcase / Feature Demonstration
+
+![RimMind-Memory In-Game Showcase](docs/images/showcase.jpg)
+
+- **3-Tier Memory Architecture & ContextPayloadInspector**: Hierarchical structuring across Episodic (recent events), Summary (periodic abstracts), and Reflection (deep beliefs and impressions).
+- **4-Zone Context Payload Observability**: Direct in-game token breakdown, redundancy analysis, and KV-Cache prefix stability inspection, keeping multi-year colony memories rich without exploding prompt budgets.
 
 ## Installation
 
