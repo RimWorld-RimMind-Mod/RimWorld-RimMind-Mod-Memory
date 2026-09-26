@@ -1,347 +1,77 @@
-# RimMind - Memory
+<div align="center">
 
-三层记忆系统，自动采集游戏事件生成记忆条目，通过 AI 凝练为长期印象，为其他 RimMind 模组提供上下文支持。
+# RimMind-Memory 🧠
+### 3-Tier Cognitive Memory Hierarchy & Temporal Context Engine for RimWorld 1.6
 
-## RimMind 是什么
+**English** | [简体中文](README_zh.md)
 
-RimMind 是一套 AI 驱动的 RimWorld 模组套件，通过接入大语言模型（LLM），让殖民者拥有人格、记忆、对话和自主决策能力。
+<p>
+  <a href="https://rimworldgame.com/"><img src="https://img.shields.io/badge/RimWorld-1.6-brightgreen.svg" alt="RimWorld 1.6"></a>
+  <a href="https://github.com/mcocdaa/RimWorld-RimMind-Mod-Core"><img src="https://img.shields.io/badge/Dependency-RimMind--Core-blue.svg" alt="Dependency: RimMind-Core"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Unit%20Tests-Passing-success.svg" alt="Unit Tests"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
 
-## 子模组列表与依赖关系
+<p><em>Endow colonists with long-term memory, episodic life chronicles, and natural emotional decay.</em></p>
 
-| 模组 | 职责 | 依赖 | GitHub |
-|------|------|------|--------|
-| RimMind-Core | 公共 API、LLM 请求调度、4-Zone 上下文引擎、ToolCall 契约与运行时 | Harmony | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core) |
-| RimMind-Actions | 将基础 ToolCall 组合成高级 Mechanism 动作 | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Actions) |
-| RimMind-Advisor | 状态/Thought → 建议、审批、动作与反馈闭环 | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Advisor) |
-| RimMind-Dialogue | AI 驱动的对话系统与社交关系演进（express_dialogue） | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Dialogue) |
-| **RimMind-Memory** | **三层记忆系统（情景/摘要/反思）与时间上下文** | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory) |
-| RimMind-Personality | 基于概率的状态跃迁驱动的人格与 Thought 注入 | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality) |
-| RimMind-Storyteller | AI 叙事者，智能评估戏剧性曲线与事件选择 | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Storyteller) |
-| RimMind-Bridge-RimChat | RimMind 与 RimChat 模组的协调与门控互斥 | Core, RimChat | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat) |
-| RimMind-Bridge-RimTalk | RimMind 与 RimTalk 模组的对话气泡与上下文桥 | Core, RimTalk | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimTalk) |
-| RimMind-Extension-ModelService | 扩展模型网关、OpenCode Go 订阅直连与多端点负载均衡 | Core | [链接](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService) |
-
-```mermaid
-graph TD
-    Core["RimMind-Core (API / Context / ToolCall / Runtime)"]
-    Core --> Actions["RimMind-Actions (Mechanism Composite)"]
-    Core --> Advisor["RimMind-Advisor (Advice & Approval)"]
-    Core --> Dialogue["RimMind-Dialogue (Social & Dialogue)"]
-    Core --> Memory["RimMind-Memory (3-Tier Memory)"]
-    Core --> Personality["RimMind-Personality (State Transitions)"]
-    Core --> Storyteller["RimMind-Storyteller (AI Director)"]
-    Core --> ModelService["Extension-ModelService (Gateway / LB)"]
-    Core --> BridgeRimChat["Bridge-RimChat"]
-    Core --> BridgeRimTalk["Bridge-RimTalk"]
-```
-
-## 🎮 实机特性展示 / In-Game Showcase
-
-![RimMind-Memory In-Game Showcase](docs/images/showcase.jpg)
-
-- **三层记忆与报文检视器 (ContextPayloadInspector)**：情景记忆（近期具体事件）、摘要记忆（阶段生活总结）与反思记忆（核心价值信念）分层沉淀。
-- **4-Zone 上下文精确透视**：通过报文分析器实时检视注入 LLM 的 Token 负载、冗余条目与 KV-Cache 前缀稳定性，确保长线游戏记忆不臃肿且不击穿缓存。
-
-## 安装步骤
-
-### 从源码安装
-
-**Linux/macOS:**
-```bash
-git clone git@github.com:RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory.git
-cd RimWorld-RimMind-Mod-Memory
-./script/deploy-single.sh <your RimWorld path>
-```
-
-**Windows:**
-```powershell
-git clone git@github.com:RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory.git
-cd RimWorld-RimMind-Mod-Memory
-./script/deploy-single.ps1 <your RimWorld path>
-```
-
-### 从 Steam 安装
-
-1. 安装 [Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077) 前置模组
-2. 安装 RimMind-Core
-3. 安装 RimMind-Memory
-4. 在模组管理器中确保加载顺序：Harmony → Core → Memory
-
-## 快速开始
-
-### 填写 API Key
-
-1. 启动游戏，进入主菜单
-2. 点击 **选项 → 模组设置 → RimMind-Core**
-3. 填写你的 **API Key** 和 **API 端点**
-4. 填写 **模型名称**（如 `gpt-4o-mini`）
-5. 点击 **测试连接**，确认显示"连接成功"
-
-### 查看记忆
-
-1. 进入游戏，选择一个殖民者
-2. 打开 Bio 页面，点击顶部的 **"记忆"** 按钮
-3. 查看活跃记忆、存档记忆和长期印象
-
-## 核心功能
-
-### 三层存储结构
-
-每个殖民者和叙事者都有三层记忆：
-
-- **活跃记忆**：近期事件，按时间排序，有容量上限
-- **存档记忆**：按重要度排序，容量满时淘汰低重要度条目
-- **长期印象（暗记忆）**：AI 每日生成，凝练为 50 字以内的摘要，永久保留
-
-### 记忆采集
-
-自动监听多种游戏事件：
-
-| 事件类型 | 重要度 | 说明 |
-|---------|--------|------|
-| 工作会话 | 0.4~0.5 | 连续工作聚合成单条记忆 |
-| 重要工作 | 0.5~0.9 | 救援、攻击等直接单独记录 |
-| 受伤/患病 | 0.5~0.9 | 致命伤最高 0.9 |
-| 精神崩溃 | 0.7~0.95 | 狂暴最高 0.95 |
-| 亲近者死亡 | 0.85~1.0 | 有关系者 1.0 |
-| 技能升级 | 0.5~0.7 | 高等级技能更重要 |
-| 关系建立 | 0.6~0.95 | 配偶/恋人最高 0.95 |
-| 叙事者事件 | 0.3~1.0 | 袭击 0.9，婚礼 0.85 |
-
-Pawn 记忆重要度 >= 0.8 时自动同步到叙事者记忆。
-
-### 工作会话聚合
-
-将连续同类工作聚合成单条记忆，例如"搬运 x12 约4.8游戏时"，避免记忆列表被细粒度 Job 刷屏。
-
-### 暗记忆生成
-
-每日调用 AI 将当日记忆凝练为长期印象。暗记忆只读展示，用于 AI 理解人物的长期状态和性格演变。暗记忆会随经历不断演进——一个经历了多次袭击的小人，印象会从"遭遇袭击"逐渐变为"对危险保持高度警觉"。
-
-### 工作记忆
-
-短期滚动缓冲区，记录当前正在发生的上下文，以高优先级注入 AI Prompt。容量可动态调整，修改设置后立即生效。
-
-### 上下文注入
-
-通过 RimMind-Core 的 ContextKeyRegistry 机制，将记忆自动注入 AI Prompt，让所有子模块都能参考殖民者的历史。ContextEngine 的自适应预算和 Layer 感知裁剪对记忆上下文生效。
-
-### 远端同步
-
-支持通过 IStorageDriver 将记忆同步到远端存储。保存存档时自动上传，加载存档时自动合并远端数据。
-
-### 公开 API
-
-- `RimMindMemoryAPI.AddMemory(content, memoryType, tick, importance, pawnId)` — 为指定殖民者添加记忆
-- `RimMindMemoryWorldComponent.GetNarratorMemories()` — 获取叙事者记忆列表
-
-## 设置项
-
-| 设置 | 默认值 | 说明 |
-|------|--------|------|
-| 启用记忆系统 | 开启 | 总开关 |
-| 工作会话 | 开启 | 采集工作相关记忆 |
-| 受伤/患病 | 开启 | 采集健康相关记忆 |
-| 精神崩溃 | 开启 | 采集精神事件 |
-| 亲近者死亡 | 开启 | 采集死亡事件 |
-| 技能升级 | 开启 | 采集技能提升 |
-| 关系变化 | 开启 | 采集关系建立 |
-| 活跃记忆上限 | 30 | 每人近期记忆条数 |
-| 存档记忆上限 | 50 | 每人存档记忆条数 |
-| 暗记忆条数 | 3 | AI 生成的长期印象条数（代码+prompt 双重限制） |
-| 活跃叙事上限 | 30 | 叙事者活跃叙事条数 |
-| 存档叙事上限 | 10 | 叙事者存档叙事条数 |
-| 暗叙事条数 | 10 | 叙事者 AI 压缩长期叙事条数 |
-| 工作记忆容量 | 10 | 短期工作记忆条数 |
-| 活跃注入比例 | 50% | Pawn 活跃记忆注入 Prompt 的比例 |
-| 存档注入比例 | 50% | Pawn 存档记忆注入 Prompt 的比例 |
-| 叙事者活跃注入比例 | 50% | 叙事者活跃叙事注入 Prompt 的比例 |
-| 叙事者存档注入比例 | 50% | 叙事者存档叙事注入 Prompt 的比例 |
-| 最小聚合次数 | 2 | 同类工作达到此次数后才聚合为一条记忆 |
-| 空闲间隔阈值 | 2.4 游戏时 | 间隔超过此时长记录为休息/待机 |
-| 启用重要度衰减 | 关闭 | 记忆重要度随时间降低 |
-| 衰减速率 | 2%/天 | 每游戏日重要度降低的百分比 |
-| 最低阈值 | 0.05 | 低于此阈值的记忆自动归档 |
-| 叙事者事件阈值 | 0.2 | 事件重要度达到此阈值才被叙事者记录 |
-| 小人→叙事者阈值 | 0.8 | Pawn 记忆重要度达到此阈值才同步到叙事者 |
-
-## 常见问题
-
-**Q: 记忆会占用很多 Token 吗？**
-A: 注入比例可调。默认只注入 50% 的活跃和存档记忆，暗记忆条数也有限制（默认 3 条，代码+prompt 双重保障）。叙事者注入比例可独立调节。可根据 API 费用调整。
-
-**Q: 记忆随存档保存吗？**
-A: 是的。所有记忆通过 WorldComponent 随存档序列化，载入存档后自动恢复。同时支持远端存储同步。
-
-**Q: 可以手动添加记忆吗？**
-A: 可以。在记忆日志窗口中可手动添加自定义记忆条目。
-
-**Q: 暗记忆可以编辑吗？**
-A: 暗记忆由 AI 生成，只读展示。你可以固定（Pin）活跃记忆防止被淘汰。
-
-**Q: 配合其他模块效果如何？**
-A: Memory 为所有 AI 评估提供历史上下文。配合 Personality、Advisor、Dialogue 使用时，AI 决策会更连贯。
-
-**Q: 修改工作记忆容量后需要重启吗？**
-A: 不需要。容量修改后下次 AI 请求时自动生效。
-
-## 致谢
-
-本项目开发过程中参考了以下优秀的 RimWorld 模组：
-
-- [RimTalk](https://github.com/jlibrary/RimTalk.git) - 对话系统参考
-- [RimTalk-ExpandActions](https://github.com/sanguodxj-byte/RimTalk-ExpandActions.git) - 动作扩展参考
-- [NewRatkin](https://github.com/solaris0115/NewRatkin.git) - 种族模组架构参考
-- [VanillaExpandedFramework](https://github.com/Vanilla-Expanded/VanillaExpandedFramework.git) - 框架设计参考
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！如果你有任何建议或发现 Bug，请通过 GitHub Issues 反馈。
-
+</div>
 
 ---
 
-# RimMind - Memory (English)
+## 📖 Overview
 
-A three-layer memory system that automatically collects game events, generates memory entries, and uses AI to distill long-term impressions, providing context for other RimMind modules.
+**RimMind-Memory** implements a biologically inspired, multi-tiered cognitive memory system for RimWorld. Rather than overwhelming LLM prompts with unfiltered event dumps, memories are structured, filtered, and consolidated across distinct cognitive layers.
 
-## What is RimMind
+### 3-Tier Architecture
+1. **Sensory & Working Buffer (L1)**: Captures immediate environmental sensations and short-lived interactions. Automatically decays after several hours.
+2. **Episodic Daily Chronicle (L2)**: Records daily milestones, battle triumphs, tragic losses, and relationship shifts in concise narrative entries.
+3. **Reflective & Dark Memories (L3)**: Enduring convictions, traumas, and life philosophy shaped by major colony events (e.g., witnessing cannibalism, surviving a betrayal, or falling in love).
 
-RimMind is an AI-driven RimWorld mod suite that connects to Large Language Models (LLMs), giving colonists personality, memory, dialogue, and autonomous decision-making.
+---
 
-## Sub-Modules & Dependencies
+## 🎮 In-Game Showcase
 
-| Module | Role | Depends On | GitHub |
-|--------|------|------------|--------|
-| RimMind-Core | Public API, LLM scheduling, 4-Zone context engine, ToolCall contracts & runtime | Harmony | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core) |
-| RimMind-Actions | High-level Mechanism composite actions from atomic ToolCalls | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Actions) |
-| RimMind-Advisor | Thought/Status → advice, player approval, action & feedback loop | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Advisor) |
-| RimMind-Dialogue | Context-aware AI dialogue & social relationship dynamics (express_dialogue) | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Dialogue) |
-| **RimMind-Memory** | **3-tier memory system (Episodic/Summary/Reflection) & temporal context** | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory) |
-| RimMind-Personality | Probabilistic state-transition driven personality & Thought injection | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality) |
-| RimMind-Storyteller | AI storyteller, dynamic dramatic tension & incident selection | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Storyteller) |
-| RimMind-Bridge-RimChat | Coordination & mutual exclusion layer with RimChat mod | Core, RimChat | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat) |
-| RimMind-Bridge-RimTalk | Dialogue bubbles & context bridge with RimTalk mod | Core, RimTalk | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimTalk) |
-| RimMind-Extension-ModelService | Extended model gateway, OpenCode Go subscription & multi-endpoint load balancing | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService) |
+![RimMind-Memory Showcase](docs/images/showcase.jpg)
+*Memory inspection window: Viewing a colonist's multi-layered memory chronicle, showing decayed sensory impressions alongside pinned life milestones.*
 
-## 🎮 In-Game Showcase / Feature Demonstration
+---
 
-![RimMind-Memory In-Game Showcase](docs/images/showcase.jpg)
+## 🏛️ Memory Lifecycle & Decay Flow
 
-- **3-Tier Memory Architecture & ContextPayloadInspector**: Hierarchical structuring across Episodic (recent events), Summary (periodic abstracts), and Reflection (deep beliefs and impressions).
-- **4-Zone Context Payload Observability**: Direct in-game token breakdown, redundancy analysis, and KV-Cache prefix stability inspection, keeping multi-year colony memories rich without exploding prompt budgets.
-
-## Installation
-
-### Install from Source
-
-**Linux/macOS:**
-```bash
-git clone git@github.com:RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory.git
-cd RimWorld-RimMind-Mod-Memory
-./script/deploy-single.sh <your RimWorld path>
+```mermaid
+flowchart TD
+    RawEvent["In-Game Event (Raid / Wedding / Trauma)"] --> L1["Sensory Buffer (Immediate Context)"]
+    L1 --> Filter{"Importance Filter"}
+    Filter -- Low Significance --> Decay["Natural Forgetting & Pruning"]
+    Filter -- High Significance --> L2["Episodic Memory Consolidation"]
+    L2 --> Synthesis["Sleep / Meditation Synthesis"]
+    Synthesis --> L3["Deep Reflection & Permanent Personality Imprint"]
+    L3 --> Prompt["Injected into Core Zone 2 Context"]
 ```
 
-**Windows:**
+---
+
+## 🛠️ Installation & Load Order
+
+```text
+1. Harmony
+2. Core (Vanilla RimWorld)
+3. RimMind-Core
+4. RimMind-Memory
+```
+
+---
+
+## 🧪 Developer Guide & Testing
+
+Run unit tests directly:
+
 ```powershell
-git clone git@github.com:RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory.git
-cd RimWorld-RimMind-Mod-Memory
-./script/deploy-single.ps1 <your RimWorld path>
+dotnet test RimMind-Memory/Tests/RimMindMemory.Tests.csproj -c Release
 ```
 
-### Install from Steam
+---
 
-1. Install [Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077)
-2. Install RimMind-Core
-3. Install RimMind-Memory
-4. Ensure load order: Harmony → Core → Memory
+## 📜 License
 
-## Quick Start
-
-### API Key Setup
-
-1. Launch the game, go to main menu
-2. Click **Options → Mod Settings → RimMind-Core**
-3. Enter your **API Key** and **API Endpoint**
-4. Enter your **Model Name** (e.g., `gpt-4o-mini`)
-5. Click **Test Connection** to confirm
-
-### View Memories
-
-1. In-game, select a colonist
-2. Open the Bio tab, click the **"Memory"** button at the top
-3. View active memories, archive memories, and dark impressions
-
-## Key Features
-
-- **Three-Layer Storage**: Active (recent), Archive (by importance), Dark (AI-generated long-term impressions)
-- **Auto Collection**: Monitors work sessions, injuries, mental breaks, deaths, skill ups, relationships, and narrator events
-- **Work Session Aggregation**: Groups continuous similar work into single entries (e.g., "Hauling x12, ~4.8 game hours")
-- **Working Memory**: Short-term rolling buffer for current context, injected at high priority, capacity dynamically adjustable
-- **Dark Memory**: AI distills daily memories into permanent 50-char summaries that evolve over time
-- **Context Injection**: Automatically injects memories into AI prompts via ContextKeyRegistry, with adaptive budgeting and layer-aware trimming
-- **Remote Sync**: Supports IStorageDriver for remote storage synchronization on save/load
-- **Public API**: `RimMindMemoryAPI.AddMemory` for external mods, `GetNarratorMemories` for narrator access
-
-## Settings
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Enable Memory System | On | Master switch |
-| Work Session | On | Collect work-related memories |
-| Injury / Illness | On | Collect health-related memories |
-| Mental Break | On | Collect mental break events |
-| Close One Died | On | Collect death events |
-| Skill Level Up | On | Collect skill improvements |
-| Relationship Change | On | Collect relationship events |
-| Active Memory Limit | 30 | Per-pawn recent memory count |
-| Archive Memory Limit | 50 | Per-pawn archive memory count |
-| Dark Memory Count | 3 | AI-generated long-term impressions (code+prompt dual-enforced) |
-| Active Narrative Limit | 30 | Narrator active narrative count |
-| Archive Narrative Limit | 10 | Narrator archive narrative count |
-| Dark Narrative Count | 10 | Narrator AI-compressed long-term narratives |
-| Working Memory Capacity | 10 | Short-term working memory entries |
-| Active Injection Ratio | 50% | Ratio of active memories injected into Prompt |
-| Archive Injection Ratio | 50% | Ratio of archive memories injected into Prompt |
-| Narrator Active Injection Ratio | 50% | Ratio of active narrator narratives injected |
-| Narrator Archive Injection Ratio | 50% | Ratio of archived narrator narratives injected |
-| Min Aggregation Count | 2 | Min same-type jobs before aggregating |
-| Idle Gap Threshold | 2.4 game hours | Gaps exceeding this recorded as idle |
-| Enable Importance Decay | Off | Memory importance decreases over time |
-| Decay Rate | 2%/day | Importance reduction per game day |
-| Minimum Threshold | 0.05 | Memories below this auto-archived |
-| Narrator Event Threshold | 0.2 | Min importance for narrator to record |
-| Pawn→Narrator Threshold | 0.8 | Min importance for pawn→narrator sync |
-
-## FAQ
-
-**Q: Will memories use too many tokens?**
-A: Injection ratios are adjustable. Default is 50% for active/archive, and dark memory is limited (default: 3 entries, dual-enforced by code and prompt). Narrator injection ratios are independently configurable. Adjust based on API costs.
-
-**Q: Are memories saved with the save file?**
-A: Yes. All memories are serialized via WorldComponent and restored when loading saves. Remote storage sync is also supported.
-
-**Q: Can I manually add memories?**
-A: Yes. You can add custom memory entries in the memory log window.
-
-**Q: Can I edit dark memories?**
-A: Dark memories are AI-generated and read-only. You can pin active memories to prevent them from being evicted.
-
-**Q: How does it work with other modules?**
-A: Memory provides historical context for all AI evaluations. Combined with Personality, Advisor, and Dialogue, AI decisions become more coherent.
-
-**Q: Do I need to restart after changing working memory capacity?**
-A: No. Capacity changes take effect on the next AI request automatically.
-
-## Acknowledgments
-
-This project references the following excellent RimWorld mods:
-
-- [RimTalk](https://github.com/jlibrary/RimTalk.git) - Dialogue system reference
-- [RimTalk-ExpandActions](https://github.com/sanguodxj-byte/RimTalk-ExpandActions.git) - Action expansion reference
-- [NewRatkin](https://github.com/solaris0115/NewRatkin.git) - Race mod architecture reference
-- [VanillaExpandedFramework](https://github.com/Vanilla-Expanded/VanillaExpandedFramework.git) - Framework design reference
-
-## Contributing
-
-Issues and Pull Requests are welcome! If you have any suggestions or find bugs, please feedback via GitHub Issues.
+Licensed under the [MIT License](LICENSE).
