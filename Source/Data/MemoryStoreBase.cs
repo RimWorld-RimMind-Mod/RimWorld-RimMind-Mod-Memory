@@ -10,17 +10,29 @@ namespace RimMind.Memory.Data
         public List<MemoryEntry> active = new List<MemoryEntry>();
         public List<MemoryEntry> archive = new List<MemoryEntry>();
         public List<MemoryEntry> dark = new List<MemoryEntry>();
+        public readonly object SyncRoot = new object();
+
+        public (List<MemoryEntry> Active, List<MemoryEntry> Archive, List<MemoryEntry> Dark) GetSnapshots()
+        {
+            lock (SyncRoot)
+            {
+                return (active.ToList(), archive.ToList(), dark.ToList());
+            }
+        }
 
         public virtual void AddActive(MemoryEntry e, int maxActive, int maxArchive)
         {
-            if (active.Count >= maxActive && active.All(x => x.isPinned))
+            lock (SyncRoot)
             {
-                archive.Insert(0, e);
-                EnforceLimit(archive, maxArchive, dark, int.MaxValue);
-                return;
+                if (active.Count >= maxActive && active.All(x => x.isPinned))
+                {
+                    archive.Insert(0, e);
+                    EnforceLimit(archive, maxArchive, dark, int.MaxValue);
+                    return;
+                }
+                active.Insert(0, e);
+                EnforceLimit(active, maxActive, archive, maxArchive);
             }
-            active.Insert(0, e);
-            EnforceLimit(active, maxActive, archive, maxArchive);
         }
 
         public static void EnforceLimit(List<MemoryEntry> src, int srcMax,
@@ -63,11 +75,14 @@ namespace RimMind.Memory.Data
         public virtual void AddIfNotExists(MemoryEntry? entry)
         {
             if (entry == null || string.IsNullOrEmpty(entry.id)) return;
-            if (ContainsId(entry.id)) return;
-            if (entry.type == MemoryType.Dark)
-                dark.Add(entry);
-            else
-                active.Insert(0, entry);
+            lock (SyncRoot)
+            {
+                if (ContainsId(entry.id)) return;
+                if (entry.type == MemoryType.Dark)
+                    dark.Add(entry);
+                else
+                    active.Insert(0, entry);
+            }
         }
 
         public virtual void ExposeData()

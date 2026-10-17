@@ -97,6 +97,11 @@ namespace Verse
         {
             return Translations.ContainsKey(key);
         }
+
+        public static string TranslateSimple(this string key)
+        {
+            return Translations.TryGetValue(key, out var value) ? value : key;
+        }
     }
 }
 

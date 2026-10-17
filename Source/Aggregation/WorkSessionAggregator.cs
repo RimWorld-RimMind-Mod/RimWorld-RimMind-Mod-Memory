@@ -127,7 +127,20 @@ namespace RimMind.Memory.Aggregation
                 var wc = RimMindMemoryWorldComponent.Instance;
                 if (wc != null)
                 {
-                    wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, 0.3f), maxActive, maxArchive);
+                    var store = wc.GetPawnStore(pawn);
+                    string idlePrefix = "RimMind.Memory.Work.Idle".CanTranslate()
+                        ? "RimMind.Memory.Work.Idle".Translate("0").RawText.Replace("0", "").Trim()
+                        : "Idle";
+                    if (store != null && store.active.Count > 0 && store.active[store.active.Count - 1].type == MemoryType.Work &&
+                        (!string.IsNullOrEmpty(idlePrefix) && store.active[store.active.Count - 1].content.Contains(idlePrefix)))
+                    {
+                        store.active[store.active.Count - 1].content = content;
+                        store.active[store.active.Count - 1].tick = now;
+                    }
+                    else
+                    {
+                        wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, 0.1f), maxActive, maxArchive);
+                    }
                 }
                 session.lastMeaningfulJobTick = now;
             }

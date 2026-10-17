@@ -81,12 +81,21 @@ namespace RimMind.Memory.Triggers
                     yield return pawn;
             }
 
-            foreach (var pawn in Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>())
+            var caravans = Find.WorldObjects?.Caravans;
+            if (caravans != null)
             {
-                if (!pawn.IsFreeNonSlaveColonist) continue;
-                if (pawn == dead) continue;
-                if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
-                    yield return pawn;
+                for (int c = 0; c < caravans.Count; c++)
+                {
+                    var caravan = caravans[c];
+                    if (caravan == null || !caravan.IsPlayerControlled) continue;
+                    foreach (var pawn in caravan.PawnsListForReading)
+                    {
+                        if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
+                        if (pawn == dead) continue;
+                        if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
+                            yield return pawn;
+                    }
+                }
             }
         }
 

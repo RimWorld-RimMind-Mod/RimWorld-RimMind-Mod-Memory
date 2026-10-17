@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +19,17 @@ namespace RimMind.Memory.Injection
         private const string PublicProviderOwner = "RimMind.Memory";
         private const int PublicProviderPriority = 100;
 
+        private static string Tr(string key, params object[] args)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(key)) return string.Empty;
+                string template = key.CanTranslate() ? key.TranslateSimple() : key;
+                return (args == null || args.Length == 0) ? template : string.Format(template, args);
+            }
+            catch { return key ?? string.Empty; }
+        }
+
         public static void Register()
         {
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
@@ -32,8 +45,11 @@ namespace RimMind.Memory.Injection
                     if (store == null) return null;
                     if (store.IsEmpty) return null;
 
+                    var (activeList, archiveList, darkList) = store.GetSnapshots();
+                    if (activeList.Count == 0 && archiveList.Count == 0 && darkList.Count == 0) return null;
+
                     var settings = RimMindMemoryMod.Settings;
-                    var sb = new StringBuilder("RimMind.Memory.Context.RecentMemory".Translate(pawn.Name.ToStringShort));
+                    var sb = new StringBuilder(Tr("RimMind.Memory.Context.RecentMemory", pawn.Name.ToStringShort));
                     sb.AppendLine();
 
                     int? recipientId = RimMindAPI.Chat.GetActiveDialogueRecipient(pawn.thingIDNumber);
@@ -43,26 +59,41 @@ namespace RimMind.Memory.Injection
 
                     int now = Find.TickManager.TicksGame;
                     int activeInject = (int)(settings.maxActive * settings.activeInjectRatio);
-                    var fromActive = MemoryRetrievalScorer.SelectTopScored(store.active, activeInject, now, targetPawnId, targetName);
+                    var fromActive = MemoryRetrievalScorer.SelectTopScored(activeList, activeInject, now, targetPawnId, targetName);
 
                     int archiveInject = (int)(settings.maxArchive * settings.archiveInjectRatio);
-                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(store.archive, archiveInject, now, targetPawnId, targetName);
+                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(archiveList, archiveInject, now, targetPawnId, targetName);
 
+                    var seenActiveLines = new HashSet<string>(StringComparer.Ordinal);
                     foreach (var e in fromActive)
-                        sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
+                    {
+                        string line = $"- {Tr("RimMind.Memory.Time.TimeContent", TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}";
+                        if (seenActiveLines.Add(line))
+                            sb.AppendLine(line);
+                    }
 
                     if (fromArchive.Count > 0)
                     {
-                        sb.AppendLine("RimMind.Memory.Context.ArchiveMemory".Translate(pawn.Name.ToStringShort));
+                        var seenArchiveLines = new HashSet<string>(StringComparer.Ordinal);
+                        sb.AppendLine(Tr("RimMind.Memory.Context.ArchiveMemory", pawn.Name.ToStringShort));
                         foreach (var e in fromArchive)
-                            sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
+                        {
+                            string line = $"- {Tr("RimMind.Memory.Time.TimeContent", TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}";
+                            if (seenArchiveLines.Add(line))
+                                sb.AppendLine(line);
+                        }
                     }
 
-                    if (store.dark.Count > 0)
+                    if (darkList.Count > 0)
                     {
-                        sb.AppendLine("RimMind.Memory.Context.DarkMemory".Translate(pawn.Name.ToStringShort));
-                        foreach (var d in store.dark)
-                            sb.AppendLine($"- {d.content}");
+                        var seenDarkLines = new HashSet<string>(StringComparer.Ordinal);
+                        sb.AppendLine(Tr("RimMind.Memory.Context.DarkMemory", pawn.Name.ToStringShort));
+                        foreach (var d in darkList)
+                        {
+                            string line = $"- {d.content}";
+                            if (seenDarkLines.Add(line))
+                                sb.AppendLine(line);
+                        }
                     }
 
                     return sb.ToString().TrimEnd();
@@ -77,32 +108,50 @@ namespace RimMind.Memory.Injection
                     var store = wc.NarratorStore;
                     if (store.IsEmpty) return null;
 
+                    var (activeList, archiveList, darkList) = store.GetSnapshots();
+                    if (activeList.Count == 0 && archiveList.Count == 0 && darkList.Count == 0) return null;
+
                     var settings = RimMindMemoryMod.Settings;
-                    var sb = new StringBuilder("RimMind.Memory.Context.NarratorMemory".Translate());
+                    var sb = new StringBuilder(Tr("RimMind.Memory.Context.NarratorMemory"));
                     sb.AppendLine();
 
                     int now = Find.TickManager.TicksGame;
                     int activeInject = (int)(settings.narratorMaxActive * settings.narratorActiveInjectRatio);
-                    var fromActive = MemoryRetrievalScorer.SelectTopScored(store.active, activeInject, now);
+                    var fromActive = MemoryRetrievalScorer.SelectTopScored(activeList, activeInject, now);
 
                     int archiveInject = (int)(settings.narratorMaxArchive * settings.narratorArchiveInjectRatio);
-                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(store.archive, archiveInject, now);
+                    var fromArchive = MemoryRetrievalScorer.SelectTopScored(archiveList, archiveInject, now);
 
+                    var seenNarratorActive = new HashSet<string>(StringComparer.Ordinal);
                     foreach (var e in fromActive)
-                        sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
+                    {
+                        string line = $"- {Tr("RimMind.Memory.Time.TimeContent", TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}";
+                        if (seenNarratorActive.Add(line))
+                            sb.AppendLine(line);
+                    }
 
                     if (fromArchive.Count > 0)
                     {
-                        sb.AppendLine("RimMind.Memory.Context.NarratorArchive".Translate());
+                        var seenNarratorArchive = new HashSet<string>(StringComparer.Ordinal);
+                        sb.AppendLine(Tr("RimMind.Memory.Context.NarratorArchive"));
                         foreach (var e in fromArchive)
-                            sb.AppendLine($"- {"RimMind.Memory.Time.TimeContent".Translate(TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}");
+                        {
+                            string line = $"- {Tr("RimMind.Memory.Time.TimeContent", TimeFormatter.FormatTimeAgo(e.tick, now), e.content)}";
+                            if (seenNarratorArchive.Add(line))
+                                sb.AppendLine(line);
+                        }
                     }
 
-                    if (store.dark.Count > 0)
+                    if (darkList.Count > 0)
                     {
-                        sb.AppendLine("RimMind.Memory.Context.NarratorDark".Translate());
-                        foreach (var d in store.dark)
-                            sb.AppendLine($"- {d.content}");
+                        var seenNarratorDark = new HashSet<string>(StringComparer.Ordinal);
+                        sb.AppendLine(Tr("RimMind.Memory.Context.NarratorDark"));
+                        foreach (var d in darkList)
+                        {
+                            string line = $"- {d.content}";
+                            if (seenNarratorDark.Add(line))
+                                sb.AppendLine(line);
+                        }
                     }
 
                     return sb.ToString().TrimEnd();
