@@ -10,6 +10,7 @@ using RimMind.Presentation.Api;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
+using RimWorld;
 using Verse;
 
 namespace RimMind.Memory.DarkMemory
@@ -58,9 +59,22 @@ namespace RimMind.Memory.DarkMemory
             foreach (var map in Find.Maps)
                 foreach (var pawn in map.mapPawns.FreeColonists)
                     aliveIds.Add(pawn.thingIDNumber);
-            foreach (var pawn in Find.WorldPawns?.AllPawnsAlive ?? Enumerable.Empty<Pawn>())
-                if (pawn.IsFreeNonSlaveColonist)
-                    aliveIds.Add(pawn.thingIDNumber);
+            var caravansForCleanup = Find.WorldObjects?.Caravans;
+            if (caravansForCleanup != null)
+            {
+                for (int c = 0; c < caravansForCleanup.Count; c++)
+                {
+                    var caravan = caravansForCleanup[c];
+                    if (caravan == null || !caravan.IsPlayerControlled) continue;
+                    var caravanPawns = caravan.PawnsListForReading;
+                    for (int p = 0; p < caravanPawns.Count; p++)
+                    {
+                        var pawn = caravanPawns[p];
+                        if (pawn != null && pawn.IsFreeNonSlaveColonist && !pawn.Dead && !pawn.Destroyed)
+                            aliveIds.Add(pawn.thingIDNumber);
+                    }
+                }
+            }
 
             var keysToRemove = _pawnJitter.Keys.Where(kv => !aliveIds.Contains(kv)).ToList();
             foreach (var key in keysToRemove) _pawnJitter.Remove(key);
@@ -77,12 +91,12 @@ namespace RimMind.Memory.DarkMemory
 
             foreach (var map in Find.Maps)
             {
-                var colonists = map.mapPawns?.FreeColonists;
+                var colonists = map.mapPawns?.FreeColonistsSpawned;
                 if (colonists == null) continue;
                 for (int i = 0; i < colonists.Count; i++)
                 {
                     var pawn = colonists[i];
-                    if (pawn == null) continue;
+                    if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
                     int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
                     if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
                     TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
@@ -95,21 +109,27 @@ namespace RimMind.Memory.DarkMemory
                 }
             }
 
-            var worldPawns = Find.WorldPawns?.AllPawnsAlive;
-            if (worldPawns != null)
+            var caravans = Find.WorldObjects?.Caravans;
+            if (caravans != null)
             {
-                for (int i = 0; i < worldPawns.Count; i++)
+                for (int c = 0; c < caravans.Count; c++)
                 {
-                    var pawn = worldPawns[i];
-                    if (pawn == null || !pawn.IsFreeNonSlaveColonist) continue;
-                    int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
-                    if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
-                    TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
-
-                    if (settings.enableDecay)
+                    var caravan = caravans[c];
+                    if (caravan == null || !caravan.IsPlayerControlled) continue;
+                    var caravanPawns = caravan.PawnsListForReading;
+                    for (int i = 0; i < caravanPawns.Count; i++)
                     {
-                        var store = wc.GetOrCreatePawnStore(pawn);
-                        ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                        var pawn = caravanPawns[i];
+                        if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Faction != Faction.OfPlayer || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
+                        int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
+                        if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
+                        TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
+
+                        if (settings.enableDecay)
+                        {
+                            var store = wc.GetOrCreatePawnStore(pawn);
+                            ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                        }
                     }
                 }
             }
@@ -133,6 +153,8 @@ namespace RimMind.Memory.DarkMemory
 
         public void TriggerPawnDarkMemoryUpdate(Pawn pawn, RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
+            if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped() || pawn.Faction != Faction.OfPlayer) return;
+            if (!pawn.Spawned && !RimWorld.Planet.CaravanUtility.IsCaravanMember(pawn)) return;
             if (!RimMind.Presentation.Api.RimMindAPI.IsConfigured()) return;
 
             var store = wc.GetOrCreatePawnStore(pawn);

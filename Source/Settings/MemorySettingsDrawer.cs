@@ -188,7 +188,7 @@ namespace RimMind.Memory
                 Settings.archiveInjectRatio = 0.5f;
                 Settings.narratorActiveInjectRatio = 0.5f;
                 Settings.narratorArchiveInjectRatio = 0.5f;
-                Settings.enableDecay = false;
+                Settings.enableDecay = true;
                 Settings.decayRate = 0.02f;
                 Settings.minImportanceThreshold = 0.05f;
                 Settings.minAggregationCount = 2;

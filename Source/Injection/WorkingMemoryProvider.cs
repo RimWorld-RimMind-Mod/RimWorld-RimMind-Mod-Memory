@@ -13,6 +13,17 @@ namespace RimMind.Memory.Injection
 {
     public static class WorkingMemoryProvider
     {
+        private static string Tr(string key, params object[] args)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(key)) return string.Empty;
+                string template = key.CanTranslate() ? key.TranslateSimple() : key;
+                return (args == null || args.Length == 0) ? template : string.Format(template, args);
+            }
+            catch { return key ?? string.Empty; }
+        }
+
         // Compatibility reader for saved entries, not an active memory-production path.
         public static void Register()
         {
@@ -29,8 +40,10 @@ namespace RimMind.Memory.Injection
                     if (wm == null || wm.IsEmpty) return null;
 
                     var sb = new StringBuilder();
-                    sb.AppendLine("RimMind.Memory.Context.WorkingMemory".Translate(pawn.Name.ToStringShort));
-                    string? currentJobReport = pawn.CurJob?.GetReport(pawn);
+                    sb.AppendLine(Tr("RimMind.Memory.Context.WorkingMemory", pawn.Name.ToStringShort));
+                    string? currentJobReport = UnityData.IsInMainThread
+                        ? pawn.CurJob?.GetReport(pawn)
+                        : pawn.CurJob?.def?.label;
                     bool hasEntries = false;
                     foreach (var entry in wm.Entries)
                     {

@@ -16,7 +16,7 @@ namespace RimMind.Memory.Triggers
             try
             {
                 var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-                if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Name == null) return;
+                if (pawn == null || !RimMind.Presentation.Api.RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
                 if (otherPawn == null || otherPawn.Name == null) return;
                 if (def == null) return;
 
@@ -25,7 +25,7 @@ namespace RimMind.Memory.Triggers
                 string content = "RimMind.Memory.Trigger.EstablishRelation".Translate(otherPawn.Name.ToStringShort, relLabel);
                 MemoryTriggerHelper.WriteMemory(pawn, content, MemoryType.Event, importance);
 
-                if (otherPawn.IsFreeNonSlaveColonist && otherPawn.Name != null)
+                if (RimMind.Presentation.Api.RimMindPawnLookup.IsActiveSpawnedColonist(otherPawn) && otherPawn.Name != null)
                 {
                     try
                     {

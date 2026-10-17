@@ -25,7 +25,7 @@ namespace RimMind.Memory
         public float narratorActiveInjectRatio = 0.5f;
         public float narratorArchiveInjectRatio = 0.5f;
 
-        public bool enableDecay = false;
+        public bool enableDecay = true;
         public float decayRate = 0.02f;
         public float minImportanceThreshold = 0.05f;
 
@@ -57,7 +57,7 @@ namespace RimMind.Memory
             Scribe_Values.Look(ref archiveInjectRatio, "archiveInjectRatio", 0.5f);
             Scribe_Values.Look(ref narratorActiveInjectRatio, "narratorActiveInjectRatio", 0.5f);
             Scribe_Values.Look(ref narratorArchiveInjectRatio, "narratorArchiveInjectRatio", 0.5f);
-            Scribe_Values.Look(ref enableDecay, "enableDecay", false);
+            Scribe_Values.Look(ref enableDecay, "enableDecay", true);
             Scribe_Values.Look(ref decayRate, "decayRate", 0.02f);
             Scribe_Values.Look(ref minImportanceThreshold, "minImportanceThreshold", 0.05f);
             Scribe_Values.Look(ref minAggregationCount, "minAggregationCount", 2);
