@@ -17,8 +17,9 @@ namespace RimMind.Memory
             Rect contentArea = SettingsUIDrawer.SplitContentArea(inRect);
             Rect bottomBar = SettingsUIDrawer.SplitBottomBar(inRect);
 
-            float contentH = EstimateSettingsHeight();
-            Rect viewRect = new Rect(0f, 0f, contentArea.width - 16f, contentH);
+            float viewWidth = contentArea.width - 16f;
+            float contentH = EstimateSettingsHeight(viewWidth);
+            Rect viewRect = new Rect(0f, 0f, viewWidth, contentH);
             Widgets.BeginScrollView(contentArea, ref _settingsScrollPos, viewRect);
 
             var listing = new Listing_Standard();
@@ -42,72 +43,56 @@ namespace RimMind.Memory
                 "RimMind.Memory.Settings.TriggerRelation.Desc".Translate());
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.PawnCapacity".Translate());
-            listing.Label("RimMind.Memory.Settings.MaxActive".Translate(Settings.maxActive));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.MaxActive.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.maxActive = (int)listing.Slider(Settings.maxActive, 10, 100);
-            listing.Label("RimMind.Memory.Settings.MaxArchive".Translate(Settings.maxArchive));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.MaxArchive.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.maxArchive = (int)listing.Slider(Settings.maxArchive, 10, 100);
-            listing.Label("RimMind.Memory.Settings.DarkCount".Translate(Settings.darkCount));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.DarkCount.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.darkCount = (int)listing.Slider(Settings.darkCount, 1, 10);
+            string maxActiveTip = "RimMind.Memory.Settings.MaxActive.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.MaxActive".Translate(Settings.maxActive), maxActiveTip);
+            Settings.maxActive = (int)listing.SliderWithTooltip(Settings.maxActive, 10, 100, maxActiveTip);
+
+            string maxArchiveTip = "RimMind.Memory.Settings.MaxArchive.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.MaxArchive".Translate(Settings.maxArchive), maxArchiveTip);
+            Settings.maxArchive = (int)listing.SliderWithTooltip(Settings.maxArchive, 10, 100, maxArchiveTip);
+
+            string darkCountTip = "RimMind.Memory.Settings.DarkCount.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.DarkCount".Translate(Settings.darkCount), darkCountTip);
+            Settings.darkCount = (int)listing.SliderWithTooltip(Settings.darkCount, 1, 10, darkCountTip);
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorCapacity".Translate());
-            listing.Label("RimMind.Memory.Settings.NarratorMaxActive".Translate(Settings.narratorMaxActive));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.NarratorMaxActive.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.narratorMaxActive = (int)listing.Slider(Settings.narratorMaxActive, 10, 100);
-            listing.Label("RimMind.Memory.Settings.NarratorMaxArchive".Translate(Settings.narratorMaxArchive));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.NarratorMaxArchive.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.narratorMaxArchive = (int)listing.Slider(Settings.narratorMaxArchive, 5, 50);
-            listing.Label("RimMind.Memory.Settings.NarratorDarkCount".Translate(Settings.narratorDarkCount));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.NarratorDarkCount.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.narratorDarkCount = (int)listing.Slider(Settings.narratorDarkCount, 1, 20);
+            string nMaxActiveTip = "RimMind.Memory.Settings.NarratorMaxActive.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.NarratorMaxActive".Translate(Settings.narratorMaxActive), nMaxActiveTip);
+            Settings.narratorMaxActive = (int)listing.SliderWithTooltip(Settings.narratorMaxActive, 10, 100, nMaxActiveTip);
+
+            string nMaxArchiveTip = "RimMind.Memory.Settings.NarratorMaxArchive.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.NarratorMaxArchive".Translate(Settings.narratorMaxArchive), nMaxArchiveTip);
+            Settings.narratorMaxArchive = (int)listing.SliderWithTooltip(Settings.narratorMaxArchive, 5, 50, nMaxArchiveTip);
+
+            string nDarkCountTip = "RimMind.Memory.Settings.NarratorDarkCount.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.NarratorDarkCount".Translate(Settings.narratorDarkCount), nDarkCountTip);
+            Settings.narratorDarkCount = (int)listing.SliderWithTooltip(Settings.narratorDarkCount, 1, 20, nDarkCountTip);
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.InjectRatio".Translate());
-            listing.Label("RimMind.Memory.Settings.ActiveInjectRatio".Translate($"{Settings.activeInjectRatio:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.ActiveInjectRatio.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.activeInjectRatio = listing.Slider(Settings.activeInjectRatio, 0f, 1f);
-            listing.Label("RimMind.Memory.Settings.ArchiveInjectRatio".Translate($"{Settings.archiveInjectRatio:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.ArchiveInjectRatio.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.archiveInjectRatio = listing.Slider(Settings.archiveInjectRatio, 0f, 1f);
-            listing.Label("RimMind.Memory.Settings.NarratorActiveInjectRatio".Translate($"{Settings.narratorActiveInjectRatio:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.narratorActiveInjectRatio = listing.Slider(Settings.narratorActiveInjectRatio, 0f, 1f);
-            listing.Label("RimMind.Memory.Settings.NarratorArchiveInjectRatio".Translate($"{Settings.narratorArchiveInjectRatio:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.narratorArchiveInjectRatio = listing.Slider(Settings.narratorArchiveInjectRatio, 0f, 1f);
+            string activeInjectTip = "RimMind.Memory.Settings.ActiveInjectRatio.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.ActiveInjectRatio".Translate($"{Settings.activeInjectRatio:F2}"), activeInjectTip);
+            Settings.activeInjectRatio = listing.SliderWithTooltip(Settings.activeInjectRatio, 0f, 1f, activeInjectTip);
+
+            string archiveInjectTip = "RimMind.Memory.Settings.ArchiveInjectRatio.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.ArchiveInjectRatio".Translate($"{Settings.archiveInjectRatio:F2}"), archiveInjectTip);
+            Settings.archiveInjectRatio = listing.SliderWithTooltip(Settings.archiveInjectRatio, 0f, 1f, archiveInjectTip);
+
+            string nActiveInjectTip = "RimMind.Memory.Settings.NarratorActiveInjectRatio.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.NarratorActiveInjectRatio".Translate($"{Settings.narratorActiveInjectRatio:F2}"), nActiveInjectTip);
+            Settings.narratorActiveInjectRatio = listing.SliderWithTooltip(Settings.narratorActiveInjectRatio, 0f, 1f, nActiveInjectTip);
+
+            string nArchiveInjectTip = "RimMind.Memory.Settings.NarratorArchiveInjectRatio.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.NarratorArchiveInjectRatio".Translate($"{Settings.narratorArchiveInjectRatio:F2}"), nArchiveInjectTip);
+            Settings.narratorArchiveInjectRatio = listing.SliderWithTooltip(Settings.narratorArchiveInjectRatio, 0f, 1f, nArchiveInjectTip);
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Aggregation".Translate());
-            listing.Label("RimMind.Memory.Settings.MinAggregationCount".Translate(Settings.minAggregationCount));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.MinAggregationCount.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.minAggregationCount = (int)listing.Slider(Settings.minAggregationCount, 1, 10);
-            listing.Label("RimMind.Memory.Settings.IdleGapThreshold".Translate($"{Settings.idleGapThresholdTicks / 2500f:F1}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.IdleGapThreshold.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.idleGapThresholdTicks = (int)listing.Slider(Settings.idleGapThresholdTicks, 1500f, 30000f);
+            string minAggTip = "RimMind.Memory.Settings.MinAggregationCount.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.MinAggregationCount".Translate(Settings.minAggregationCount), minAggTip);
+            Settings.minAggregationCount = (int)listing.SliderWithTooltip(Settings.minAggregationCount, 1, 10, minAggTip);
+
+            string idleGapTip = "RimMind.Memory.Settings.IdleGapThreshold.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.IdleGapThreshold".Translate($"{Settings.idleGapThresholdTicks / 2500f:F1}"), idleGapTip);
+            Settings.idleGapThresholdTicks = (int)listing.SliderWithTooltip(Settings.idleGapThresholdTicks, 1500f, 30000f, idleGapTip);
             Settings.idleGapThresholdTicks = (Settings.idleGapThresholdTicks / 500) * 500;
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.Section.Decay".Translate());
@@ -115,55 +100,49 @@ namespace RimMind.Memory
                 "RimMind.Memory.Settings.EnableDecay.Desc".Translate());
             if (Settings.enableDecay)
             {
-                listing.Label("RimMind.Memory.Settings.DecayRate".Translate($"{Settings.decayRate * 100f:F1}"));
-                GUI.color = Color.gray;
-                listing.Label("  " + "RimMind.Memory.Settings.DecayRate.Desc".Translate());
-                GUI.color = Color.white;
-                Settings.decayRate = listing.Slider(Settings.decayRate, 0f, 0.2f);
-                listing.Label("RimMind.Memory.Settings.MinThreshold".Translate($"{Settings.minImportanceThreshold:F3}"));
-                GUI.color = Color.gray;
-                listing.Label("  " + "RimMind.Memory.Settings.MinThreshold.Desc".Translate());
-                GUI.color = Color.white;
-                Settings.minImportanceThreshold = listing.Slider(Settings.minImportanceThreshold, 0f, 0.2f);
+                string decayRateTip = "RimMind.Memory.Settings.DecayRate.Desc".Translate();
+                listing.LabelWithTooltip("RimMind.Memory.Settings.DecayRate".Translate($"{Settings.decayRate * 100f:F1}"), decayRateTip);
+                Settings.decayRate = listing.SliderWithTooltip(Settings.decayRate, 0f, 0.2f, decayRateTip);
+
+                string minThreshTip = "RimMind.Memory.Settings.MinThreshold.Desc".Translate();
+                listing.LabelWithTooltip("RimMind.Memory.Settings.MinThreshold".Translate($"{Settings.minImportanceThreshold:F3}"), minThreshTip);
+                Settings.minImportanceThreshold = listing.SliderWithTooltip(Settings.minImportanceThreshold, 0f, 0.2f, minThreshTip);
             }
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.CollectionControl".Translate());
-            listing.Label("RimMind.Memory.Settings.NarratorEventThreshold".Translate($"{Settings.narratorEventThreshold:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.NarratorEventThreshold.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.narratorEventThreshold = listing.Slider(Settings.narratorEventThreshold, 0f, 1f);
-            listing.Label("RimMind.Memory.Settings.PawnToNarratorThreshold".Translate($"{Settings.pawnToNarratorThreshold:F2}"));
-            GUI.color = Color.gray;
-            listing.Label("  " + "RimMind.Memory.Settings.PawnToNarratorThreshold.Desc".Translate());
-            GUI.color = Color.white;
-            Settings.pawnToNarratorThreshold = listing.Slider(Settings.pawnToNarratorThreshold, 0f, 1f);
+            string nEventThreshTip = "RimMind.Memory.Settings.NarratorEventThreshold.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.NarratorEventThreshold".Translate($"{Settings.narratorEventThreshold:F2}"), nEventThreshTip);
+            Settings.narratorEventThreshold = listing.SliderWithTooltip(Settings.narratorEventThreshold, 0f, 1f, nEventThreshTip);
+
+            string p2nThreshTip = "RimMind.Memory.Settings.PawnToNarratorThreshold.Desc".Translate();
+            listing.LabelWithTooltip("RimMind.Memory.Settings.PawnToNarratorThreshold".Translate($"{Settings.pawnToNarratorThreshold:F2}"), p2nThreshTip);
+            Settings.pawnToNarratorThreshold = listing.SliderWithTooltip(Settings.pawnToNarratorThreshold, 0f, 1f, p2nThreshTip);
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorMemoryReadonly".Translate());
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null)
+            if (wc == null || Current.Game == null || Find.TickManager == null)
             {
                 listing.Label("RimMind.Memory.Settings.NeedLoadGame".Translate());
             }
             else
             {
-                var nStore = wc.NarratorStore;
+                var (activeList, archiveList, darkList) = wc.NarratorStore.GetSnapshots();
                 int now = Find.TickManager.TicksGame;
-                if (nStore.dark.Count > 0)
+                if (darkList.Count > 0)
                 {
                     listing.Label("RimMind.Memory.Settings.LongTermNarrative".Translate());
-                    foreach (var d in nStore.dark)
+                    foreach (var d in darkList)
                         listing.Label($"    {d.content}");
                 }
-                listing.Label("RimMind.Memory.Settings.ActiveNarrative".Translate(nStore.active.Count, Settings.narratorMaxActive));
-                for (int i = 0; i < nStore.active.Count && i < 10; i++)
+                listing.Label("RimMind.Memory.Settings.ActiveNarrative".Translate(activeList.Count, Settings.narratorMaxActive));
+                for (int i = 0; i < activeList.Count && i < 10; i++)
                 {
-                    var e = nStore.active[i];
+                    var e = activeList[i];
                     string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
                     listing.Label($"    {"RimMind.Memory.Time.TimeContent".Translate(timeStr, e.content)}");
                 }
-                if (nStore.archive.Count > 0)
-                    listing.Label("RimMind.Memory.Settings.ArchiveNarrativeCount".Translate(nStore.archive.Count));
+                if (archiveList.Count > 0)
+                    listing.Label("RimMind.Memory.Settings.ArchiveNarrativeCount".Translate(archiveList.Count));
             }
 
             listing.End();
@@ -200,28 +179,41 @@ namespace RimMind.Memory
             Settings.Write();
         }
 
-        private static float EstimateSettingsHeight()
+        private static float EstimateSettingsHeight(float width)
         {
             float h = 30f;
             h += 24f;
             h += 24f + 24f * 6;
-            h += 24f + 80f * 3;
-            h += 24f + 80f * 3;
-            h += 24f + 80f * 4;
-            h += 24f + 80f * 2;
+            h += 24f + 56f * 3;
+            h += 24f + 56f * 3;
+            h += 24f + 56f * 4;
+            h += 24f + 56f * 2;
             h += 24f + 24f;
             if (Settings.enableDecay)
-                h += 80f * 2;
-            h += 24f + 80f * 2;
+                h += 56f * 2;
+            h += 24f + 56f * 2;
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc != null)
+            if (wc != null && Current.Game != null && Find.TickManager != null)
             {
-                var nStore = wc.NarratorStore;
-                if (nStore.dark.Count > 0)
-                    h += 24f + nStore.dark.Count * 24f;
-                h += 24f + Mathf.Min(nStore.active.Count, 10) * 24f;
-                if (nStore.archive.Count > 0)
+                var (activeList, archiveList, darkList) = wc.NarratorStore.GetSnapshots();
+                int now = Find.TickManager.TicksGame;
+                float textWidth = Mathf.Max(200f, width);
+                if (darkList.Count > 0)
+                {
+                    h += 24f;
+                    foreach (var d in darkList)
+                        h += Mathf.Max(24f, Text.CalcHeight($"    {d.content}", textWidth) + 4f);
+                }
+                h += 24f;
+                for (int i = 0; i < activeList.Count && i < 10; i++)
+                {
+                    var e = activeList[i];
+                    string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
+                    string line = $"    {"RimMind.Memory.Time.TimeContent".Translate(timeStr, e.content)}";
+                    h += Mathf.Max(24f, Text.CalcHeight(line, textWidth) + 4f);
+                }
+                if (archiveList.Count > 0)
                     h += 24f;
             }
             else

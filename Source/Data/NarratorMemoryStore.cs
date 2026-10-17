@@ -10,13 +10,16 @@ namespace RimMind.Memory.Data
         public void AddIfNotExists(MemoryEntry? entry, bool isActive)
         {
             if (entry == null || string.IsNullOrEmpty(entry.id)) return;
-            if (ContainsId(entry.id)) return;
-            if (entry.type == MemoryType.Dark)
-                dark.Add(entry);
-            else if (isActive)
-                active.Insert(0, entry);
-            else
-                archive.Insert(0, entry);
+            lock (SyncRoot)
+            {
+                if (ContainsId(entry.id)) return;
+                if (entry.type == MemoryType.Dark)
+                    dark.Add(entry);
+                else if (isActive)
+                    active.Insert(0, entry);
+                else
+                    archive.Insert(0, entry);
+            }
         }
     }
 }

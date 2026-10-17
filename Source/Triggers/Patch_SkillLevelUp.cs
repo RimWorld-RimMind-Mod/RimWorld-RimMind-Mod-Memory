@@ -1,8 +1,10 @@
 using HarmonyLib;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
+using RimMind.Presentation.Api;
 using RimWorld;
 using System.Collections.Generic;
+using System.Reflection;
 using Verse;
 
 namespace RimMind.Memory.Triggers
@@ -10,45 +12,20 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(SkillRecord), nameof(SkillRecord.Learn))]
     public static class Patch_SkillLevelUp
     {
-        private static readonly Dictionary<SkillRecord, int> _previousLevels = new Dictionary<SkillRecord, int>();
-        private static int _lastCleanupTick;
-        private const int CleanupInterval = 60000;
+        private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(SkillRecord), "pawn");
 
-        private static void CleanupDestroyedPawns()
+        static void Prefix(SkillRecord __instance, out int __state) => __state = __instance?.Level ?? 0;
+
+        static void Postfix(SkillRecord __instance, int __state)
         {
-            int now = Find.TickManager?.TicksGame ?? 0;
-            if (now - _lastCleanupTick < CleanupInterval) return;
-            _lastCleanupTick = now;
-
-            var keysToRemove = new List<SkillRecord>();
-            foreach (var kv in _previousLevels)
-            {
-                var pawn = Traverse.Create(kv.Key).Field("pawn").GetValue<Pawn>();
-                if (pawn == null || pawn.Destroyed)
-                    keysToRemove.Add(kv.Key);
-            }
-            foreach (var key in keysToRemove)
-                _previousLevels.Remove(key);
-        }
-
-        static void Prefix(SkillRecord __instance)
-        {
-            CleanupDestroyedPawns();
-            _previousLevels[__instance] = __instance.Level;
-        }
-
-        static void Postfix(SkillRecord __instance)
-        {
-            if (!_previousLevels.TryGetValue(__instance, out int prevLevel)) return;
-            _previousLevels.Remove(__instance);
-
-            if (__instance.Level <= prevLevel) return;
+            int prevLevel = __state;
+            if (__instance == null || __instance.Level <= prevLevel) return;
             if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerSkillLevelUp)) return;
 
             try
             {
-                var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-                if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Name == null) return;
+                var pawn = PawnField?.GetValue(__instance) as Pawn;
+                if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
 
                 float importance = __instance.Level >= 15 ? 0.7f : 0.5f;
                 string skillLabel = (__instance.def?.LabelCap.RawText.NullOrEmpty() ?? true)

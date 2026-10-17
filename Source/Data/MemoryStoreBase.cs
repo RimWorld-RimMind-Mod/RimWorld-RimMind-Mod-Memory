@@ -63,13 +63,25 @@ namespace RimMind.Memory.Data
             }
         }
 
-        public bool IsEmpty => active.Count == 0 && archive.Count == 0 && dark.Count == 0;
+        public bool IsEmpty
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    return active.Count == 0 && archive.Count == 0 && dark.Count == 0;
+                }
+            }
+        }
 
         public bool ContainsId(string id)
         {
-            return active.Any(e => e.id == id)
-                || archive.Any(e => e.id == id)
-                || dark.Any(e => e.id == id);
+            lock (SyncRoot)
+            {
+                return active.Any(e => e.id == id)
+                    || archive.Any(e => e.id == id)
+                    || dark.Any(e => e.id == id);
+            }
         }
 
         public virtual void AddIfNotExists(MemoryEntry? entry)
@@ -87,12 +99,15 @@ namespace RimMind.Memory.Data
 
         public virtual void ExposeData()
         {
-            Scribe_Collections.Look(ref active, "active", LookMode.Deep);
-            Scribe_Collections.Look(ref archive, "archive", LookMode.Deep);
-            Scribe_Collections.Look(ref dark, "dark", LookMode.Deep);
-            active ??= new List<MemoryEntry>();
-            archive ??= new List<MemoryEntry>();
-            dark ??= new List<MemoryEntry>();
+            lock (SyncRoot)
+            {
+                Scribe_Collections.Look(ref active, "active", LookMode.Deep);
+                Scribe_Collections.Look(ref archive, "archive", LookMode.Deep);
+                Scribe_Collections.Look(ref dark, "dark", LookMode.Deep);
+                active ??= new List<MemoryEntry>();
+                archive ??= new List<MemoryEntry>();
+                dark ??= new List<MemoryEntry>();
+            }
         }
     }
 }

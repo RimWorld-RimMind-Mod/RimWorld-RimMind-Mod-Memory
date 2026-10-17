@@ -52,21 +52,23 @@ namespace RimMind.Memory.Data
             IReadOnlyDictionary<int, PawnMemoryStore> pawnStores,
             NarratorMemoryStore narratorStore)
         {
+            var (nActive, nArchive, nDark) = narratorStore.GetSnapshots();
             var snapshot = new MemoryStorageSnapshot
             {
                 pawnLayers = new Dictionary<int, MemoryLayerSnapshot>(),
-                narratorActive = new List<MemoryEntry>(narratorStore.active),
-                narratorArchive = new List<MemoryEntry>(narratorStore.archive),
-                narratorDark = new List<MemoryEntry>(narratorStore.dark)
+                narratorActive = nActive,
+                narratorArchive = nArchive,
+                narratorDark = nDark
             };
 
             foreach (var pair in pawnStores)
             {
+                var (pActive, pArchive, pDark) = pair.Value.GetSnapshots();
                 snapshot.pawnLayers[pair.Key] = new MemoryLayerSnapshot
                 {
-                    active = new List<MemoryEntry>(pair.Value.active),
-                    archive = new List<MemoryEntry>(pair.Value.archive),
-                    dark = new List<MemoryEntry>(pair.Value.dark)
+                    active = pActive,
+                    archive = pArchive,
+                    dark = pDark
                 };
             }
 
@@ -95,10 +97,13 @@ namespace RimMind.Memory.Data
                     if (layers == null)
                         continue;
 
-                    MergeLayer(store, store.active, layers.active);
-                    MergeLayer(store, store.archive, layers.archive);
-                    MergeLayer(store, store.dark, layers.dark);
-                    EnforcePawnLimits(store, limits);
+                    lock (store.SyncRoot)
+                    {
+                        MergeLayer(store, store.active, layers.active);
+                        MergeLayer(store, store.archive, layers.archive);
+                        MergeLayer(store, store.dark, layers.dark);
+                        EnforcePawnLimits(store, limits);
+                    }
                 }
             }
             else if (snapshot.pawnStores != null)
@@ -106,28 +111,34 @@ namespace RimMind.Memory.Data
                 foreach (var pair in snapshot.pawnStores)
                 {
                     PawnMemoryStore store = GetOrCreate(pawnStores, pair.Key);
-                    if (pair.Value != null)
+                    lock (store.SyncRoot)
                     {
-                        foreach (MemoryEntry entry in pair.Value)
-                            store.AddIfNotExists(entry);
+                        if (pair.Value != null)
+                        {
+                            foreach (MemoryEntry entry in pair.Value)
+                                store.AddIfNotExists(entry);
+                        }
+                        EnforcePawnLimits(store, limits);
                     }
-                    EnforcePawnLimits(store, limits);
                 }
             }
 
-            MergeLayer(narratorStore, narratorStore.active, snapshot.narratorActive);
-            MergeLayer(narratorStore, narratorStore.archive, snapshot.narratorArchive);
-            MergeLayer(narratorStore, narratorStore.dark, snapshot.narratorDark);
-            MemoryStoreBase.EnforceLimit(
-                narratorStore.active,
-                limits.NarratorActive,
-                narratorStore.archive,
-                limits.NarratorArchive);
-            MemoryStoreBase.EnforceLimit(
-                narratorStore.archive,
-                limits.NarratorArchive,
-                narratorStore.dark,
-                int.MaxValue);
+            lock (narratorStore.SyncRoot)
+            {
+                MergeLayer(narratorStore, narratorStore.active, snapshot.narratorActive);
+                MergeLayer(narratorStore, narratorStore.archive, snapshot.narratorArchive);
+                MergeLayer(narratorStore, narratorStore.dark, snapshot.narratorDark);
+                MemoryStoreBase.EnforceLimit(
+                    narratorStore.active,
+                    limits.NarratorActive,
+                    narratorStore.archive,
+                    limits.NarratorArchive);
+                MemoryStoreBase.EnforceLimit(
+                    narratorStore.archive,
+                    limits.NarratorArchive,
+                    narratorStore.dark,
+                    int.MaxValue);
+            }
         }
 
         private static PawnMemoryStore GetOrCreate(

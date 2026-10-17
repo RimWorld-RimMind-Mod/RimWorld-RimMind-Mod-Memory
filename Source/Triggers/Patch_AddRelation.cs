@@ -1,3 +1,4 @@
+using System.Reflection;
 using HarmonyLib;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
@@ -9,13 +10,15 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(Pawn_RelationsTracker), nameof(Pawn_RelationsTracker.AddDirectRelation))]
     public static class Patch_AddRelation
     {
+        private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(Pawn_RelationsTracker), "pawn");
+
         static void Postfix(Pawn_RelationsTracker __instance, PawnRelationDef def, Pawn otherPawn)
         {
             if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerRelation)) return;
 
             try
             {
-                var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+                var pawn = PawnField?.GetValue(__instance) as Pawn;
                 if (pawn == null || !RimMind.Presentation.Api.RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
                 if (otherPawn == null || otherPawn.Name == null) return;
                 if (def == null) return;

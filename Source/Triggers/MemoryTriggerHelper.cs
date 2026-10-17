@@ -27,8 +27,9 @@ namespace RimMind.Memory.Triggers
 
             if (upgradeNarrator && importance >= settings.pawnToNarratorThreshold)
             {
+                string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
                 wc.AddNarratorMemory(
-                    MemoryEntry.Create($"[{pawn.Name.ToStringShort}] {content}", type, now, importance, pawn.ThingID),
+                    MemoryEntry.Create($"[{pawnName}] {content}", type, now, importance, pawn.ThingID),
                     settings.narratorMaxActive, settings.narratorMaxArchive);
             }
         }
