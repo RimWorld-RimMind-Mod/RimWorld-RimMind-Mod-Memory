@@ -10,39 +10,12 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(SkillRecord), nameof(SkillRecord.Learn))]
     public static class Patch_SkillLevelUp
     {
-        private static readonly Dictionary<SkillRecord, int> _previousLevels = new Dictionary<SkillRecord, int>();
-        private static int _lastCleanupTick;
-        private const int CleanupInterval = 60000;
+        static void Prefix(SkillRecord __instance, out int __state) => __state = __instance?.Level ?? 0;
 
-        private static void CleanupDestroyedPawns()
+        static void Postfix(SkillRecord __instance, int __state)
         {
-            int now = Find.TickManager?.TicksGame ?? 0;
-            if (now - _lastCleanupTick < CleanupInterval) return;
-            _lastCleanupTick = now;
-
-            var keysToRemove = new List<SkillRecord>();
-            foreach (var kv in _previousLevels)
-            {
-                var pawn = Traverse.Create(kv.Key).Field("pawn").GetValue<Pawn>();
-                if (pawn == null || pawn.Destroyed)
-                    keysToRemove.Add(kv.Key);
-            }
-            foreach (var key in keysToRemove)
-                _previousLevels.Remove(key);
-        }
-
-        static void Prefix(SkillRecord __instance)
-        {
-            CleanupDestroyedPawns();
-            _previousLevels[__instance] = __instance.Level;
-        }
-
-        static void Postfix(SkillRecord __instance)
-        {
-            if (!_previousLevels.TryGetValue(__instance, out int prevLevel)) return;
-            _previousLevels.Remove(__instance);
-
-            if (__instance.Level <= prevLevel) return;
+            int prevLevel = __state;
+            if (__instance == null || __instance.Level <= prevLevel) return;
             if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerSkillLevelUp)) return;
 
             try

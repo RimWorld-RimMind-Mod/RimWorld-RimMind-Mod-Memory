@@ -8,7 +8,7 @@ namespace RimMind.Memory
     {
         public string Id => "memory";
         public string OwnerModId => "RimMindMemory";
-        public string Label => "RimMind.Memory.Settings.TabLabel".Translate();
+        public string Label => "RimMind.Memory.Settings.TabLabel".CanTranslate() ? (string)"RimMind.Memory.Settings.TabLabel".Translate() : "Memory";
         public void Draw(Rect rect) => MemorySettingsDrawer.Draw(rect);
     }
 }
