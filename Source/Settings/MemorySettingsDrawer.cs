@@ -17,8 +17,9 @@ namespace RimMind.Memory
             Rect contentArea = SettingsUIDrawer.SplitContentArea(inRect);
             Rect bottomBar = SettingsUIDrawer.SplitBottomBar(inRect);
 
-            float contentH = EstimateSettingsHeight();
-            Rect viewRect = new Rect(0f, 0f, contentArea.width - 16f, contentH);
+            float viewWidth = contentArea.width - 16f;
+            float contentH = EstimateSettingsHeight(viewWidth);
+            Rect viewRect = new Rect(0f, 0f, viewWidth, contentH);
             Widgets.BeginScrollView(contentArea, ref _settingsScrollPos, viewRect);
 
             var listing = new Listing_Standard();
@@ -119,29 +120,29 @@ namespace RimMind.Memory
 
             SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Memory.Settings.NarratorMemoryReadonly".Translate());
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc == null)
+            if (wc == null || Current.Game == null || Find.TickManager == null)
             {
                 listing.Label("RimMind.Memory.Settings.NeedLoadGame".Translate());
             }
             else
             {
-                var nStore = wc.NarratorStore;
+                var (activeList, archiveList, darkList) = wc.NarratorStore.GetSnapshots();
                 int now = Find.TickManager.TicksGame;
-                if (nStore.dark.Count > 0)
+                if (darkList.Count > 0)
                 {
                     listing.Label("RimMind.Memory.Settings.LongTermNarrative".Translate());
-                    foreach (var d in nStore.dark)
+                    foreach (var d in darkList)
                         listing.Label($"    {d.content}");
                 }
-                listing.Label("RimMind.Memory.Settings.ActiveNarrative".Translate(nStore.active.Count, Settings.narratorMaxActive));
-                for (int i = 0; i < nStore.active.Count && i < 10; i++)
+                listing.Label("RimMind.Memory.Settings.ActiveNarrative".Translate(activeList.Count, Settings.narratorMaxActive));
+                for (int i = 0; i < activeList.Count && i < 10; i++)
                 {
-                    var e = nStore.active[i];
+                    var e = activeList[i];
                     string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
                     listing.Label($"    {"RimMind.Memory.Time.TimeContent".Translate(timeStr, e.content)}");
                 }
-                if (nStore.archive.Count > 0)
-                    listing.Label("RimMind.Memory.Settings.ArchiveNarrativeCount".Translate(nStore.archive.Count));
+                if (archiveList.Count > 0)
+                    listing.Label("RimMind.Memory.Settings.ArchiveNarrativeCount".Translate(archiveList.Count));
             }
 
             listing.End();
@@ -178,7 +179,7 @@ namespace RimMind.Memory
             Settings.Write();
         }
 
-        private static float EstimateSettingsHeight()
+        private static float EstimateSettingsHeight(float width)
         {
             float h = 30f;
             h += 24f;
@@ -193,13 +194,26 @@ namespace RimMind.Memory
             h += 24f + 56f * 2;
 
             var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc != null)
+            if (wc != null && Current.Game != null && Find.TickManager != null)
             {
-                var nStore = wc.NarratorStore;
-                if (nStore.dark.Count > 0)
-                    h += 24f + nStore.dark.Count * 24f;
-                h += 24f + Mathf.Min(nStore.active.Count, 10) * 24f;
-                if (nStore.archive.Count > 0)
+                var (activeList, archiveList, darkList) = wc.NarratorStore.GetSnapshots();
+                int now = Find.TickManager.TicksGame;
+                float textWidth = Mathf.Max(200f, width);
+                if (darkList.Count > 0)
+                {
+                    h += 24f;
+                    foreach (var d in darkList)
+                        h += Mathf.Max(24f, Text.CalcHeight($"    {d.content}", textWidth) + 4f);
+                }
+                h += 24f;
+                for (int i = 0; i < activeList.Count && i < 10; i++)
+                {
+                    var e = activeList[i];
+                    string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
+                    string line = $"    {"RimMind.Memory.Time.TimeContent".Translate(timeStr, e.content)}";
+                    h += Mathf.Max(24f, Text.CalcHeight(line, textWidth) + 4f);
+                }
+                if (archiveList.Count > 0)
                     h += 24f;
             }
             else

@@ -14,9 +14,11 @@ namespace RimMind.Memory.Data
         private Dictionary<int, PawnMemoryStore> _pawnStores = new Dictionary<int, PawnMemoryStore>();
         private NarratorMemoryStore _narratorStore = new NarratorMemoryStore();
         private Dictionary<int, WM> _workingMemories = new Dictionary<int, WM>();
+        private readonly object _storesLock = new object();
 
         private static RimMindMemoryWorldComponent? _instance;
-        public static RimMindMemoryWorldComponent? Instance => _instance;
+        public static RimMindMemoryWorldComponent? Instance =>
+            Current.Game?.World != null && _instance?.world == Current.Game.World ? _instance : null;
 
         public RimMindMemoryWorldComponent(World world) : base(world)
         {
@@ -26,26 +28,47 @@ namespace RimMind.Memory.Data
         public PawnMemoryStore GetOrCreatePawnStore(Pawn pawn)
         {
             int id = pawn.thingIDNumber;
-            if (!_pawnStores.TryGetValue(id, out var store))
+            lock (_storesLock)
             {
-                store = new PawnMemoryStore();
-                _pawnStores[id] = store;
+                if (!_pawnStores.TryGetValue(id, out var store))
+                {
+                    store = new PawnMemoryStore();
+                    _pawnStores[id] = store;
+                }
+                return store;
             }
-            return store;
         }
 
         internal PawnMemoryStore? GetPawnStore(Pawn pawn)
         {
-            return _pawnStores.TryGetValue(pawn.thingIDNumber, out var store) ? store : null;
+            lock (_storesLock)
+            {
+                return _pawnStores.TryGetValue(pawn.thingIDNumber, out var store) ? store : null;
+            }
         }
 
         public NarratorMemoryStore NarratorStore => _narratorStore;
 
-        public IEnumerable<PawnMemoryStore> AllPawnStores => _pawnStores.Values;
+        public IEnumerable<PawnMemoryStore> AllPawnStores
+        {
+            get
+            {
+                lock (_storesLock)
+                {
+                    return new List<PawnMemoryStore>(_pawnStores.Values);
+                }
+            }
+        }
 
         private bool _needsRemoteLoad;
 
-        public void ClearPawnStore(Pawn pawn) => _pawnStores.Remove(pawn.thingIDNumber);
+        public void ClearPawnStore(Pawn pawn)
+        {
+            lock (_storesLock)
+            {
+                _pawnStores.Remove(pawn.thingIDNumber);
+            }
+        }
 
         private void SaveAllEntriesToStorage()
         {
@@ -53,7 +76,12 @@ namespace RimMind.Memory.Data
 
             try
             {
-                string json = MemorySnapshotService.Serialize(_pawnStores, _narratorStore);
+                Dictionary<int, PawnMemoryStore> pawnStoresSnapshot;
+                lock (_storesLock)
+                {
+                    pawnStoresSnapshot = new Dictionary<int, PawnMemoryStore>(_pawnStores);
+                }
+                string json = MemorySnapshotService.Serialize(pawnStoresSnapshot, _narratorStore);
                 var version = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
@@ -84,15 +112,18 @@ namespace RimMind.Memory.Data
         private void MergeFromSnapshot(string? json)
         {
             var settings = RimMindMemoryMod.Settings;
-            MemorySnapshotService.Merge(
-                json,
-                _pawnStores,
-                _narratorStore,
-                new MemorySnapshotLimits(
-                    settings.maxActive,
-                    settings.maxArchive,
-                    settings.narratorMaxActive,
-                    settings.narratorMaxArchive));
+            lock (_storesLock)
+            {
+                MemorySnapshotService.Merge(
+                    json,
+                    _pawnStores,
+                    _narratorStore,
+                    new MemorySnapshotLimits(
+                        settings.maxActive,
+                        settings.maxArchive,
+                        settings.narratorMaxActive,
+                        settings.narratorMaxArchive));
+            }
         }
 
         public void AddPawnMemory(Pawn pawn, MemoryEntry e, int maxActive, int maxArchive)
@@ -118,30 +149,45 @@ namespace RimMind.Memory.Data
 
         public IReadOnlyList<MemoryEntry> GetNarratorMemories()
         {
-            var result = new List<MemoryEntry>(_narratorStore.active.Count + _narratorStore.dark.Count);
-            result.AddRange(_narratorStore.active);
-            result.AddRange(_narratorStore.dark);
-            return result;
+            lock (_narratorStore.SyncRoot)
+            {
+                var result = new List<MemoryEntry>(_narratorStore.active.Count + _narratorStore.dark.Count);
+                result.AddRange(_narratorStore.active);
+                result.AddRange(_narratorStore.dark);
+                return result;
+            }
         }
 
         // Read legacy save data only; inspecting context must not create a new buffer.
         public WM? GetWorkingMemory(Pawn pawn)
         {
-            return _workingMemories.TryGetValue(pawn.thingIDNumber, out var wm) ? wm : null;
+            lock (_storesLock)
+            {
+                return _workingMemories.TryGetValue(pawn.thingIDNumber, out var wm) ? wm : null;
+            }
         }
 
-        public void ClearWorkingMemory(Pawn pawn) => _workingMemories.Remove(pawn.thingIDNumber);
+        public void ClearWorkingMemory(Pawn pawn)
+        {
+            lock (_storesLock)
+            {
+                _workingMemories.Remove(pawn.thingIDNumber);
+            }
+        }
 
         public override void ExposeData()
         {
             base.ExposeData();
             MemoryEntry.ExposeNextSeq();
-            Scribe_Collections.Look(ref _pawnStores, "pawnStores", LookMode.Value, LookMode.Deep);
-            _pawnStores ??= new Dictionary<int, PawnMemoryStore>();
-            Scribe_Deep.Look(ref _narratorStore, "narratorStore");
-            _narratorStore ??= new NarratorMemoryStore();
-            Scribe_Collections.Look(ref _workingMemories, "workingMemories", LookMode.Value, LookMode.Deep);
-            _workingMemories ??= new Dictionary<int, WM>();
+            lock (_storesLock)
+            {
+                Scribe_Collections.Look(ref _pawnStores, "pawnStores", LookMode.Value, LookMode.Deep);
+                _pawnStores ??= new Dictionary<int, PawnMemoryStore>();
+                Scribe_Deep.Look(ref _narratorStore, "narratorStore");
+                _narratorStore ??= new NarratorMemoryStore();
+                Scribe_Collections.Look(ref _workingMemories, "workingMemories", LookMode.Value, LookMode.Deep);
+                _workingMemories ??= new Dictionary<int, WM>();
+            }
 
             if (Scribe.mode == LoadSaveMode.Saving)
                 SaveAllEntriesToStorage();

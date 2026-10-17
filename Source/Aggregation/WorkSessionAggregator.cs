@@ -11,7 +11,7 @@ namespace RimMind.Memory.Aggregation
     public class WorkSessionAggregator : GameComponent
     {
         private static WorkSessionAggregator? _instance;
-        public static WorkSessionAggregator Instance => _instance ?? throw new InvalidOperationException("WorkSessionAggregator not initialized");
+        public static WorkSessionAggregator? Instance => Current.Game != null ? _instance : null;
 
         private readonly Dictionary<int, PawnSession> _sessions = new Dictionary<int, PawnSession>();
 
@@ -131,13 +131,21 @@ namespace RimMind.Memory.Aggregation
                     string idlePrefix = "RimMind.Memory.Work.Idle".CanTranslate()
                         ? "RimMind.Memory.Work.Idle".Translate("0").RawText.Replace("0", "").Trim()
                         : "Idle";
-                    if (store != null && store.active.Count > 0 && store.active[store.active.Count - 1].type == MemoryType.Work &&
-                        (!string.IsNullOrEmpty(idlePrefix) && store.active[store.active.Count - 1].content.Contains(idlePrefix)))
+                    bool updatedExisting = false;
+                    if (store != null)
                     {
-                        store.active[store.active.Count - 1].content = content;
-                        store.active[store.active.Count - 1].tick = now;
+                        lock (store.SyncRoot)
+                        {
+                            if (store.active.Count > 0 && store.active[0].type == MemoryType.Work &&
+                                (!string.IsNullOrEmpty(idlePrefix) && store.active[0].content.Contains(idlePrefix)))
+                            {
+                                store.active[0].content = content;
+                                store.active[0].tick = now;
+                                updatedExisting = true;
+                            }
+                        }
                     }
-                    else
+                    if (!updatedExisting)
                     {
                         wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, 0.1f), maxActive, maxArchive);
                     }
@@ -157,7 +165,8 @@ namespace RimMind.Memory.Aggregation
             var settings = RimMindMemoryMod.Settings;
             if (importance >= settings.pawnToNarratorThreshold)
             {
-                string narratorContent = $"[{pawn.Name.ToStringShort}] {content}";
+                string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
+                string narratorContent = $"[{pawnName}] {content}";
                 wc.AddNarratorMemory(
                     MemoryEntry.Create(narratorContent, MemoryType.Event, now, importance, pawn.ThingID),
                     settings.narratorMaxActive, settings.narratorMaxArchive);

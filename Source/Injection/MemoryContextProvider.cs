@@ -196,34 +196,54 @@ namespace RimMind.Memory.Injection
 
         private static string BuildPawnBrief(Pawn pawn)
         {
-            if (pawn == null || Current.Game == null) return string.Empty;
-            var store = RimMindMemoryWorldComponent.Instance?.GetPawnStore(pawn);
-            if (store == null || store.IsEmpty) return string.Empty;
-
-            var sb = new StringBuilder("[RimMind Memory]");
-            foreach (var memory in store.active.Take(5))
-                sb.AppendLine($"- {memory.content}");
-
-            if (store.dark.Count > 0)
+            try
             {
-                sb.AppendLine("[Long-term]");
-                foreach (var memory in store.dark.Take(5))
-                    sb.AppendLine($"- {memory.content}");
-            }
+                if (pawn == null || Current.Game == null) return string.Empty;
+                var store = RimMindMemoryWorldComponent.Instance?.GetPawnStore(pawn);
+                if (store == null || store.IsEmpty) return string.Empty;
 
-            return sb.ToString().TrimEnd();
+                var (activeList, _, darkList) = store.GetSnapshots();
+                if (activeList.Count == 0 && darkList.Count == 0) return string.Empty;
+
+                var sb = new StringBuilder("[RimMind Memory]");
+                foreach (var memory in activeList.Take(5))
+                    sb.AppendLine($"- {memory.content}");
+
+                if (darkList.Count > 0)
+                {
+                    sb.AppendLine("[Long-term]");
+                    foreach (var memory in darkList.Take(5))
+                        sb.AppendLine($"- {memory.content}");
+                }
+
+                return sb.ToString().TrimEnd();
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         private static string BuildNarratorBrief()
         {
-            if (Current.Game == null) return string.Empty;
-            var store = RimMindMemoryWorldComponent.Instance?.NarratorStore;
-            if (store == null || store.IsEmpty) return string.Empty;
+            try
+            {
+                if (Current.Game == null) return string.Empty;
+                var store = RimMindMemoryWorldComponent.Instance?.NarratorStore;
+                if (store == null || store.IsEmpty) return string.Empty;
 
-            var sb = new StringBuilder("[RimMind Storyteller]");
-            foreach (var memory in store.active.Take(5))
-                sb.AppendLine($"- {memory.content}");
-            return sb.ToString().TrimEnd();
+                var (activeList, _, _) = store.GetSnapshots();
+                if (activeList.Count == 0) return string.Empty;
+
+                var sb = new StringBuilder("[RimMind Storyteller]");
+                foreach (var memory in activeList.Take(5))
+                    sb.AppendLine($"- {memory.content}");
+                return sb.ToString().TrimEnd();
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }

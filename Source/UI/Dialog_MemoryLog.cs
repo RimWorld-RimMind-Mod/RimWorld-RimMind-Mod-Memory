@@ -50,7 +50,8 @@ namespace RimMind.Memory.UI
             Rect scrollOuter = new Rect(inRect.x, inRect.y + headerH, inRect.width, inRect.height - headerH);
 
             int now = Find.TickManager.TicksGame;
-            float contentH = CalculateContentHeight(store, settings, now);
+            var (activeList, archiveList, darkList) = store.GetSnapshots();
+            float contentH = CalculateContentHeight(activeList, archiveList, darkList);
 
             Rect viewRect = new Rect(0f, 0f, scrollOuter.width - 16f, contentH);
             Widgets.BeginScrollView(scrollOuter, ref _scrollPosition, viewRect);
@@ -58,7 +59,7 @@ namespace RimMind.Memory.UI
             float y = 0f;
             float w = viewRect.width;
 
-            if (store.dark.Count > 0)
+            if (darkList.Count > 0)
             {
                 Text.Font = GameFont.Small;
                 Widgets.Label(new Rect(0f, y, w, 20f),
@@ -67,7 +68,7 @@ namespace RimMind.Memory.UI
                 Text.WordWrap = true;
                 try
                 {
-                    foreach (var d in store.dark)
+                    foreach (var d in darkList)
                     {
                         float textH = Text.CalcHeight(d.content, w - 16f);
                         Widgets.Label(new Rect(8f, y, w - 16f, textH), d.content);
@@ -82,35 +83,43 @@ namespace RimMind.Memory.UI
             }
 
             Widgets.Label(new Rect(0f, y, w, 20f),
-                "RimMind.Memory.UI.ActiveMemory".Translate(store.active.Count, settings.maxActive));
+                "RimMind.Memory.UI.ActiveMemory".Translate(activeList.Count, settings.maxActive));
             y += 22f;
 
-            for (int i = 0; i < store.active.Count; i++)
+            for (int i = 0; i < activeList.Count; i++)
             {
-                var e = store.active[i];
+                var e = activeList[i];
                 string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
                 string pinMark = e.isPinned ? " [P]" : "";
                 Widgets.Label(new Rect(0f, y, w - 60f, 22f),
                     $"{"RimMind.Memory.Time.TimeContent".Translate(timeStr, e.content)}{pinMark}");
 
                 if (Widgets.ButtonText(new Rect(w - 56f, y + 1f, 24f, 20f), "P"))
-                    e.isPinned = !e.isPinned;
+                {
+                    lock (store.SyncRoot)
+                    {
+                        e.isPinned = !e.isPinned;
+                    }
+                }
                 if (Widgets.ButtonText(new Rect(w - 28f, y + 1f, 24f, 20f), "X"))
                 {
-                    store.active.RemoveAt(i);
+                    lock (store.SyncRoot)
+                    {
+                        store.active.Remove(e);
+                    }
                     break;
                 }
                 y += 24f;
             }
             y += 6f;
 
-            if (store.archive.Count > 0)
+            if (archiveList.Count > 0)
             {
                 Widgets.Label(new Rect(0f, y, w, 20f),
-                    "RimMind.Memory.UI.ArchiveMemoryUI".Translate(store.archive.Count, settings.maxArchive));
+                    "RimMind.Memory.UI.ArchiveMemoryUI".Translate(archiveList.Count, settings.maxArchive));
                 y += 22f;
 
-                foreach (var e in store.archive)
+                foreach (var e in archiveList)
                 {
                     string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
                     Widgets.Label(new Rect(8f, y, w - 16f, 20f),
@@ -123,13 +132,16 @@ namespace RimMind.Memory.UI
             Widgets.EndScrollView();
         }
 
-        private float CalculateContentHeight(PawnMemoryStore store, RimMindMemorySettings settings, int now)
+        private float CalculateContentHeight(
+            List<MemoryEntry> activeList,
+            List<MemoryEntry> archiveList,
+            List<MemoryEntry> darkList)
         {
             float h = 0f;
-            if (store.dark.Count > 0)
+            if (darkList.Count > 0)
             {
                 h += 22f;
-                foreach (var d in store.dark)
+                foreach (var d in darkList)
                 {
                     bool prevWrap = Text.WordWrap;
                     try
@@ -145,10 +157,10 @@ namespace RimMind.Memory.UI
                 }
                 h += 6f;
             }
-            h += 22f + store.active.Count * 24f + 6f;
-            if (store.archive.Count > 0)
+            h += 22f + activeList.Count * 24f + 6f;
+            if (archiveList.Count > 0)
             {
-                h += 22f + store.archive.Count * 20f;
+                h += 22f + archiveList.Count * 20f;
             }
             return h;
         }

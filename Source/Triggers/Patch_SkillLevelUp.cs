@@ -1,8 +1,10 @@
 using HarmonyLib;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
+using RimMind.Presentation.Api;
 using RimWorld;
 using System.Collections.Generic;
+using System.Reflection;
 using Verse;
 
 namespace RimMind.Memory.Triggers
@@ -10,6 +12,8 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(SkillRecord), nameof(SkillRecord.Learn))]
     public static class Patch_SkillLevelUp
     {
+        private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(SkillRecord), "pawn");
+
         static void Prefix(SkillRecord __instance, out int __state) => __state = __instance?.Level ?? 0;
 
         static void Postfix(SkillRecord __instance, int __state)
@@ -20,8 +24,8 @@ namespace RimMind.Memory.Triggers
 
             try
             {
-                var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-                if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Name == null) return;
+                var pawn = PawnField?.GetValue(__instance) as Pawn;
+                if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
 
                 float importance = __instance.Level >= 15 ? 0.7f : 0.5f;
                 string skillLabel = (__instance.def?.LabelCap.RawText.NullOrEmpty() ?? true)

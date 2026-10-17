@@ -1,6 +1,8 @@
+using System.Reflection;
 using HarmonyLib;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -10,6 +12,8 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(MentalStateHandler), "TryStartMentalState")]
     public static class Patch_MentalBreak
     {
+        private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(MentalStateHandler), "pawn");
+
         static void Postfix(MentalStateHandler __instance, MentalStateDef stateDef, bool __result)
         {
             if (!__result) return;
@@ -17,8 +21,8 @@ namespace RimMind.Memory.Triggers
 
             try
             {
-                var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-                if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Name == null) return;
+                var pawn = PawnField?.GetValue(__instance) as Pawn;
+                if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
                 if (stateDef == null) return;
 
                 float importance = EstimateImportance(stateDef);

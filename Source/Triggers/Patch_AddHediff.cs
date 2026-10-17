@@ -1,6 +1,8 @@
+using System.Reflection;
 using HarmonyLib;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -10,12 +12,14 @@ namespace RimMind.Memory.Triggers
         new System.Type[] { typeof(Hediff), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) })]
     public static class Patch_AddHediff
     {
+        private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(Pawn_HealthTracker), "pawn");
+
         static void Postfix(Pawn_HealthTracker __instance, Hediff hediff, DamageInfo? dinfo)
         {
             if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerInjury)) return;
 
-            var pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-            if (pawn == null || !pawn.IsFreeNonSlaveColonist) return;
+            var pawn = PawnField?.GetValue(__instance) as Pawn;
+            if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
 
             if (hediff == null || hediff.def == null) return;
             if (!hediff.def.isBad && !hediff.def.tendable && !hediff.def.makesSickThought) return;

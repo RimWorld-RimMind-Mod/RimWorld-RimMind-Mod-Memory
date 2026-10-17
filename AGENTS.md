@@ -100,13 +100,13 @@ Source/
 ## 代码约定
 
 - Harmony ID: `mcocdaa.RimMindMemory`，PostFix优先
-- 所有触发器try-catch包裹，日志前缀 `[RimMind-Memory]`
+- 所有触发器try-catch包裹，日志前缀 `[RimMind-Memory]`，使用静态缓存 `FieldInfo? PawnField = AccessTools.Field(...)` 与 `RimMindPawnLookup.IsActiveSpawnedColonist(pawn)` 校验
 - 新触发器在 `RimMindMemorySettings` 添加 `triggerXxx` 开关
 - 记忆写入: `MemoryTriggerHelper.WriteMemory(pawn, content, type, importance)` (自动处理wc获取+Pawn写入+条件Narrator升级)
 - 直接写入(无Narrator升级): `MemoryTriggerHelper.WriteMemory(pawn, content, type, importance, upgradeNarrator: false)`
-- 存储基类: `MemoryStoreBase`(AddActive/EnforceLimit/IsEmpty/ContainsId/AddIfNotExists/ExposeData)
+- 存储基类: `MemoryStoreBase`(AddActive/EnforceLimit/IsEmpty/ContainsId/AddIfNotExists/GetSnapshots/ExposeData 均通过 `SyncRoot` 同步；`RimMindMemoryWorldComponent` 内部字典通过 `_storesLock` 同步)
 - 重要度≥`pawnToNarratorThreshold`(默认0.8)时同步写入 `NarratorStore`
-- 单例模式: `Instance => _instance ?? throw new InvalidOperationException(...)`
+- 单例模式: `RimMindMemoryWorldComponent.Instance`、`WorkSessionAggregator.Instance`、`DarkMemoryUpdater.Instance` 在 `Current.Game == null` 时安全返回 `null`
 - 暗记忆场景: `ScenarioIds.Memory`（非 Personality/Storyteller）
 - MemoryEntry.Create 自动截断 content 至 2000 字符
 - 设置入口只转发到 `MemorySettingsDrawer`；Mod 入口不承载控件布局

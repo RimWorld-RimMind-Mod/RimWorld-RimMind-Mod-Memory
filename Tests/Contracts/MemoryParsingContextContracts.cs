@@ -115,7 +115,7 @@ namespace RimMind.Memory.Tests.Contracts
             string compactPawnStoreQuery = RemoveWhitespace(pawnStoreQuery);
             Assert.Equal(
                 "internalPawnMemoryStore?GetPawnStore(Pawnpawn)" +
-                "{return_pawnStores.TryGetValue(pawn.thingIDNumber,outvarstore)?store:null;}",
+                "{lock(_storesLock){return_pawnStores.TryGetValue(pawn.thingIDNumber,outvarstore)?store:null;}}",
                 compactPawnStoreQuery);
             Assert.Equal(1, CountOccurrences(pawnStoreQuery, "TryGetValue"));
             Assert.DoesNotContain("GetOrCreate", pawnStoreQuery, StringComparison.Ordinal);
@@ -193,15 +193,15 @@ namespace RimMind.Memory.Tests.Contracts
             AssertSeparatedOnlyByWhitespace(
                 pawnBrief,
                 "var sb = new StringBuilder(\"[RimMind Memory]\");",
-                "foreach (var memory in store.active.Take(5))");
+                "foreach (var memory in activeList.Take(5))");
             Assert.DoesNotContain("sb.AppendLine();", pawnBrief, StringComparison.Ordinal);
             Assert.Equal(2, CountOccurrences(pawnBrief, "Take(5)"));
             Assert.Equal(
                 2,
                 CountOccurrences(pawnBrief, "sb.AppendLine($\"- {memory.content}\");"));
             Assert.Contains(
-                "if(store.dark.Count>0){sb.AppendLine(\"[Long-term]\");" +
-                "foreach(varmemoryinstore.dark.Take(5))" +
+                "if(darkList.Count>0){sb.AppendLine(\"[Long-term]\");" +
+                "foreach(varmemoryindarkList.Take(5))" +
                 "sb.AppendLine($\"-{memory.content}\");}",
                 compactPawnBrief,
                 StringComparison.Ordinal);
@@ -219,7 +219,7 @@ namespace RimMind.Memory.Tests.Contracts
             AssertSeparatedOnlyByWhitespace(
                 narratorBrief,
                 "var sb = new StringBuilder(\"[RimMind Storyteller]\");",
-                "foreach (var memory in store.active.Take(5))");
+                "foreach (var memory in activeList.Take(5))");
             Assert.DoesNotContain("sb.AppendLine();", narratorBrief, StringComparison.Ordinal);
             Assert.Equal(1, CountOccurrences(narratorBrief, "Take(5)"));
             Assert.Equal(

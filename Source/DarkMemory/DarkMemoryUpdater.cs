@@ -18,7 +18,7 @@ namespace RimMind.Memory.DarkMemory
     public class DarkMemoryUpdater : GameComponent
     {
         private static DarkMemoryUpdater? _instance;
-        public static DarkMemoryUpdater Instance => _instance ?? throw new InvalidOperationException("DarkMemoryUpdater not initialized");
+        public static DarkMemoryUpdater? Instance => Current.Game != null ? _instance : null;
 
         private int _narratorOffset;
         private const int DailyInterval = 60000;
@@ -160,17 +160,18 @@ namespace RimMind.Memory.DarkMemory
             var store = wc.GetOrCreatePawnStore(pawn);
             int now = Find.TickManager.TicksGame;
             int todayStart = now - (now % DailyInterval);
-            var todayEntries = store.active.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
+            var (activeList, _, darkList) = store.GetSnapshots();
+            var todayEntries = activeList.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
 
-            if (todayEntries.Count == 0 && store.dark.Count == 0) return;
+            if (todayEntries.Count == 0 && darkList.Count == 0) return;
 
             var sb = new StringBuilder();
-            sb.AppendLine("RimMind.Memory.Prompt.PawnTodayMemory".Translate(pawn.Name.ToStringShort));
+            sb.AppendLine("RimMind.Memory.Prompt.PawnTodayMemory".Translate(pawn.Name?.ToStringShort ?? pawn.LabelShort));
             foreach (var e in todayEntries)
                 sb.AppendLine($"- {e.content}");
             sb.AppendLine();
             sb.AppendLine("RimMind.Memory.Prompt.ExistingImpression".Translate());
-            foreach (var d in store.dark)
+            foreach (var d in darkList)
                 sb.AppendLine($"- {d.content}");
             sb.AppendLine();
             sb.AppendLine("RimMind.Memory.Prompt.MergeInstruction".Translate(settings.darkCount));
@@ -204,9 +205,10 @@ namespace RimMind.Memory.DarkMemory
             var store = wc.NarratorStore;
             int now = Find.TickManager.TicksGame;
             int todayStart = now - (now % DailyInterval);
-            var todayEntries = store.active.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
+            var (activeList, _, darkList) = store.GetSnapshots();
+            var todayEntries = activeList.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
 
-            if (todayEntries.Count == 0 && store.dark.Count == 0) return;
+            if (todayEntries.Count == 0 && darkList.Count == 0) return;
 
             var sb = new StringBuilder();
             sb.AppendLine("RimMind.Memory.Prompt.ColonyTodayEvents".Translate());
@@ -214,7 +216,7 @@ namespace RimMind.Memory.DarkMemory
                 sb.AppendLine($"- {e.content}");
             sb.AppendLine();
             sb.AppendLine("RimMind.Memory.Prompt.ExistingNarrative".Translate());
-            foreach (var d in store.dark)
+            foreach (var d in darkList)
                 sb.AppendLine($"- {d.content}");
             sb.AppendLine();
             sb.AppendLine("RimMind.Memory.Prompt.MergeNarrativeInstruction".Translate(settings.narratorDarkCount));
@@ -243,25 +245,28 @@ namespace RimMind.Memory.DarkMemory
 
         private void ApplyPawnDarkMemory(string jsonContent, PawnMemoryStore store, int darkCount, int now)
         {
-            ApplyDarkMemory(jsonContent, darkCount, now, store.dark);
+            ApplyDarkMemory(jsonContent, darkCount, now, store);
         }
 
         private void ApplyNarratorDarkMemory(string jsonContent, NarratorMemoryStore store, int darkCount, int now)
         {
-            ApplyDarkMemory(jsonContent, darkCount, now, store.dark);
+            ApplyDarkMemory(jsonContent, darkCount, now, store);
         }
 
-        private static void ApplyDarkMemory(string json, int darkCount, int now, List<MemoryEntry> darkStore)
+        private static void ApplyDarkMemory(string json, int darkCount, int now, MemoryStoreBase store)
         {
             try
             {
                 var entries = DarkMemoryResultParserPure.Parse(json, darkCount);
                 if (entries == null || entries.Count == 0) return;
 
-                darkStore.Clear();
-                foreach (var text in entries)
+                lock (store.SyncRoot)
                 {
-                    darkStore.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
+                    store.dark.Clear();
+                    foreach (var text in entries)
+                    {
+                        store.dark.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
+                    }
                 }
             }
             catch (Exception ex)
