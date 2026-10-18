@@ -32,7 +32,7 @@
 ## 🎮 In-Game Showcase
 
 ![RimMind-Memory Showcase](docs/images/showcase.jpg)
-*Memory inspection window: Viewing a colonist's multi-layered memory chronicle, showing decayed sensory impressions alongside pinned life milestones.*
+*AI Context Payload Inspector (`Analysis` tab): Inspecting the 4-Zone prompt architecture breakdown (`System 0.9%`, `Static 0.7%`, `Dynamic 4.9%`, `Tools 93.4%`), `~95.1%` KV-cache prefix hit stability, and Zone 2 colonist profile/memory alignment.*
 
 ---
 
