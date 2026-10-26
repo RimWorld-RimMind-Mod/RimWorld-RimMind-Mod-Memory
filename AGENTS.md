@@ -39,10 +39,10 @@ Source/
 ├── WorkingMemory/                               旧存档兼容数据，无新写入/容量调整路径
 │   ├── WorkingMemory.cs                         保留旧类型与Scribe标签，读取不裁剪已有数据
 │   └── WorkingMemoryEntry.cs                    工作记忆条目(content/source/relevance)
-├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator)
-│       WorkingMemoryProvider.cs                 只读旧工作记忆ContextKey(working_memory)
+├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator，主线程快照 + MemoryRetrievalScorer)与公开Brief Provider
+│       WorkingMemoryProvider.cs                 只读旧工作记忆ContextKey(working_memory，主线程快照读取)
 ├── Aggregation/
-│   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化, CleanupPawnJitter)
+│   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化, 每日清理非活跃Pawn会话)
 │   └── Patch_StartJob_Memory.cs                 JobTracker Postfix
 ├── Triggers/                                    5个Patch(AddHediff/Kill/MentalBreak/SkillLevelUp/AddRelation)
 │       MemoryTriggerHelper.cs                   触发器辅助(ShouldProcess+WriteMemory+TryUpgradeToNarrator)
@@ -50,7 +50,7 @@ Source/
 ├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(ScenarioIds.Memory, LlmRequestEnvelopeBuilder + RimMindAPI.Request.Send)
 │                 DarkMemoryResultParserPure.cs    纯逻辑解析器(生产+测试共用,JSON修复+解析)
 ├── Decay/ImportanceDecayManager.cs              衰减管理(默认关闭,单MemoryStoreBase重载)
-├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs + PawnLookup.cs
+├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs + MemoryRetrievalScorer.cs + PawnLookup.cs
 ├── UI/BioTabMemoryPatch.cs + Dialog_MemoryLog.cs
 └── Debug/MemoryDebugActions.cs
 ```
@@ -111,6 +111,9 @@ Source/
 - MemoryEntry.Create 自动截断 content 至 2000 字符
 - 设置入口只转发到 `MemorySettingsDrawer`；Mod 入口不承载控件布局
 - 新记忆只写入 Pawn/Narrator 三层存储；WorkingMemory 只保留旧存档读取、查看和手动清理，不能恢复无生产者的容量设置。
+- Context Provider(`memory_pawn` / `memory_narrator` / `working_memory`)均通过 `RimMindAPI.MainThreadSnapshot.GetAsync` 在主线程读取 Verse 状态；公开 Brief Provider(`memory.pawn_brief` / `memory.narrator_brief`)使用只读 `GetPawnStore(pawn)`，标题通过 `RimMind.Memory.Context.BriefHeader` / `BriefLongTerm` / `NarratorBriefHeader` 本地化并带 `.CanTranslate()` 英文回退(`[RimMind Memory]` / `[Long-term]` / `[RimMind Storyteller]`)
+- `RimMindMemoryWorldComponent` 与 `WorkSessionAggregator` 每 60000 tick(1游戏日)执行 `PruneInactivePawnState` / `PruneInactiveSessions`：仅保留存活殖民者(地图/远行队/运输舱)、地图内殖民者/囚犯/奴隶、未复活尸体与被绑架存活 Pawn(严禁遍历 `WorldPawns.AllPawnsAlive`)，非活跃非空 `PawnMemoryStore` 最多保留 `MaxRetainedInactivePawnStores`(8) 个
+- `Patch_PawnKill` 通过 `ShouldRecordNarratorDeath` 过滤野生动物与无名袭击者死亡叙事；`Patch_AddHediff` 通过 `ShouldRecordHediff` 实施严重度阈值(`MinHediffSeverity=0.20f`)与单 Pawn 受伤合并窗口(`InjuryCoalesceWindowTicks=2500`)；`Patch_SkillLevelUp` 使用 Harmony `out int __state` 捕获升级前等级；`DarkMemoryUpdater` 在 `todayEntries.Count == 0` 时跳过 LLM 请求且不持久化 `_pawnJitter`
 
 ## 操作边界
 

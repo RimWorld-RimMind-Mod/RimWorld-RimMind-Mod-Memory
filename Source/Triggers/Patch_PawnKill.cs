@@ -22,15 +22,20 @@ namespace RimMind.Memory.Triggers
                 var wc = RimMindMemoryWorldComponent.Instance;
                 if (wc == null) return;
 
-                if (__instance != null)
-                    DarkMemoryUpdater.CleanupPawnJitter(__instance.thingIDNumber);
+                if (__instance == null) return;
+                DarkMemoryUpdater.CleanupPawnJitter(__instance.thingIDNumber);
 
                 var settings = RimMindMemoryMod.Settings;
                 int now = Find.TickManager.TicksGame;
-                string deadName = __instance?.Name?.ToStringShort ?? __instance?.def?.label ?? "RimMind.Memory.Trigger.Unknown".Translate();
+                string deadName = __instance.Name?.ToStringShort ?? __instance.def?.label ?? "RimMind.Memory.Trigger.Unknown".Translate();
+                string deadTargetId = !string.IsNullOrEmpty(__instance.ThingID)
+                    ? __instance.ThingID
+                    : __instance.thingIDNumber.ToString();
 
+                bool hadRelatedColonist = false;
                 foreach (var colonist in GetRelatedColonists(__instance))
                 {
+                    hadRelatedColonist = true;
                     try
                     {
                         string relation = GetRelationLabel(colonist, __instance);
@@ -39,21 +44,37 @@ namespace RimMind.Memory.Triggers
                             : "RimMind.Memory.Trigger.Death".Translate(deadName);
 
                         float importance = relation != null ? 1.0f : 0.85f;
+                        string colonistPawnId = !string.IsNullOrEmpty(colonist.ThingID)
+                            ? colonist.ThingID
+                            : colonist.thingIDNumber.ToString();
 
-                        wc.AddPawnMemory(colonist, MemoryEntry.Create(content, MemoryType.Event, now, importance),
-                            settings.maxActive, settings.maxArchive);
+                        wc.AddPawnMemory(
+                            colonist,
+                            MemoryEntry.Create(content, MemoryType.Event, now, importance, colonistPawnId, deadTargetId),
+                            settings.maxActive,
+                            settings.maxArchive);
                     }
                     catch { }
                 }
 
-                string narratorContent = __instance != null && __instance.IsFreeNonSlaveColonist
+                if (!ShouldRecordNarratorDeath(__instance, hadRelatedColonist))
+                    return;
+
+                string narratorContent = __instance.IsFreeNonSlaveColonist
                     ? "RimMind.Memory.Trigger.ColonistDeath".Translate(deadName)
                     : "RimMind.Memory.Trigger.Death".Translate(deadName);
 
                 string attackerStr = "";
+                string? killerPawnId = null;
                 if (dinfo != null && dinfo.HasValue && dinfo.Value.Instigator != null && !dinfo.Value.Instigator.Destroyed)
                 {
                     var inst = dinfo.Value.Instigator;
+                    if (inst is Pawn killerPawn)
+                    {
+                        killerPawnId = !string.IsNullOrEmpty(killerPawn.ThingID)
+                            ? killerPawn.ThingID
+                            : killerPawn.thingIDNumber.ToString();
+                    }
                     attackerStr = inst is Pawn p && p.Name != null
                         ? "RimMind.Memory.Trigger.KilledBy".Translate(p.Name.ToStringShort)
                         : (!inst.Label.NullOrEmpty() ? "RimMind.Memory.Trigger.KilledBy".Translate(inst.Label) : "");
@@ -61,7 +82,7 @@ namespace RimMind.Memory.Triggers
 
                 wc.AddNarratorMemory(
                     MemoryEntry.Create(narratorContent + attackerStr, MemoryType.Event, now, 1.0f,
-                        __instance != null ? __instance.ThingID.ToString() : null),
+                        deadTargetId, killerPawnId),
                     settings.narratorMaxActive, settings.narratorMaxArchive);
             }
             catch (System.Exception ex)
@@ -70,15 +91,51 @@ namespace RimMind.Memory.Triggers
             }
         }
 
+        public static bool ShouldRecordNarratorDeath(
+            bool isColonyMember,
+            bool isHumanlike,
+            bool isNamed,
+            bool hasColonistRelation,
+            bool isMajorFactionLeader)
+        {
+            if (isColonyMember) return true;
+            if (isHumanlike && isNamed && hasColonistRelation) return true;
+            if (isMajorFactionLeader) return true;
+            return false;
+        }
+
+        private static bool ShouldRecordNarratorDeath(Pawn dead, bool hasColonistRelation)
+        {
+            bool isColonyMember = dead.IsColonist || dead.IsPrisonerOfColony || dead.IsSlaveOfColony;
+            bool isHumanlike = dead.RaceProps?.Humanlike == true;
+            bool isNamed = dead.Name != null && !dead.Name.Numerical;
+            bool isMajorFactionLeader = dead.Faction != null
+                && !dead.Faction.IsPlayer
+                && !dead.Faction.temporary
+                && !dead.Faction.Hidden
+                && dead.Faction.leader == dead;
+
+            return ShouldRecordNarratorDeath(isColonyMember, isHumanlike, isNamed, hasColonistRelation, isMajorFactionLeader);
+        }
+
         private static IEnumerable<Pawn> GetRelatedColonists(Pawn? dead)
         {
-            if (dead == null) yield break;
+            var result = new List<Pawn>();
+            if (dead == null) return result;
 
-            foreach (var pawn in Find.Maps.SelectMany(m => m.mapPawns.FreeColonists))
+            if (Find.Maps != null)
             {
-                if (pawn == dead) continue;
-                if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
-                    yield return pawn;
+                for (int m = 0; m < Find.Maps.Count; m++)
+                {
+                    var colonists = RimMind.Presentation.Api.RimMindPawnLookup.GetFreeColonistsSafe(Find.Maps[m]);
+                    for (int i = 0; i < colonists.Count; i++)
+                    {
+                        var pawn = colonists[i];
+                        if (pawn == null || pawn == dead) continue;
+                        if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
+                            result.Add(pawn);
+                    }
+                }
             }
 
             var caravans = Find.WorldObjects?.Caravans;
@@ -88,15 +145,20 @@ namespace RimMind.Memory.Triggers
                 {
                     var caravan = caravans[c];
                     if (caravan == null || !caravan.IsPlayerControlled) continue;
-                    foreach (var pawn in caravan.PawnsListForReading)
+                    var caravanPawns = caravan.PawnsListForReading;
+                    if (caravanPawns == null) continue;
+                    for (int i = 0; i < caravanPawns.Count; i++)
                     {
+                        var pawn = caravanPawns[i];
                         if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
                         if (pawn == dead) continue;
                         if (pawn.relations?.DirectRelations?.Any(r => r.otherPawn == dead) == true)
-                            yield return pawn;
+                            result.Add(pawn);
                     }
                 }
             }
+
+            return result;
         }
 
         private static string GetRelationLabel(Pawn colonist, Pawn? dead)

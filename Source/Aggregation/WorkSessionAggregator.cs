@@ -16,11 +16,64 @@ namespace RimMind.Memory.Aggregation
         private readonly Dictionary<int, PawnSession> _sessions = new Dictionary<int, PawnSession>();
 
         private const int SessionTimeoutTicks = 2500;
+        private const int PruneIntervalTicks = 60000;
+        private int _lastPruneTick;
 
         public WorkSessionAggregator(Game game) { _instance = this; }
 
-        public override void StartedNewGame() { _sessions.Clear(); }
-        public override void LoadedGame() { _sessions.Clear(); }
+        public override void StartedNewGame() { _sessions.Clear(); _lastPruneTick = 0; }
+        public override void LoadedGame() { _sessions.Clear(); _lastPruneTick = 0; }
+
+        public override void GameComponentTick()
+        {
+            base.GameComponentTick();
+            if (_sessions.Count == 0) return;
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (_lastPruneTick == 0)
+            {
+                _lastPruneTick = now;
+                return;
+            }
+            if (now >= _lastPruneTick && (now - _lastPruneTick) < PruneIntervalTicks)
+                return;
+
+            _lastPruneTick = now;
+            var activeIds = new HashSet<int>();
+            if (Find.Maps != null)
+            {
+                foreach (var map in Find.Maps)
+                {
+                    var colonists = map?.mapPawns?.FreeColonistsSpawned;
+                    if (colonists == null) continue;
+                    for (int i = 0; i < colonists.Count; i++)
+                    {
+                        var p = colonists[i];
+                        if (p != null && RimMind.Presentation.Api.RimMindPawnLookup.IsActiveSpawnedColonist(p))
+                            activeIds.Add(p.thingIDNumber);
+                    }
+                }
+            }
+            PruneInactiveSessions(activeIds);
+        }
+
+        public int PruneInactiveSessions(ISet<int> retainedPawnIds)
+        {
+            return PruneSessionDictionary(_sessions, retainedPawnIds);
+        }
+
+        public static int PruneSessionDictionary<TSession>(Dictionary<int, TSession> sessions, ISet<int> retainedPawnIds)
+        {
+            if (sessions == null || sessions.Count == 0) return 0;
+            var toRemove = new List<int>();
+            foreach (var id in sessions.Keys)
+            {
+                if (retainedPawnIds == null || !retainedPawnIds.Contains(id))
+                    toRemove.Add(id);
+            }
+            for (int i = 0; i < toRemove.Count; i++)
+                sessions.Remove(toRemove[i]);
+            return toRemove.Count;
+        }
 
         public void OnJobStarted(Pawn pawn, Job job, int maxActive, int maxArchive, int idleGapThresholdTicks, int minAggregationCount)
         {

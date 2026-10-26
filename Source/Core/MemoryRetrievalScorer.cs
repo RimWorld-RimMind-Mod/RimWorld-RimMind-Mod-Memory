@@ -29,7 +29,7 @@ namespace RimMind.Memory.Core
             };
 
             float relevanceBoost = 1.0f;
-            if (!string.IsNullOrEmpty(targetPawnId) && !string.IsNullOrEmpty(entry.targetPawnId) && entry.targetPawnId == targetPawnId)
+            if (PawnIdsMatch(entry.targetPawnId, targetPawnId))
             {
                 relevanceBoost = 2.0f;
             }
@@ -39,6 +39,37 @@ namespace RimMind.Memory.Core
             }
 
             return entry.importance * recency * typeWeight * relevanceBoost;
+        }
+
+        public static string? NormalizePawnId(string? rawId)
+        {
+            if (string.IsNullOrWhiteSpace(rawId)) return null;
+            string trimmed = rawId!.Trim();
+            int end = trimmed.Length;
+            int start = end;
+            while (start > 0 && char.IsDigit(trimmed[start - 1]))
+            {
+                start--;
+            }
+
+            if (start < end)
+            {
+                if (start == 1 && trimmed[0] == '-')
+                    return trimmed;
+
+                return trimmed.Substring(start);
+            }
+
+            return trimmed;
+        }
+
+        public static bool PawnIdsMatch(string? idA, string? idB)
+        {
+            string? normA = NormalizePawnId(idA);
+            string? normB = NormalizePawnId(idB);
+            if (string.IsNullOrEmpty(normA) || string.IsNullOrEmpty(normB))
+                return false;
+            return string.Equals(normA, normB, StringComparison.OrdinalIgnoreCase);
         }
 
         public static List<MemoryEntry> SelectTopScored(

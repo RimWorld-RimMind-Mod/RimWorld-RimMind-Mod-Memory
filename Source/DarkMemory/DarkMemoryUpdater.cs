@@ -24,66 +24,32 @@ namespace RimMind.Memory.DarkMemory
         private const int DailyInterval = 60000;
         private const int JitterRange = 3000;
 
-        private Dictionary<int, int> _pawnJitter = new Dictionary<int, int>();
-        private int _lastJitterCleanupTick;
-        private const int JitterCleanupInterval = 300000;
-
         public DarkMemoryUpdater(Game game)
         {
             _instance = this;
             _narratorOffset = new System.Random().Next(0, DailyInterval);
         }
 
-        private int GetPawnJitter(int thingID)
+        public static int GetPawnJitter(int thingID)
         {
-            if (!_pawnJitter.TryGetValue(thingID, out int jitter))
-            {
-                jitter = new System.Random(thingID ^ 0x5A5A5A5A).Next(-JitterRange, JitterRange + 1);
-                _pawnJitter[thingID] = jitter;
-            }
-            return jitter;
+            uint hash = unchecked((uint)(thingID ^ 0x5A5A5A5A));
+            hash ^= hash >> 16;
+            hash *= 0x7feb352du;
+            hash ^= hash >> 15;
+            hash *= 0x846ca68bu;
+            hash ^= hash >> 16;
+            int span = JitterRange * 2 + 1;
+            return (int)(hash % (uint)span) - JitterRange;
         }
 
         public static void CleanupPawnJitter(int thingID)
         {
-            _instance?._pawnJitter.Remove(thingID);
-        }
-
-        private void PruneDestroyedPawnJitter()
-        {
-            int now = Find.TickManager.TicksGame;
-            if (now - _lastJitterCleanupTick < JitterCleanupInterval) return;
-            _lastJitterCleanupTick = now;
-
-            var aliveIds = new HashSet<int>();
-            foreach (var map in Find.Maps)
-                foreach (var pawn in map.mapPawns.FreeColonists)
-                    aliveIds.Add(pawn.thingIDNumber);
-            var caravansForCleanup = Find.WorldObjects?.Caravans;
-            if (caravansForCleanup != null)
-            {
-                for (int c = 0; c < caravansForCleanup.Count; c++)
-                {
-                    var caravan = caravansForCleanup[c];
-                    if (caravan == null || !caravan.IsPlayerControlled) continue;
-                    var caravanPawns = caravan.PawnsListForReading;
-                    for (int p = 0; p < caravanPawns.Count; p++)
-                    {
-                        var pawn = caravanPawns[p];
-                        if (pawn != null && pawn.IsFreeNonSlaveColonist && !pawn.Dead && !pawn.Destroyed)
-                            aliveIds.Add(pawn.thingIDNumber);
-                    }
-                }
-            }
-
-            var keysToRemove = _pawnJitter.Keys.Where(kv => !aliveIds.Contains(kv)).ToList();
-            foreach (var key in keysToRemove) _pawnJitter.Remove(key);
+            // Jitter is computed deterministically from thingIDNumber; no per-pawn state to prune.
         }
 
         public override void GameComponentTick()
         {
             if (!RimMindMemoryMod.Settings.enableMemory) return;
-            PruneDestroyedPawnJitter();
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
 
@@ -91,8 +57,8 @@ namespace RimMind.Memory.DarkMemory
 
             foreach (var map in Find.Maps)
             {
-                var colonists = map.mapPawns?.FreeColonistsSpawned;
-                if (colonists == null) continue;
+                var colonists = RimMind.Presentation.Api.RimMindPawnLookup.GetSpawnedColonistsSafe(map);
+                if (colonists.Count == 0) continue;
                 for (int i = 0; i < colonists.Count; i++)
                 {
                     var pawn = colonists[i];
@@ -147,8 +113,6 @@ namespace RimMind.Memory.DarkMemory
         {
             base.ExposeData();
             Scribe_Values.Look(ref _narratorOffset, "narratorOffset", 0);
-            Scribe_Collections.Look(ref _pawnJitter, "pawnJitter", LookMode.Value, LookMode.Value);
-            _pawnJitter ??= new Dictionary<int, int>();
         }
 
         public void TriggerPawnDarkMemoryUpdate(Pawn pawn, RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
@@ -163,7 +127,7 @@ namespace RimMind.Memory.DarkMemory
             var (activeList, _, darkList) = store.GetSnapshots();
             var todayEntries = activeList.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
 
-            if (todayEntries.Count == 0 && darkList.Count == 0) return;
+            if (todayEntries.Count == 0) return;
 
             var sb = new StringBuilder();
             sb.AppendLine("RimMind.Memory.Prompt.PawnTodayMemory".Translate(pawn.Name?.ToStringShort ?? pawn.LabelShort));
@@ -208,7 +172,7 @@ namespace RimMind.Memory.DarkMemory
             var (activeList, _, darkList) = store.GetSnapshots();
             var todayEntries = activeList.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
 
-            if (todayEntries.Count == 0 && darkList.Count == 0) return;
+            if (todayEntries.Count == 0) return;
 
             var sb = new StringBuilder();
             sb.AppendLine("RimMind.Memory.Prompt.ColonyTodayEvents".Translate());

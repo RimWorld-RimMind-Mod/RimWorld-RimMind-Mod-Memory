@@ -87,6 +87,47 @@ namespace RimMind.Memory.Tests.Contracts
                 }));
         }
 
+        [Fact]
+        public void Trigger_filtering_dark_memory_gate_and_store_pruning_contracts_hold()
+        {
+            ContractCaseRunner.Run(
+                ("dark memory skips LLM call when todayEntries is empty and does not persist pawnJitter", () =>
+                {
+                    string darkSource = ReadMemorySource("DarkMemory/DarkMemoryUpdater.cs");
+                    Assert.Equal(2, CountOccurrences(darkSource, "if (todayEntries.Count == 0) return;"));
+                    Assert.DoesNotContain("todayEntries.Count == 0 && darkList.Count == 0", darkSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("Scribe_Collections.Look(ref _pawnJitter", darkSource, StringComparison.Ordinal);
+                }),
+                ("narrator death memory filters out generic wildlife and nameless raiders", () =>
+                {
+                    string killSource = ReadMemorySource("Triggers/Patch_PawnKill.cs");
+                    Assert.Contains("if (!ShouldRecordNarratorDeath(__instance, hadRelatedColonist))", killSource, StringComparison.Ordinal);
+                    Assert.Contains("MemoryEntry.Create(content, MemoryType.Event, now, importance, colonistPawnId, deadTargetId)", killSource, StringComparison.Ordinal);
+                }),
+                ("injury trigger enforces severity threshold and per-pawn coalescing window", () =>
+                {
+                    string hediffSource = ReadMemorySource("Triggers/Patch_AddHediff.cs");
+                    Assert.Contains("public const float MinHediffSeverity = 0.20f;", hediffSource, StringComparison.Ordinal);
+                    Assert.Contains("public const int InjuryCoalesceWindowTicks = 2500;", hediffSource, StringComparison.Ordinal);
+                    Assert.Contains("ShouldRecordHediff(", hediffSource, StringComparison.Ordinal);
+                }),
+                ("relation trigger populates targetPawnId on both forward and reverse memories", () =>
+                {
+                    string relSource = ReadMemorySource("Triggers/Patch_AddRelation.cs");
+                    Assert.Contains("WriteRelationMemory(pawn, otherPawn, content, importance, upgradeNarrator: true);", relSource, StringComparison.Ordinal);
+                    Assert.Contains("WriteRelationMemory(otherPawn, pawn, reverseContent, importance, upgradeNarrator: false);", relSource, StringComparison.Ordinal);
+                    Assert.Contains("MemoryEntry.Create(content, MemoryType.Event, now, importance, pawnId, targetPawnId)", relSource, StringComparison.Ordinal);
+                }),
+                ("world component and work session aggregator prune inactive pawns daily", () =>
+                {
+                    string worldSource = ReadMemorySource("Data/RimMindMemoryWorldComponent.cs");
+                    string workSource = ReadMemorySource("Aggregation/WorkSessionAggregator.cs");
+                    Assert.Contains("PrunePawnStores(_pawnStores, retainedIds, MaxRetainedInactivePawnStores);", worldSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("AllPawnsAlive", worldSource, StringComparison.Ordinal);
+                    Assert.Contains("PruneInactiveSessions(", workSource, StringComparison.Ordinal);
+                }));
+        }
+
         private static void DarkMemoryRequestsCarryMergeInput()
         {
             string source = ReadMemorySource("DarkMemory/DarkMemoryUpdater.cs");
@@ -192,7 +233,7 @@ namespace RimMind.Memory.Tests.Contracts
                 StringComparison.Ordinal);
             AssertSeparatedOnlyByWhitespace(
                 pawnBrief,
-                "var sb = new StringBuilder(\"[RimMind Memory]\");",
+                "var sb = new StringBuilder(TrOrFallback(\"RimMind.Memory.Context.BriefHeader\", \"[RimMind Memory]\"));",
                 "foreach (var memory in activeList.Take(5))");
             Assert.DoesNotContain("sb.AppendLine();", pawnBrief, StringComparison.Ordinal);
             Assert.Equal(2, CountOccurrences(pawnBrief, "Take(5)"));
@@ -200,7 +241,7 @@ namespace RimMind.Memory.Tests.Contracts
                 2,
                 CountOccurrences(pawnBrief, "sb.AppendLine($\"- {memory.content}\");"));
             Assert.Contains(
-                "if(darkList.Count>0){sb.AppendLine(\"[Long-term]\");" +
+                "if(darkList.Count>0){sb.AppendLine(TrOrFallback(\"RimMind.Memory.Context.BriefLongTerm\",\"[Long-term]\"));" +
                 "foreach(varmemoryindarkList.Take(5))" +
                 "sb.AppendLine($\"-{memory.content}\");}",
                 compactPawnBrief,
@@ -218,7 +259,7 @@ namespace RimMind.Memory.Tests.Contracts
                 StringComparison.Ordinal);
             AssertSeparatedOnlyByWhitespace(
                 narratorBrief,
-                "var sb = new StringBuilder(\"[RimMind Storyteller]\");",
+                "var sb = new StringBuilder(TrOrFallback(\"RimMind.Memory.Context.NarratorBriefHeader\", \"[RimMind Storyteller]\"));",
                 "foreach (var memory in activeList.Take(5))");
             Assert.DoesNotContain("sb.AppendLine();", narratorBrief, StringComparison.Ordinal);
             Assert.Equal(1, CountOccurrences(narratorBrief, "Take(5)"));

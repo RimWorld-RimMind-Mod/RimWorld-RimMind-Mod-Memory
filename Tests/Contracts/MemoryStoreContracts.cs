@@ -279,6 +279,23 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.DoesNotContain(m2, top);
                     Assert.Equal("m1", top[0].id);
                     Assert.Equal("m3", top[1].id);
+                }),
+                ("targetPawnId relevance boost matches across ThingID and numeric thingIDNumber formats", () =>
+                {
+                    Assert.True(MemoryRetrievalScorer.PawnIdsMatch("Human123", "123"));
+                    Assert.True(MemoryRetrievalScorer.PawnIdsMatch("123", "Human123"));
+                    Assert.True(MemoryRetrievalScorer.PawnIdsMatch("NPC-123", "Human123"));
+                    Assert.False(MemoryRetrievalScorer.PawnIdsMatch("Human123", "456"));
+
+                    var targeted = MemoryEntry.Create("Bonded with Alice", MemoryType.Event, 5000, 0.6f, "Human10", "Human123");
+                    var untargeted = MemoryEntry.Create("Other event", MemoryType.Event, 5000, 0.6f, "Human10", "Human999");
+
+                    float scoreWithNumericQuery = MemoryRetrievalScorer.CalculateScore(targeted, 5000, targetPawnId: "123");
+                    float scoreWithThingIdQuery = MemoryRetrievalScorer.CalculateScore(targeted, 5000, targetPawnId: "Human123");
+                    float scoreUntargeted = MemoryRetrievalScorer.CalculateScore(untargeted, 5000, targetPawnId: "123");
+
+                    Assert.Equal(scoreWithThingIdQuery, scoreWithNumericQuery, 4);
+                    Assert.Equal(scoreUntargeted * 2.0f, scoreWithNumericQuery, 4);
                 }));
         }
 

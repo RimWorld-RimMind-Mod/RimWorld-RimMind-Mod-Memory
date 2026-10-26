@@ -26,14 +26,14 @@ namespace RimMind.Memory.Triggers
                 float importance = EstimateImportance(def);
                 string relLabel = def.LabelCap.RawText.NullOrEmpty() ? def.defName : def.LabelCap.RawText;
                 string content = "RimMind.Memory.Trigger.EstablishRelation".Translate(otherPawn.Name.ToStringShort, relLabel);
-                MemoryTriggerHelper.WriteMemory(pawn, content, MemoryType.Event, importance);
+                WriteRelationMemory(pawn, otherPawn, content, importance, upgradeNarrator: true);
 
                 if (RimMind.Presentation.Api.RimMindPawnLookup.IsActiveSpawnedColonist(otherPawn) && otherPawn.Name != null)
                 {
                     try
                     {
                         string reverseContent = "RimMind.Memory.Trigger.EstablishRelation".Translate(pawn.Name.ToStringShort, relLabel);
-                        MemoryTriggerHelper.WriteMemory(otherPawn, reverseContent, MemoryType.Event, importance, upgradeNarrator: false);
+                        WriteRelationMemory(otherPawn, pawn, reverseContent, importance, upgradeNarrator: false);
                     }
                     catch { }
                 }
@@ -41,6 +41,32 @@ namespace RimMind.Memory.Triggers
             catch (System.Exception ex)
             {
                 RimMindErrors.Warn($"[RimMind-Memory] Patch_AddRelation error: {ex.Message}");
+            }
+        }
+
+        private static void WriteRelationMemory(Pawn pawn, Pawn targetPawn, string content, float importance, bool upgradeNarrator)
+        {
+            var wc = RimMindMemoryWorldComponent.Instance;
+            if (wc == null) return;
+
+            var settings = RimMindMemoryMod.Settings;
+            int now = Find.TickManager.TicksGame;
+            string pawnId = !string.IsNullOrEmpty(pawn.ThingID) ? pawn.ThingID : pawn.thingIDNumber.ToString();
+            string targetPawnId = !string.IsNullOrEmpty(targetPawn.ThingID) ? targetPawn.ThingID : targetPawn.thingIDNumber.ToString();
+
+            wc.AddPawnMemory(
+                pawn,
+                MemoryEntry.Create(content, MemoryType.Event, now, importance, pawnId, targetPawnId),
+                settings.maxActive,
+                settings.maxArchive);
+
+            if (upgradeNarrator && importance >= settings.pawnToNarratorThreshold)
+            {
+                string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
+                wc.AddNarratorMemory(
+                    MemoryEntry.Create($"[{pawnName}] {content}", MemoryType.Event, now, importance, pawnId, targetPawnId),
+                    settings.narratorMaxActive,
+                    settings.narratorMaxArchive);
             }
         }
 
