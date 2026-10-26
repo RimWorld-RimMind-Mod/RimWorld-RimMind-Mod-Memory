@@ -84,6 +84,9 @@
   <RimMind.Memory.Context.Map>[Map]</RimMind.Memory.Context.Map>
   <RimMind.Memory.Context.FromFaction>({0} from {1})</RimMind.Memory.Context.FromFaction>
   <RimMind.Memory.Context.WorkingMemory>[Working Memory - {0}]</RimMind.Memory.Context.WorkingMemory>
+  <RimMind.Memory.Context.BriefHeader>[RimMind Memory]</RimMind.Memory.Context.BriefHeader>
+  <RimMind.Memory.Context.BriefLongTerm>[Long-term]</RimMind.Memory.Context.BriefLongTerm>
+  <RimMind.Memory.Context.NarratorBriefHeader>[RimMind Storyteller]</RimMind.Memory.Context.NarratorBriefHeader>
   <!-- RimMindMemoryMod.cs - Settings UI -->
   <RimMind.Memory.Settings.TabLabel>Memory</RimMind.Memory.Settings.TabLabel>
   <RimMind.Memory.Settings.EnableMemory>Enable Memory System</RimMind.Memory.Settings.EnableMemory>

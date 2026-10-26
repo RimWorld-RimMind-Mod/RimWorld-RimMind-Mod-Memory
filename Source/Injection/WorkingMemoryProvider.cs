@@ -32,33 +32,35 @@ namespace RimMind.Memory.Injection
                 async (ctx, ct) =>
                 {
                     if (ctx.PawnId <= 0) return null;
-                    var pawn = PawnLookup.FindPawnByNumber(ctx.PawnId);
-                    if (pawn == null) return null;
-                    var wc = RimMindMemoryWorldComponent.Instance;
-                    if (wc == null) return null;
-                    var wm = wc.GetWorkingMemory(pawn);
-                    if (wm == null || wm.IsEmpty) return null;
-
-                    var sb = new StringBuilder();
-                    sb.AppendLine(Tr("RimMind.Memory.Context.WorkingMemory", pawn.Name.ToStringShort));
-                    string? currentJobReport = UnityData.IsInMainThread
-                        ? pawn.CurJob?.GetReport(pawn)
-                        : pawn.CurJob?.def?.label;
-                    bool hasEntries = false;
-                    foreach (var entry in wm.Entries)
+                    return await RimMindAPI.MainThreadSnapshot.GetAsync<string?>(() =>
                     {
-                        if (!string.IsNullOrEmpty(currentJobReport) && !string.IsNullOrEmpty(entry.Content)
-                            && entry.Content.IndexOf(currentJobReport, System.StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            continue;
-                        }
-                        sb.AppendLine($"- {entry.Content}");
-                        hasEntries = true;
-                    }
+                        var pawn = PawnLookup.FindPawnByNumber(ctx.PawnId);
+                        if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn == null) return null;
+                        var wc = RimMindMemoryWorldComponent.Instance;
+                        if (wc == null) return null;
+                        var wm = wc.GetWorkingMemory(pawn);
+                        if (wm == null || wm.IsEmpty) return null;
 
-                    if (!hasEntries) return null;
-                    var result = sb.ToString().TrimEnd();
-                    return string.IsNullOrEmpty(result) ? null : result;
+                        var sb = new StringBuilder();
+                        string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort ?? ("Pawn#" + pawn.thingIDNumber);
+                        sb.AppendLine(Tr("RimMind.Memory.Context.WorkingMemory", pawnName));
+                        string? currentJobReport = pawn.CurJob?.GetReport(pawn);
+                        bool hasEntries = false;
+                        foreach (var entry in wm.Entries)
+                        {
+                            if (!string.IsNullOrEmpty(currentJobReport) && !string.IsNullOrEmpty(entry.Content)
+                                && entry.Content.IndexOf(currentJobReport, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                continue;
+                            }
+                            sb.AppendLine($"- {entry.Content}");
+                            hasEntries = true;
+                        }
+
+                        if (!hasEntries) return null;
+                        var result = sb.ToString().TrimEnd();
+                        return string.IsNullOrEmpty(result) ? null : result;
+                    }, null, ct: ct).ConfigureAwait(false);
                 }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 750, invalidationTriggers: new[] { "MemoryEvent" }));
         }
     }

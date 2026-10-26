@@ -84,6 +84,9 @@
   <RimMind.Memory.Context.Map>[地图]</RimMind.Memory.Context.Map>
   <RimMind.Memory.Context.FromFaction>（{0}来自{1}）</RimMind.Memory.Context.FromFaction>
   <RimMind.Memory.Context.WorkingMemory>[工作记忆 - {0}]</RimMind.Memory.Context.WorkingMemory>
+  <RimMind.Memory.Context.BriefHeader>[RimMind 记忆]</RimMind.Memory.Context.BriefHeader>
+  <RimMind.Memory.Context.BriefLongTerm>[长期印象]</RimMind.Memory.Context.BriefLongTerm>
+  <RimMind.Memory.Context.NarratorBriefHeader>[RimMind 叙事者]</RimMind.Memory.Context.NarratorBriefHeader>
   <!-- RimMindMemoryMod.cs - Settings UI -->
   <RimMind.Memory.Settings.TabLabel>记忆</RimMind.Memory.Settings.TabLabel>
   <RimMind.Memory.Settings.EnableMemory>启用记忆系统</RimMind.Memory.Settings.EnableMemory>
