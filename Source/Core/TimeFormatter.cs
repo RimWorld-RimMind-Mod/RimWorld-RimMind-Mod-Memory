@@ -1,5 +1,6 @@
 using System;
 using RimMind.Domain.Common;
+using RimMind.Presentation.Api;
 using Verse;
 
 namespace RimMind.Memory.Core
@@ -10,15 +11,7 @@ namespace RimMind.Memory.Core
         private const int TicksPerDay = RimMindTime.TicksPerDay;
 
         private static string Tr(string key, params object[] args)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(key)) return string.Empty;
-                string template = key.CanTranslate() ? key.TranslateSimple() : key;
-                return (args == null || args.Length == 0) ? template : string.Format(template, args);
-            }
-            catch { return key ?? string.Empty; }
-        }
+            => RimMindText.TrOr(key, key ?? string.Empty, args);
 
         public static string FormatTimeAgo(int eventTick, int nowTick)
         {

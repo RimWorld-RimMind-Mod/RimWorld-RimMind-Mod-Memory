@@ -55,6 +55,11 @@ namespace Verse
 
     public enum LookMode { Value, Deep }
 
+    public static class UnityData
+    {
+        public static bool IsInMainThread = true;
+    }
+
     public static class Log
     {
         public static void Warning(string msg) { }

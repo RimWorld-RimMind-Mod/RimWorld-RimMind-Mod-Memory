@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Context;
+using RimMind.Application.Common.Models.Context;
+using RimMind.Application.Features.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
 using RimMind.Memory.Core;
@@ -20,29 +22,42 @@ namespace RimMind.Memory.Injection
         private const int PublicProviderPriority = 100;
 
         private static string Tr(string key, params object[] args)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(key)) return string.Empty;
-                string template = key.CanTranslate() ? key.TranslateSimple() : key;
-                return (args == null || args.Length == 0) ? template : string.Format(template, args);
-            }
-            catch { return key ?? string.Empty; }
-        }
+            => RimMindText.TrOr(key, key ?? string.Empty, args);
 
         private static string TrOrFallback(string key, string fallback)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(key) && key.CanTranslate())
-                    return key.TranslateSimple();
-            }
-            catch { }
-            return fallback;
-        }
+            => RimMindText.TrOr(key, fallback);
 
         public static void Register()
         {
+            // Register the typed event before any key names it, so the trigger resolves
+            // to a real event (unknown names never fall back to the base bus event).
+            MemoryChangedEvent.Register();
+
+            ScenarioRegistry.Register(new ScenarioDescriptor
+            {
+                Id = ScenarioIds.Memory,
+                DefaultBaseRounds = 0,
+                Description = "RimMind.Application.Scenario.Memory",
+                DefaultBudget = 0.4f,
+                L4Mode = L4Mode.None,
+                DefaultExcludeKeys = new[]
+                {
+                    "combat_status", "current_job", "mood",
+                    "task_progress", "npc_commands", "target_info"
+                },
+                OwnerModId = RimMindOwnerConsts.MemoryModId,
+                RelevanceWeights = new Dictionary<string, float>(StringComparer.Ordinal)
+                {
+                    ["memory_pawn"] = 1.0f,
+                    ["memory_narrator"] = 1.0f,
+                    ["working_memory"] = 0.9f,
+                    ["colony_status"] = 0.6f,
+                    ["nearby_pawns"] = 0.6f,
+                    ["pawn_base_info"] = 0.7f,
+                    ["fixed_relations"] = 0.7f
+                }
+            });
+
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
                 "memory_pawn", ContextLayer.L3_State, 0.25f,
                 async (ctx, ct) =>
@@ -122,7 +137,7 @@ namespace RimMind.Memory.Injection
                             return null;
                         }
                     }, null, ct: ct).ConfigureAwait(false);
-                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 1500, invalidationTriggers: new[] { "MemoryEvent" }));
+                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 1500, invalidationTriggers: new[] { MemoryChangedEvent.EventName }));
 
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
                 "memory_narrator", ContextLayer.L4_History, 0.6f,
@@ -192,7 +207,7 @@ namespace RimMind.Memory.Injection
                             return null;
                         }
                     }, null, ct: ct).ConfigureAwait(false);
-                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 3000, invalidationTriggers: new[] { "MemoryEvent" }));
+                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 3000, invalidationTriggers: new[] { MemoryChangedEvent.EventName }));
 
             RegisterPublicProviders();
         }
