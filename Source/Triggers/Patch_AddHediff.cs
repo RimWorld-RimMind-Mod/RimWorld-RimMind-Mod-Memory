@@ -1,6 +1,7 @@
-using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
+using RimMind.Application.Common.Helpers;
+using RimMind.Application.Features.GameEvents;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimMind.Presentation.Api;
@@ -17,8 +18,7 @@ namespace RimMind.Memory.Triggers
         public const int InjuryCoalesceWindowTicks = 2500;
 
         private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(Pawn_HealthTracker), "pawn");
-        private static readonly object CooldownLock = new object();
-        private static readonly Dictionary<int, int> LastInjuryTickByPawn = new Dictionary<int, int>();
+        private static readonly KeyedCooldownGate<int> LastInjuryTickByPawn = new KeyedCooldownGate<int>(256);
 
         public static bool ShouldRecordHediff(
             bool isBad,
@@ -30,8 +30,16 @@ namespace RimMind.Memory.Triggers
             int? lastRecordedTick,
             int coalesceWindowTicks = InjuryCoalesceWindowTicks)
         {
-            if (!isBad && !isTendable && !makesSickThought) return false;
-            if (!isLifeThreatening && severity < MinHediffSeverity) return false;
+            if (!GameEventSignificancePolicy.IsSignificantInjury(
+                    isBad,
+                    isTendable,
+                    makesSickThought,
+                    isLifeThreatening,
+                    severity,
+                    MinHediffSeverity))
+            {
+                return false;
+            }
             if (!isLifeThreatening
                 && lastRecordedTick.HasValue
                 && nowTick >= lastRecordedTick.Value
@@ -67,35 +75,20 @@ namespace RimMind.Memory.Triggers
             try
             {
                 int now = Find.TickManager?.TicksGame ?? 0;
-                lock (CooldownLock)
-                {
-                    int? lastTick = LastInjuryTickByPawn.TryGetValue(pawn.thingIDNumber, out int recorded) ? recorded : (int?)null;
-                    if (!ShouldRecordHediff(
-                            hediff.def.isBad,
-                            hediff.def.tendable,
-                            hediff.def.makesSickThought,
-                            hediff.Severity,
-                            isLifeThreatening,
-                            now,
-                            lastTick))
-                    {
-                        return;
-                    }
+                int cooldownTicks = isLifeThreatening ? 0 : InjuryCoalesceWindowTicks;
+                if (!LastInjuryTickByPawn.TryEnter(pawn.thingIDNumber, now, cooldownTicks))
+                    return;
 
-                    if (LastInjuryTickByPawn.Count > 128)
-                    {
-                        var stale = new List<int>();
-                        foreach (var kv in LastInjuryTickByPawn)
-                        {
-                            if (now < kv.Value || (now - kv.Value) >= InjuryCoalesceWindowTicks * 4)
-                                stale.Add(kv.Key);
-                        }
-                        for (int i = 0; i < stale.Count; i++)
-                            LastInjuryTickByPawn.Remove(stale[i]);
-                    }
-
-                    LastInjuryTickByPawn[pawn.thingIDNumber] = now;
-                }
+                RimMindAPI.GameEvents.Publish(new HediffAddedGameEvent(
+                    pawn.thingIDNumber,
+                    hediff.def.defName ?? string.Empty,
+                    hediff.Label ?? hediff.def.label ?? hediff.def.defName ?? string.Empty,
+                    hediff.Severity,
+                    hediff.def.isBad,
+                    hediff.def.tendable,
+                    hediff.def.makesSickThought,
+                    isLifeThreatening,
+                    hediff.Part?.Label));
 
                 float importance = EstimateImportance(hediff);
                 string content = BuildContent(pawn, hediff, dinfo);

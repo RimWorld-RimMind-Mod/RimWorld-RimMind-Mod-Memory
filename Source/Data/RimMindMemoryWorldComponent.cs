@@ -71,6 +71,7 @@ namespace RimMind.Memory.Data
             {
                 _pawnStores.Remove(pawn.thingIDNumber);
             }
+            RimMind.Memory.Injection.MemoryChangedEvent.Publish(pawn.thingIDNumber);
         }
 
         private void SaveAllEntriesToStorage()
@@ -127,17 +128,20 @@ namespace RimMind.Memory.Data
                         settings.narratorMaxActive,
                         settings.narratorMaxArchive));
             }
+            RimMind.Memory.Injection.MemoryChangedEvent.Publish(0);
         }
 
         public void AddPawnMemory(Pawn pawn, MemoryEntry e, int maxActive, int maxArchive)
         {
             var store = GetOrCreatePawnStore(pawn);
             store.AddActive(e, maxActive, maxArchive);
+            RimMind.Memory.Injection.MemoryChangedEvent.Publish(pawn.thingIDNumber);
         }
 
         public void AddNarratorMemory(MemoryEntry e, int maxActive, int maxArchive)
         {
             _narratorStore.AddActive(e, maxActive, maxArchive);
+            RimMind.Memory.Injection.MemoryChangedEvent.Publish(0);
             if (RimMindAPI.RemoteSync.IsConfigured)
             {
                 int tick = Find.TickManager.TicksGame;

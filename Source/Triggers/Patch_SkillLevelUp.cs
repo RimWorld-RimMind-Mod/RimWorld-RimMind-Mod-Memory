@@ -1,10 +1,9 @@
 using HarmonyLib;
+using RimMind.Application.Features.GameEvents;
 using RimMind.Domain.ValueObjects;
 using RimMind.Memory.Data;
 using RimMind.Presentation.Api;
 using RimWorld;
-using System.Collections.Generic;
-using System.Reflection;
 using Verse;
 
 namespace RimMind.Memory.Triggers
@@ -12,20 +11,25 @@ namespace RimMind.Memory.Triggers
     [HarmonyPatch(typeof(SkillRecord), nameof(SkillRecord.Learn))]
     public static class Patch_SkillLevelUp
     {
-        private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(SkillRecord), "pawn");
-
-        static void Prefix(SkillRecord __instance, out int __state) => __state = __instance?.Level ?? 0;
+        static void Prefix(SkillRecord __instance, float xp, out int __state)
+            => __state = __instance != null && xp > 0f && !__instance.TotallyDisabled ? __instance.Level : -1;
 
         static void Postfix(SkillRecord __instance, int __state)
         {
             int prevLevel = __state;
-            if (__instance == null || __instance.Level <= prevLevel) return;
+            if (prevLevel < 0 || __instance == null || __instance.Level <= prevLevel) return;
             if (!MemoryTriggerHelper.ShouldProcess(RimMindMemoryMod.Settings.triggerSkillLevelUp)) return;
 
             try
             {
-                var pawn = PawnField?.GetValue(__instance) as Pawn;
+                var pawn = __instance.Pawn;
                 if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.Name == null) return;
+
+                RimMindAPI.GameEvents.Publish(new SkillLevelUpGameEvent(
+                    pawn.thingIDNumber,
+                    __instance.def?.defName ?? string.Empty,
+                    prevLevel,
+                    __instance.Level));
 
                 float importance = __instance.Level >= 15 ? 0.7f : 0.5f;
                 string skillLabel = (__instance.def?.LabelCap.RawText.NullOrEmpty() ?? true)

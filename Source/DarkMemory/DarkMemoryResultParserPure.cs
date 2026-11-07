@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using RimMind.Application.Features.Json;
 
 namespace RimMind.Memory.DarkMemory
 {
@@ -57,6 +58,32 @@ namespace RimMind.Memory.DarkMemory
         private static string? TryRepairTruncatedJson(string input)
         {
             if (string.IsNullOrWhiteSpace(input)) return null;
+            if (HasUnclosedString(input)) return null;
+            return JsonRepairer.TryRepairTruncatedJson(input) ?? TryRepairFallback(input);
+        }
+
+        private static bool HasUnclosedString(string input)
+        {
+            bool inString = false;
+            bool escaped = false;
+            foreach (char c in input)
+            {
+                if (inString)
+                {
+                    if (escaped) escaped = false;
+                    else if (c == '\\') escaped = true;
+                    else if (c == '"') inString = false;
+                }
+                else if (c == '"')
+                {
+                    inString = true;
+                }
+            }
+            return inString;
+        }
+
+        private static string? TryRepairFallback(string input)
+        {
             try
             {
                 JToken.Parse(input);

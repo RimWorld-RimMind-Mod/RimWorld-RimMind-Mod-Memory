@@ -14,15 +14,7 @@ namespace RimMind.Memory.Injection
     public static class WorkingMemoryProvider
     {
         private static string Tr(string key, params object[] args)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(key)) return string.Empty;
-                string template = key.CanTranslate() ? key.TranslateSimple() : key;
-                return (args == null || args.Length == 0) ? template : string.Format(template, args);
-            }
-            catch { return key ?? string.Empty; }
-        }
+            => RimMindText.TrOr(key, key ?? string.Empty, args);
 
         // Compatibility reader for saved entries, not an active memory-production path.
         public static void Register()
@@ -61,7 +53,7 @@ namespace RimMind.Memory.Injection
                         var result = sb.ToString().TrimEnd();
                         return string.IsNullOrEmpty(result) ? null : result;
                     }, null, ct: ct).ConfigureAwait(false);
-                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 750, invalidationTriggers: new[] { "MemoryEvent" }));
+                }, RimMindOwnerConsts.MemoryModId, stalenessTicks: 750)); // legacy save data, never produced at runtime: staleness only
         }
     }
 }
