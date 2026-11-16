@@ -8,7 +8,67 @@
     <li>1.6</li>
     <li>1.7</li>
   </supportedVersions>
-  <description>Three-layer memory system for AI mods. Tracks colonist activities and map events, providing temporal context for AI evaluations. Features Active/Archive/Dark memory layers, work session aggregation, narrator memory, and importance decay. [v2.0 BREAKING CHANGES]</description>
+  <description>[h1]RimMind - Memory (v2.0)[/h1]
+Three-layer cognitive memory hierarchy and temporal context engine for RimWorld. Tracks colonist activities, combat milestones, interpersonal shifts, and colony-wide incidents—consolidating daily experiences into enduring long-term impressions and injecting structured historical context into all RimMind AI modules.
+
+[b]v2.0 Clean Architecture &amp; RimWorld 1.6 / 1.7 Dual-Version Support:[/b]
+[list]
+[*][b]RimWorld 1.6 &amp; 1.7 (Waylith / .NET 10) Ready[/b]: Native multi-target compilation supporting both RimWorld 1.6 (.NET Framework 4.8) and RimWorld 1.7 (.NET 10 / Harmony 2.x &amp; 3.x).
+[*][b]v2.0 4-Zone KV-Cache Prefix Alignment[/b]: Consolidated Deep/Reflective memories are aligned with Zone 2 static pawn profiles, achieving 80%+ prefix cache hit stability across seasons. Note: v1.x saves are not compatible with v2.0.
+[*][b]Biologically Inspired 3-Tier Storage[/b]: Combines Active (Sensory/Working), Archive (Episodic), and Deep/Dark (Long-Term Reflection) memory tiers with natural importance decay.
+[/list]
+
+[h2]What Is RimMind[/h2]
+RimMind is an enterprise-grade, AI-powered RimWorld mod suite. Integrated with Large Language Models (LLM), it transforms colonists into self-reflecting agents with distinct personalities, three-tier memories, natural spoken dialogues, autonomous mechanisms, and dynamic storytelling.
+
+[h2]Sub-mod List &amp; Dependency Relationships[/h2]
+[table]
+[tr][th]Mod[/th][th]Responsibility[/th][th]Dependencies[/th][th]GitHub[/th][/tr]
+[tr][td]RimMind-Core[/td][td]LLM runtime, 4-Zone context engine, async queue, ToolCall registry &amp; F8 Hub[/td][td]Harmony[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core]Link[/url][/td][/tr]
+[tr][td]RimMind-Actions[/td][td]Composite ToolCall mechanisms, battlefield triage &amp; autonomous construction[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Actions]Link[/url][/td][/tr]
+[tr][td]RimMind-Advisor[/td][td]Colonist self-reflective advice cards, 5-domain autonomy &amp; player approval[/td][td]Core, Actions[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Advisor]Link[/url][/td][/tr]
+[tr][td]RimMind-Dialogue[/td][td]Contextual spoken dialogue via express_dialogue ToolCall &amp; speech bubbles[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Dialogue]Link[/url][/td][/tr]
+[tr][td][b]RimMind-Memory[/b][/td][td]3-Tier cognitive memory hierarchy, work aggregation &amp; temporal decay[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory]Link[/url][/td][/tr]
+[tr][td]RimMind-Personality[/td][td]Big-Five psychological profiles, dawn monologues &amp; dynamic mood thoughts[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality]Link[/url][/td][/tr]
+[tr][td]RimMind-Storyteller[/td][td]AI Story Director, dramatic tension curve, chained arcs &amp; Storyteller Altar[/td][td]Core, Memory[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Storyteller]Link[/url][/td][/tr]
+[tr][td]RimMind-Extension-ModelService[/td][td]Multi-provider routing, Anthropic KV cache, local gateways &amp; load balancing[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService]Link[/url][/td][/tr]
+[tr][td]RimMind-Bridge-RimChat[/td][td]RimChat compatibility bridge: dialogue/action mutual exclusion &amp; context sync[/td][td]Core, RimChat[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat]Link[/url][/td][/tr]
+[tr][td]RimMind-Bridge-RimTalk[/td][td]RimTalk compatibility bridge: bubble harmonization &amp; bidirectional context[/td][td]Core, RimTalk[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimTalk]Link[/url][/td][/tr]
+[/table]
+[code]Core ──┬── Actions ── Advisor
+       ├── Dialogue
+       ├── Memory ── Storyteller
+       ├── Personality
+       ├── Extension-ModelService
+       ├── Bridge-RimChat
+       └── Bridge-RimTalk[/code]
+
+[h2]Core Features[/h2]
+[list]
+[*][b]Active Memory (Tier 1)[/b] - Detailed chronological records of recent events, immediately available for conversational and tactical recall.
+[*][b]Archive Memory (Tier 2)[/b] - Importance-sorted episodic milestones that retain essential narrative facts while pruning trivial noise.
+[*][b]Deep / Dark Memory (Tier 3)[/b] - Permanent psychological impressions synthesized daily by AI (under 50 words each), capturing life-defining traumas, loyalties, and convictions.
+[*][b]Work Session Aggregation[/b] - Automatically merges consecutive identical jobs (e.g., "Hauled 12 items over 4.8 hours") into a single entry to prevent token bloat.
+[*][b]Natural Importance Decay &amp; Storyteller Sync[/b] - Routine tasks fade over time while high-significance events (importance 0.8 or higher) persist and automatically synchronize to [code]RimMind-Storyteller[/code]'s narrative chronicle.
+[/list]
+
+[h2]Recorded Event Categories &amp; Importance Weights[/h2]
+[table]
+[tr][th]Event Category[/th][th]Importance Score[/th][th]Description[/th][/tr]
+[tr][td]Work Sessions[/td][td]0.4 to 0.5[/td][td]Consecutive hauling, mining, construction, or farming merged into one entry[/td][/tr]
+[tr][td]Skill Progression[/td][td]0.5 to 0.7[/td][td]Skill rank milestones weighted by level achieved[/td][/tr]
+[tr][td]Combat &amp; Rescues[/td][td]0.5 to 0.9[/td][td]Battlefield kills, tending wounds, and rescuing downed allies[/td][/tr]
+[tr][td]Injuries &amp; Illness[/td][td]0.5 to 0.9[/td][td]Severe wounds or life-threatening infections up to 0.9[/td][/tr]
+[tr][td]Relationships &amp; Mental Breaks[/td][td]0.6 to 0.95[/td][td]New lovers, marriages, breakups, and extreme mental breaks[/td][/tr]
+[tr][td]Death of Bonded Pawns &amp; Major Raids[/td][td]0.85 to 1.0[/td][td]Permanent colony turning points synced to Storyteller memory[/td][/tr]
+[/table]
+
+[h2]Frequently Asked Questions[/h2]
+[b]Q: Does Memory consume a lot of tokens?[/b]
+A: No. Work aggregation, configurable injection ratios, and Zone 2 KV-cache alignment keep token usage compact and cache-friendly.
+
+[b]Q: Are memories saved with my colony save file?[/b]
+A: Yes. All three memory tiers for every colonist and the Storyteller are serialized in your RimWorld save file, and you can also pin or add custom manual memories in the UI.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>
