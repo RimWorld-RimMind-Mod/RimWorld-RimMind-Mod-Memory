@@ -26,7 +26,7 @@ namespace RimMind.Memory.Injection
                     if (ctx.PawnId <= 0) return null;
                     return await RimMindAPI.MainThreadSnapshot.GetAsync<string?>(() =>
                     {
-                        var pawn = PawnLookup.FindPawnByNumber(ctx.PawnId);
+                        var pawn = RimMindPawnLookup.FindPawnByNumber(ctx.PawnId);
                         if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn == null) return null;
                         var wc = RimMindMemoryWorldComponent.Instance;
                         if (wc == null) return null;

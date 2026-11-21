@@ -16,13 +16,13 @@ namespace RimMind.Memory.Data
         private Dictionary<int, WM> _workingMemories = new Dictionary<int, WM>();
         private readonly object _storesLock = new object();
 
-        private static RimMindMemoryWorldComponent? _instance;
-        public static RimMindMemoryWorldComponent? Instance =>
-            Current.Game?.World != null && _instance?.world == Current.Game.World ? _instance : null;
+        private static readonly WorldScopedComponentCache<RimMindMemoryWorldComponent> InstanceCache =
+            new WorldScopedComponentCache<RimMindMemoryWorldComponent>();
+        public static RimMindMemoryWorldComponent? Instance => InstanceCache.Get();
 
         public RimMindMemoryWorldComponent(World world) : base(world)
         {
-            _instance = this;
+            InstanceCache.Reset();
         }
 
         public PawnMemoryStore GetOrCreatePawnStore(Pawn pawn)
@@ -226,7 +226,7 @@ namespace RimMind.Memory.Data
 
         public void PruneInactivePawnState()
         {
-            var retainedIds = CollectRetainedPawnIds();
+            var retainedIds = RimMindPawnLookup.CollectRetainedColonyPawnIds();
             lock (_storesLock)
             {
                 PrunePawnStores(_pawnStores, retainedIds, MaxRetainedInactivePawnStores);
@@ -303,72 +303,6 @@ namespace RimMind.Memory.Data
                     if (store.dark[i].tick > latest) latest = store.dark[i].tick;
             }
             return latest;
-        }
-
-        private static HashSet<int> CollectRetainedPawnIds()
-        {
-            var retained = new HashSet<int>();
-
-            var allAliveColonists = RimWorld.PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_Colonists;
-            if (allAliveColonists != null)
-            {
-                foreach (var pawn in allAliveColonists)
-                {
-                    if (pawn != null && pawn.thingIDNumber > 0)
-                        retained.Add(pawn.thingIDNumber);
-                }
-            }
-
-            if (Find.Maps != null)
-            {
-                foreach (var map in Find.Maps)
-                {
-                    var allMapPawns = map?.mapPawns?.AllPawns;
-                    if (allMapPawns != null)
-                    {
-                        foreach (var p in allMapPawns)
-                        {
-                            if (p != null && p.thingIDNumber > 0 && !p.Destroyed
-                                && (RimMindPawnLookup.IsEligibleColonist(p) || p.IsColonist || p.IsPrisonerOfColony || p.IsSlaveOfColony))
-                            {
-                                retained.Add(p.thingIDNumber);
-                            }
-                        }
-                    }
-
-                    var corpses = map?.listerThings?.ThingsInGroup(ThingRequestGroup.Corpse);
-                    if (corpses != null)
-                    {
-                        foreach (var thing in corpses)
-                        {
-                            if (thing is Corpse corpse && corpse.InnerPawn is Pawn inner
-                                && inner.thingIDNumber > 0 && !inner.Destroyed
-                                && (inner.IsColonist || inner.IsPrisonerOfColony || inner.IsSlaveOfColony))
-                            {
-                                retained.Add(inner.thingIDNumber);
-                            }
-                        }
-                    }
-                }
-            }
-
-            var factions = Find.FactionManager?.AllFactionsListForReading;
-            if (factions != null)
-            {
-                for (int i = 0; i < factions.Count; i++)
-                {
-                    var kidnapped = factions[i]?.kidnapped?.KidnappedPawnsListForReading;
-                    if (kidnapped == null) continue;
-                    for (int j = 0; j < kidnapped.Count; j++)
-                    {
-                        var p = kidnapped[j];
-                        if (p != null && p.thingIDNumber > 0 && !p.Dead && !p.Destroyed)
-                            retained.Add(p.thingIDNumber);
-                    }
-                }
-            }
-
-            return retained;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using RimMind.Application.Common.Interfaces.Memory;
 using RimMind.Application.Common.Models.Memory;
 using RimMind.Memory.Data;
+using RimMind.Presentation.Api;
 
 namespace RimMind.Memory.Core
 {
@@ -13,7 +14,7 @@ namespace RimMind.Memory.Core
         {
             if (!RimMindMemoryMod.Settings.enableMemory) return false;
 
-            var pawn = PawnLookup.FindPawnById(pawnId ?? string.Empty);
+            var pawn = RimMindPawnLookup.FindPawnById(pawnId ?? string.Empty);
             var world = RimMindMemoryWorldComponent.Instance;
             if (pawn == null || world == null) return false;
 
