@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
-using RimMind.Application.Features.Json;
+using RimMind.Presentation.Api;
 
 namespace RimMind.Memory.DarkMemory
 {
     /// <summary>
-    /// 纯逻辑版本的暗记忆结果解析器，不依赖 RimMindAPI 或 RimWorld 运行时。
-    /// 供测试项目直接编译使用。
+    /// 纯逻辑版本的暗记忆结果解析器，委托 Core <see cref="RimMindAPI.Json"/> 进行清洗、提取与修复。
+    /// 供生产与测试项目共用。
     /// </summary>
     public static class DarkMemoryResultParserPure
     {
@@ -18,23 +15,22 @@ namespace RimMind.Memory.DarkMemory
             public string[] dark = Array.Empty<string>();
         }
 
-        private static readonly Regex TrailingCommaRegex = new Regex(
-            @",\s*([}\]])",
-            RegexOptions.Compiled);
-
         public static List<string>? Parse(string json, int maxCount)
         {
+            if (string.IsNullOrWhiteSpace(json))
+                return null;
+
             try
             {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(json);
-                if (result?.dark == null)
+                string? payload = RimMindAPI.Json.ExtractJsonPayload(json);
+                if (string.IsNullOrWhiteSpace(payload) || HasUnclosedString(payload!))
+                    return null;
+
+                if (!RimMindAPI.Json.TryDeserializeWithRepair<DarkMemoryResultDto>(payload, out var result)
+                    || result?.dark == null)
                 {
-                    // 尝试修复截断的JSON后重新反序列化
-                    string? repaired = TryRepairTruncatedJson(json);
-                    if (repaired != null)
-                        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DarkMemoryResultDto>(repaired);
+                    return null;
                 }
-                if (result?.dark == null) return null;
 
                 var entries = new List<string>();
                 foreach (var text in result.dark)
@@ -49,17 +45,6 @@ namespace RimMind.Memory.DarkMemory
             {
                 return null;
             }
-        }
-
-        /// <summary>
-        /// 尝试修复截断的JSON。若输入已是合法JSON则返回null（无需修复），
-        /// 若输入为空白或不可修复则返回null。
-        /// </summary>
-        private static string? TryRepairTruncatedJson(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input)) return null;
-            if (HasUnclosedString(input)) return null;
-            return JsonRepairer.TryRepairTruncatedJson(input) ?? TryRepairFallback(input);
         }
 
         private static bool HasUnclosedString(string input)
@@ -80,46 +65,6 @@ namespace RimMind.Memory.DarkMemory
                 }
             }
             return inString;
-        }
-
-        private static string? TryRepairFallback(string input)
-        {
-            try
-            {
-                JToken.Parse(input);
-                return null; // 已是合法JSON，无需修复
-            }
-            catch
-            {
-                return Repair(input);
-            }
-        }
-
-        private static string Repair(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input)) return "{}";
-
-            var result = new StringBuilder(input);
-            result = new StringBuilder(TrailingCommaRegex.Replace(result.ToString(), "$1"));
-            var balanced = BalanceBrackets(result.ToString());
-            return balanced;
-        }
-
-        private static string BalanceBrackets(string input)
-        {
-            int openCurly = 0, openSquare = 0;
-            foreach (char c in input)
-            {
-                if (c == '{') openCurly++;
-                else if (c == '}') openCurly--;
-                else if (c == '[') openSquare++;
-                else if (c == ']') openSquare--;
-            }
-
-            var sb = new StringBuilder(input);
-            while (openSquare > 0) { sb.Append(']'); openSquare--; }
-            while (openCurly > 0) { sb.Append('}'); openCurly--; }
-            return sb.ToString();
         }
     }
 }

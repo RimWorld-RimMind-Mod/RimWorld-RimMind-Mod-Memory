@@ -40,22 +40,30 @@ namespace RimMind.Memory.Debug
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
-            var store = wc.GetOrCreatePawnStore(pawn);
+            var store = wc.GetPawnStore(pawn);
             var sb = new StringBuilder();
             sb.AppendLine($"=== {pawn.Name.ToStringShort} Memory State ===");
             sb.AppendLine($"[Diag] Memory system enabled: {RimMindMemoryMod.Settings.enableMemory}");
-            sb.AppendLine($"[Diag] API configured: {RimMindAPI.IsConfigured()}");
+            sb.AppendLine($"[Diag] API configured: {RimMindAPI.Settings.IsConfigured()}");
 
-            sb.AppendLine($"\n[Active Memories] {store.active.Count} entries");
-            foreach (var e in store.active)
+            if (store == null)
+            {
+                sb.AppendLine("\n(No memory store initialized yet for this pawn)");
+                Log.Message(sb.ToString());
+                return;
+            }
+
+            var (activeList, archiveList, darkList) = store.GetSnapshots();
+            sb.AppendLine($"\n[Active Memories] {activeList.Count} entries");
+            foreach (var e in activeList)
                 sb.AppendLine($"  {e.content} (imp={e.importance:F2}, pin={e.isPinned})");
 
-            sb.AppendLine($"\n[Archived Memories] {store.archive.Count} entries");
-            foreach (var e in store.archive)
+            sb.AppendLine($"\n[Archived Memories] {archiveList.Count} entries");
+            foreach (var e in archiveList)
                 sb.AppendLine($"  {e.content} (imp={e.importance:F2})");
 
-            sb.AppendLine($"\n[Dark Memories] {store.dark.Count} entries");
-            foreach (var d in store.dark)
+            sb.AppendLine($"\n[Dark Memories] {darkList.Count} entries");
+            foreach (var d in darkList)
                 sb.AppendLine($"  {d.content}");
 
             Log.Message(sb.ToString());
@@ -119,7 +127,7 @@ namespace RimMind.Memory.Debug
             var pawn = Find.Selector.SingleSelectedThing as Pawn;
             if (pawn == null) { RimMindErrors.Warn("[RimMind-Memory] Select a pawn first."); return; }
 
-            if (!RimMindAPI.IsConfigured())
+            if (!RimMindAPI.Settings.IsConfigured())
             {
                 RimMindErrors.Warn("[RimMind-Memory] API not configured, cannot trigger dark memory.");
                 return;
@@ -136,7 +144,7 @@ namespace RimMind.Memory.Debug
         [DebugAction("RimMind Memory", "Force Narrator Dark Memory", actionType = DebugActionType.Action)]
         public static void ForceNarratorDarkMemory()
         {
-            if (!RimMindAPI.IsConfigured())
+            if (!RimMindAPI.Settings.IsConfigured())
             {
                 RimMindErrors.Warn("[RimMind-Memory] API not configured, cannot trigger dark narrative.");
                 return;
@@ -236,10 +244,16 @@ namespace RimMind.Memory.Debug
             if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             var sb = new StringBuilder("=== All Pawn Memory Counts ===");
-            foreach (var pawn in map.mapPawns.FreeColonists)
+            foreach (var pawn in RimMindPawnLookup.GetFreeColonistsSafe(map))
             {
-                var store = wc.GetOrCreatePawnStore(pawn);
-                sb.AppendLine($"  {pawn.Name.ToStringShort}: active={store.active.Count} archive={store.archive.Count} dark={store.dark.Count}");
+                var store = wc.GetPawnStore(pawn);
+                if (store == null)
+                {
+                    sb.AppendLine($"  {pawn.Name.ToStringShort}: active=0 archive=0 dark=0");
+                    continue;
+                }
+                var (activeList, archiveList, darkList) = store.GetSnapshots();
+                sb.AppendLine($"  {pawn.Name.ToStringShort}: active={activeList.Count} archive={archiveList.Count} dark={darkList.Count}");
             }
             Log.Message(sb.ToString());
         }

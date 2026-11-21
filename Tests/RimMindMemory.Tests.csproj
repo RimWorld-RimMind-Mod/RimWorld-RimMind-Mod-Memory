@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Compile Include="VerseStubs.cs" />
+    <Compile Include="RimMindCoreStubs.cs" />
     <Compile Include="Contracts\**\*.cs" />
     <Compile Include="../Source/Core/TimeFormatter.cs" />
     <Compile Include="../Source/Core/ImportanceDecayCalculator.cs" />

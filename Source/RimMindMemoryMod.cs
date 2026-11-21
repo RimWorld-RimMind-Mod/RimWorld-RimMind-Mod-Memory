@@ -5,6 +5,7 @@ using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
 using RimMind.Memory.Core;
 using RimMind.Memory.Injection;
+using RimMind.Memory.UI;
 using UnityEngine;
 using Verse;
 
@@ -22,6 +23,7 @@ namespace RimMind.Memory
             MemoryContextProvider.Register();
             WorkingMemoryProvider.Register();
             RimMindAPI.Memory.RegisterBridge(new RimMindMemoryBridge());
+            RimMindAPI.UI.RegisterBioTabBadge(new MemoryBioTabBadgeProvider());
             RimMindAPI.Extensions<ISettingsTab>().Register(new MemorySettingsTab());
             RimMindAPI.Extensions<IToggleBehavior>().Register(new MemoryToggleBehavior());
             RimMindAPI.Extensions<IModCooldown>().Register(new MemoryModCooldown());

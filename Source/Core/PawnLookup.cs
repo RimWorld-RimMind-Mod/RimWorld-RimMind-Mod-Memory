@@ -1,14 +1,16 @@
-using System.Linq;
+using System;
+using RimMind.Presentation.Api;
 using Verse;
 
 namespace RimMind.Memory.Core
 {
+    [Obsolete("Use RimMind.Presentation.Api.RimMindPawnLookup directly.")]
     public static class PawnLookup
     {
         public static Pawn? FindPawnById(string pawnId)
-            => RimMind.Presentation.Api.RimMindPawnLookup.FindPawnById(pawnId);
+            => RimMindPawnLookup.FindPawnById(pawnId);
 
         public static Pawn? FindPawnByNumber(int thingIDNumber)
-            => RimMind.Presentation.Api.RimMindPawnLookup.FindPawnByNumber(thingIDNumber);
+            => RimMindPawnLookup.FindPawnByNumber(thingIDNumber);
     }
 }

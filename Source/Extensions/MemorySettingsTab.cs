@@ -1,6 +1,6 @@
-using UnityEngine;
+using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
-using Verse;
+using UnityEngine;
 
 namespace RimMind.Memory
 {
@@ -8,7 +8,7 @@ namespace RimMind.Memory
     {
         public string Id => "memory";
         public string OwnerModId => "RimMindMemory";
-        public string Label => "RimMind.Memory.Settings.TabLabel".CanTranslate() ? (string)"RimMind.Memory.Settings.TabLabel".Translate() : "Memory";
+        public string Label => RimMindAPI.Text.TrOr("RimMind.Memory.Settings.TabLabel", "Memory");
         public void Draw(Rect rect) => MemorySettingsDrawer.Draw(rect);
     }
 }

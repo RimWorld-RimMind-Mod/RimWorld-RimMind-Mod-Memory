@@ -46,7 +46,23 @@ namespace RimMind.Memory.Tests.Contracts
                 ("unrepairable truncation returns no replacement value", () =>
                     Assert.Null(DarkMemoryResultParserPure.Parse(
                         "{\"dark\":[\"unfinished",
-                        3))));
+                        3))),
+                ("markdown code fences and thinking tags are stripped before parsing", () =>
+                {
+                    var result = DarkMemoryResultParserPure.Parse(
+                        "<think>summarizing day</think>\n```json\n{\"dark\":[\"survived the raid\",\"built shelter\"]}\n```",
+                        3);
+
+                    Assert.Equal(new[] { "survived the raid", "built shelter" }, result);
+                }),
+                ("truncated container after complete string repairs via Core Json", () =>
+                {
+                    var result = DarkMemoryResultParserPure.Parse(
+                        "{\"dark\":[\"first memory\",\"second memory\",",
+                        3);
+
+                    Assert.Equal(new[] { "first memory", "second memory" }, result);
+                }));
         }
 
         [Fact]
@@ -123,8 +139,41 @@ namespace RimMind.Memory.Tests.Contracts
                     string worldSource = ReadMemorySource("Data/RimMindMemoryWorldComponent.cs");
                     string workSource = ReadMemorySource("Aggregation/WorkSessionAggregator.cs");
                     Assert.Contains("PrunePawnStores(_pawnStores, retainedIds, MaxRetainedInactivePawnStores);", worldSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindPawnLookup.CollectRetainedColonyPawnIds()", worldSource, StringComparison.Ordinal);
+                    Assert.Contains("WorldScopedComponentCache<RimMindMemoryWorldComponent>", worldSource, StringComparison.Ordinal);
                     Assert.DoesNotContain("AllPawnsAlive", worldSource, StringComparison.Ordinal);
                     Assert.Contains("PruneInactiveSessions(", workSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindPawnLookup.GetSpawnedColonistsSafe(map)", workSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("FreeColonistsSpawned", workSource, StringComparison.Ordinal);
+                }),
+                ("dark memory requests attach coalesce key, 1-day TTL, TickStagger, and non-starving mod cooldown", () =>
+                {
+                    string darkSource = ReadMemorySource("DarkMemory/DarkMemoryUpdater.cs");
+                    string cooldownSource = ReadMemorySource("Extensions/MemoryModCooldown.cs");
+                    string parserSource = ReadMemorySource("DarkMemory/DarkMemoryResultParserPure.cs");
+                    string bioTabSource = ReadMemorySource("UI/BioTabMemoryPatch.cs");
+                    string drawerSource = ReadMemorySource("Settings/MemorySettingsDrawer.cs");
+
+                    Assert.Equal(2, CountOccurrences(darkSource, ".WithCoalesceKey(BuildCoalesceKey(npcId))"));
+                    Assert.Equal(2, CountOccurrences(darkSource, ".WithMaxQueueWaitTicks(DarkMemoryMaxQueueWaitTicks)"));
+                    Assert.Contains(".WithRequireAliveColonist(false)", darkSource, StringComparison.Ordinal);
+                    Assert.Contains("TickStagger.IsDue(", darkSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("0x7feb352du", darkSource, StringComparison.Ordinal);
+
+                    Assert.Contains("BaseModCooldownTicks = 3000", cooldownSource, StringComparison.Ordinal);
+                    Assert.Contains("OwnerModId => DarkMemoryUpdater.RequestModId", cooldownSource, StringComparison.Ordinal);
+
+                    Assert.DoesNotContain("using RimMind.Application.Features.Json", parserSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindAPI.Json.TryDeserializeWithRepair", parserSource, StringComparison.Ordinal);
+
+                    Assert.Contains("IBioTabBadgeProvider", bioTabSource, StringComparison.Ordinal);
+                    Assert.Contains("GetPawnStore(pawn)", bioTabSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("GetOrCreatePawnStore", bioTabSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("[HarmonyPatch", bioTabSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("AccessTools.Field", bioTabSource, StringComparison.Ordinal);
+
+                    Assert.Contains("SettingsUIDrawer.DrawScrollableSettingsPage", drawerSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("EstimateSettingsHeight", drawerSource, StringComparison.Ordinal);
                 }));
         }
 

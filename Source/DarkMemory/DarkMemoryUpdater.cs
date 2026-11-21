@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RimMind.Application.Common.Helpers;
 using RimMind.Application.Common.Interfaces.Client;
 using RimMind.Application.Features.Llm;
 using RimMind.Domain.Llm;
@@ -17,12 +18,15 @@ namespace RimMind.Memory.DarkMemory
 {
     public class DarkMemoryUpdater : GameComponent
     {
+        public const string RequestModId = "RimMind.Memory";
+        public const int DailyInterval = 60000;
+        public const int DarkMemoryMaxQueueWaitTicks = DailyInterval;
+        private const int JitterRange = 3000;
+
         private static DarkMemoryUpdater? _instance;
         public static DarkMemoryUpdater? Instance => Current.Game != null ? _instance : null;
 
         private int _narratorOffset;
-        private const int DailyInterval = 60000;
-        private const int JitterRange = 3000;
 
         public DarkMemoryUpdater(Game game)
         {
@@ -30,21 +34,18 @@ namespace RimMind.Memory.DarkMemory
             _narratorOffset = new System.Random().Next(0, DailyInterval);
         }
 
+        public static string BuildCoalesceKey(string npcId)
+            => $"{RequestModId}:dark_memory:{npcId}";
+
         public static int GetPawnJitter(int thingID)
         {
-            uint hash = unchecked((uint)(thingID ^ 0x5A5A5A5A));
-            hash ^= hash >> 16;
-            hash *= 0x7feb352du;
-            hash ^= hash >> 15;
-            hash *= 0x846ca68bu;
-            hash ^= hash >> 16;
             int span = JitterRange * 2 + 1;
-            return (int)(hash % (uint)span) - JitterRange;
+            return TickStagger.PhaseOffset(thingID, span) - JitterRange;
         }
 
         public static void CleanupPawnJitter(int thingID)
         {
-            // Jitter is computed deterministically from thingIDNumber; no per-pawn state to prune.
+            // Jitter is computed deterministically from thingIDNumber via TickStagger; no per-pawn state to prune.
         }
 
         public override void GameComponentTick()
@@ -54,23 +55,25 @@ namespace RimMind.Memory.DarkMemory
             if (wc == null) return;
 
             var settings = RimMindMemoryMod.Settings;
+            int now = Find.TickManager.TicksGame;
+            if (now <= 0) return;
 
             foreach (var map in Find.Maps)
             {
-                var colonists = RimMind.Presentation.Api.RimMindPawnLookup.GetSpawnedColonistsSafe(map);
+                var colonists = RimMindPawnLookup.GetSpawnedColonistsSafe(map);
                 if (colonists.Count == 0) continue;
                 for (int i = 0; i < colonists.Count; i++)
                 {
                     var pawn = colonists[i];
                     if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
-                    int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
-                    if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
+                    if (!TickStagger.IsDue(now, pawn.thingIDNumber, DailyInterval)) continue;
                     TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
 
                     if (settings.enableDecay)
                     {
-                        var store = wc.GetOrCreatePawnStore(pawn);
-                        ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                        var store = wc.GetPawnStore(pawn);
+                        if (store != null)
+                            ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
                     }
                 }
             }
@@ -87,20 +90,20 @@ namespace RimMind.Memory.DarkMemory
                     {
                         var pawn = caravanPawns[i];
                         if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Faction != Faction.OfPlayer || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
-                        int jitteredInterval = DailyInterval + GetPawnJitter(pawn.thingIDNumber);
-                        if (!pawn.IsHashIntervalTick(jitteredInterval)) continue;
+                        if (!TickStagger.IsDue(now, pawn.thingIDNumber, DailyInterval)) continue;
                         TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
 
                         if (settings.enableDecay)
                         {
-                            var store = wc.GetOrCreatePawnStore(pawn);
-                            ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                            var store = wc.GetPawnStore(pawn);
+                            if (store != null)
+                                ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
                         }
                     }
                 }
             }
 
-            if ((Find.TickManager.TicksGame + _narratorOffset) % DailyInterval == 0)
+            if (TickStagger.IsDue(now, _narratorOffset, DailyInterval))
             {
                 TriggerNarratorDarkMemoryUpdate(wc, settings);
 
@@ -118,14 +121,16 @@ namespace RimMind.Memory.DarkMemory
         public void TriggerPawnDarkMemoryUpdate(Pawn pawn, RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
             if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped() || pawn.Faction != Faction.OfPlayer) return;
-            if (!pawn.Spawned && !RimWorld.Planet.CaravanUtility.IsCaravanMember(pawn)) return;
-            if (!RimMind.Presentation.Api.RimMindAPI.IsConfigured()) return;
+            bool isCaravanMember = !pawn.Spawned && RimWorld.Planet.CaravanUtility.IsCaravanMember(pawn);
+            if (!pawn.Spawned && !isCaravanMember) return;
+            if (!RimMindAPI.Settings.IsConfigured()) return;
 
-            var store = wc.GetOrCreatePawnStore(pawn);
+            var store = wc.GetPawnStore(pawn);
+            if (store == null) return;
             int now = Find.TickManager.TicksGame;
-            int todayStart = now - (now % DailyInterval);
+            int windowStart = Math.Max(0, now - DailyInterval);
             var (activeList, _, darkList) = store.GetSnapshots();
-            var todayEntries = activeList.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
+            var todayEntries = activeList.Where(e => e.tick >= windowStart && e.type != MemoryType.Dark).ToList();
 
             if (todayEntries.Count == 0) return;
 
@@ -148,29 +153,33 @@ namespace RimMind.Memory.DarkMemory
 
             var envelope = LlmRequestEnvelopeBuilder
                 .ForScenario(RimMindAPI.Context.ScenarioMemory)
-                .WithModId("RimMind.Memory")
+                .WithModId(RequestModId)
                 .WithSchema(schema)
                 .WithMaxTokens(400)
                 .WithTemperature(0.5f)
                 .WithNpcId(npcId)
                 .WithGameStateInfo(currentQuery)
+                .WithCoalesceKey(BuildCoalesceKey(npcId))
+                .WithMaxQueueWaitTicks(DarkMemoryMaxQueueWaitTicks)
+                .WithRequireAliveColonist(!isCaravanMember)
                 .Build();
             RimMindAPI.Request.Send(envelope, result =>
             {
                 if (result.IsErr) return;
+                if (pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) return;
                 ApplyPawnDarkMemory(result.Value.Content, store, settings.darkCount, now);
             });
         }
 
         public void TriggerNarratorDarkMemoryUpdate(RimMindMemoryWorldComponent wc, RimMindMemorySettings settings)
         {
-            if (!RimMind.Presentation.Api.RimMindAPI.IsConfigured()) return;
+            if (!RimMindAPI.Settings.IsConfigured()) return;
 
             var store = wc.NarratorStore;
             int now = Find.TickManager.TicksGame;
-            int todayStart = now - (now % DailyInterval);
+            int windowStart = Math.Max(0, now - DailyInterval);
             var (activeList, _, darkList) = store.GetSnapshots();
-            var todayEntries = activeList.Where(e => e.tick >= todayStart && e.type != MemoryType.Dark).ToList();
+            var todayEntries = activeList.Where(e => e.tick >= windowStart && e.type != MemoryType.Dark).ToList();
 
             if (todayEntries.Count == 0) return;
 
@@ -193,12 +202,15 @@ namespace RimMind.Memory.DarkMemory
 
             var envelope = LlmRequestEnvelopeBuilder
                 .ForScenario(RimMindAPI.Context.ScenarioMemory)
-                .WithModId("RimMind.Memory")
+                .WithModId(RequestModId)
                 .WithSchema(schema)
                 .WithMaxTokens(400)
                 .WithTemperature(0.5f)
                 .WithNpcId(npcId)
                 .WithGameStateInfo(currentQuery)
+                .WithCoalesceKey(BuildCoalesceKey(npcId))
+                .WithMaxQueueWaitTicks(DarkMemoryMaxQueueWaitTicks)
+                .WithRequireAliveColonist(false)
                 .Build();
             RimMindAPI.Request.Send(envelope, result =>
             {

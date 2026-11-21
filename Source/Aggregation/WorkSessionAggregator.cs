@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RimMind.Memory.Data;
 using RimMind.Memory.Core;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -43,12 +44,11 @@ namespace RimMind.Memory.Aggregation
             {
                 foreach (var map in Find.Maps)
                 {
-                    var colonists = map?.mapPawns?.FreeColonistsSpawned;
-                    if (colonists == null) continue;
+                    var colonists = RimMindPawnLookup.GetSpawnedColonistsSafe(map);
                     for (int i = 0; i < colonists.Count; i++)
                     {
                         var p = colonists[i];
-                        if (p != null && RimMind.Presentation.Api.RimMindPawnLookup.IsActiveSpawnedColonist(p))
+                        if (p != null && RimMindPawnLookup.IsActiveSpawnedColonist(p))
                             activeIds.Add(p.thingIDNumber);
                     }
                 }
@@ -181,9 +181,9 @@ namespace RimMind.Memory.Aggregation
                 if (wc != null)
                 {
                     var store = wc.GetPawnStore(pawn);
-                    string idlePrefix = "RimMind.Memory.Work.Idle".CanTranslate()
-                        ? "RimMind.Memory.Work.Idle".Translate("0").RawText.Replace("0", "").Trim()
-                        : "Idle";
+                    string idlePrefix = RimMindAPI.Text.TrOr("RimMind.Memory.Work.Idle", "Idle", "{0}")
+                        .Split(new[] { "{0}" }, StringSplitOptions.None)[0]
+                        .Trim();
                     bool updatedExisting = false;
                     if (store != null)
                     {
@@ -288,8 +288,7 @@ namespace RimMind.Memory.Aggregation
 
         private static string JobLabel(string defName)
         {
-            string key = $"RimMind.Memory.Work.{defName}";
-            return key.CanTranslate() ? key.Translate() : defName;
+            return RimMindAPI.Text.TrOr($"RimMind.Memory.Work.{defName}", defName);
         }
 
         private class PawnSession

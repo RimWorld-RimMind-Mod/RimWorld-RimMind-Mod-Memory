@@ -68,7 +68,7 @@ namespace RimMind.Memory.Injection
                         try
                         {
                             if (Current.Game == null) return null;
-                            var pawn = PawnLookup.FindPawnByNumber(ctx.PawnId);
+                            var pawn = RimMindPawnLookup.FindPawnByNumber(ctx.PawnId);
                             if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn == null) return null;
                             var wc = RimMindMemoryWorldComponent.Instance;
                             if (wc == null) return null;
@@ -84,7 +84,7 @@ namespace RimMind.Memory.Injection
                             sb.AppendLine();
 
                             int? recipientId = RimMindAPI.Chat.GetActiveDialogueRecipient(pawn.thingIDNumber);
-                            Pawn? recipient = recipientId.HasValue && recipientId.Value > 0 ? PawnLookup.FindPawnByNumber(recipientId.Value) : null;
+                            Pawn? recipient = recipientId.HasValue && recipientId.Value > 0 ? RimMindPawnLookup.FindPawnByNumber(recipientId.Value) : null;
                             string? targetPawnId = recipient != null
                                 ? (!string.IsNullOrEmpty(recipient.ThingID) ? recipient.ThingID : recipient.thingIDNumber.ToString())
                                 : (recipientId.HasValue && recipientId.Value > 0 ? recipientId.Value.ToString() : null);

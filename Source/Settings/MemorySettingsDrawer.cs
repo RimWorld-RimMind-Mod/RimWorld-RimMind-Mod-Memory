@@ -9,21 +9,23 @@ namespace RimMind.Memory
     internal static class MemorySettingsDrawer
     {
         private static Vector2 _settingsScrollPos = Vector2.zero;
+        private static float _measuredHeight = 900f;
 
         private static RimMindMemorySettings Settings => RimMindMemoryMod.Settings;
 
         internal static void Draw(Rect inRect)
         {
-            Rect contentArea = SettingsUIDrawer.SplitContentArea(inRect);
-            Rect bottomBar = SettingsUIDrawer.SplitBottomBar(inRect);
+            SettingsUIDrawer.DrawScrollableSettingsPage(
+                inRect,
+                ref _settingsScrollPos,
+                ref _measuredHeight,
+                DrawContent,
+                ResetDefaults,
+                () => Settings.Write());
+        }
 
-            float viewWidth = contentArea.width - 16f;
-            float contentH = EstimateSettingsHeight(viewWidth);
-            Rect viewRect = new Rect(0f, 0f, viewWidth, contentH);
-            Widgets.BeginScrollView(contentArea, ref _settingsScrollPos, viewRect);
-
-            var listing = new Listing_Standard();
-            listing.Begin(viewRect);
+        private static void DrawContent(Listing_Standard listing)
+        {
 
             listing.CheckboxLabeled("RimMind.Memory.Settings.EnableMemory".Translate(), ref Settings.enableMemory,
                 "RimMind.Memory.Settings.EnableMemory.Desc".Translate());
@@ -144,84 +146,34 @@ namespace RimMind.Memory
                 if (archiveList.Count > 0)
                     listing.Label("RimMind.Memory.Settings.ArchiveNarrativeCount".Translate(archiveList.Count));
             }
-
-            listing.End();
-            Widgets.EndScrollView();
-
-            SettingsUIDrawer.DrawBottomBar(bottomBar, () =>
-            {
-                Settings.enableMemory = true;
-                Settings.triggerWorkSession = true;
-                Settings.triggerInjury = true;
-                Settings.triggerMentalBreak = true;
-                Settings.triggerDeath = true;
-                Settings.triggerSkillLevelUp = true;
-                Settings.triggerRelation = true;
-                Settings.maxActive = 30;
-                Settings.maxArchive = 50;
-                Settings.darkCount = 3;
-                Settings.narratorMaxActive = 30;
-                Settings.narratorMaxArchive = 10;
-                Settings.narratorDarkCount = 10;
-                Settings.activeInjectRatio = 0.5f;
-                Settings.archiveInjectRatio = 0.5f;
-                Settings.narratorActiveInjectRatio = 0.5f;
-                Settings.narratorArchiveInjectRatio = 0.5f;
-                Settings.enableDecay = true;
-                Settings.decayRate = 0.02f;
-                Settings.minImportanceThreshold = 0.05f;
-                Settings.minAggregationCount = 2;
-                Settings.idleGapThresholdTicks = 6000;
-                Settings.narratorEventThreshold = 0.2f;
-                Settings.pawnToNarratorThreshold = 0.8f;
-            });
-
-            Settings.Write();
         }
 
-        private static float EstimateSettingsHeight(float width)
+        private static void ResetDefaults()
         {
-            float h = 30f;
-            h += 24f;
-            h += 24f + 24f * 6;
-            h += 24f + 56f * 3;
-            h += 24f + 56f * 3;
-            h += 24f + 56f * 4;
-            h += 24f + 56f * 2;
-            h += 24f + 24f;
-            if (Settings.enableDecay)
-                h += 56f * 2;
-            h += 24f + 56f * 2;
-
-            var wc = RimMindMemoryWorldComponent.Instance;
-            if (wc != null && Current.Game != null && Find.TickManager != null)
-            {
-                var (activeList, archiveList, darkList) = wc.NarratorStore.GetSnapshots();
-                int now = Find.TickManager.TicksGame;
-                float textWidth = Mathf.Max(200f, width);
-                if (darkList.Count > 0)
-                {
-                    h += 24f;
-                    foreach (var d in darkList)
-                        h += Mathf.Max(24f, Text.CalcHeight($"    {d.content}", textWidth) + 4f);
-                }
-                h += 24f;
-                for (int i = 0; i < activeList.Count && i < 10; i++)
-                {
-                    var e = activeList[i];
-                    string timeStr = TimeFormatter.FormatTimeAgo(e.tick, now);
-                    string line = $"    {"RimMind.Memory.Time.TimeContent".Translate(timeStr, e.content)}";
-                    h += Mathf.Max(24f, Text.CalcHeight(line, textWidth) + 4f);
-                }
-                if (archiveList.Count > 0)
-                    h += 24f;
-            }
-            else
-            {
-                h += 24f;
-            }
-
-            return h + 40f;
+            Settings.enableMemory = true;
+            Settings.triggerWorkSession = true;
+            Settings.triggerInjury = true;
+            Settings.triggerMentalBreak = true;
+            Settings.triggerDeath = true;
+            Settings.triggerSkillLevelUp = true;
+            Settings.triggerRelation = true;
+            Settings.maxActive = 30;
+            Settings.maxArchive = 50;
+            Settings.darkCount = 3;
+            Settings.narratorMaxActive = 30;
+            Settings.narratorMaxArchive = 10;
+            Settings.narratorDarkCount = 10;
+            Settings.activeInjectRatio = 0.5f;
+            Settings.archiveInjectRatio = 0.5f;
+            Settings.narratorActiveInjectRatio = 0.5f;
+            Settings.narratorArchiveInjectRatio = 0.5f;
+            Settings.enableDecay = true;
+            Settings.decayRate = 0.02f;
+            Settings.minImportanceThreshold = 0.05f;
+            Settings.minAggregationCount = 2;
+            Settings.idleGapThresholdTicks = 6000;
+            Settings.narratorEventThreshold = 0.2f;
+            Settings.pawnToNarratorThreshold = 0.8f;
         }
     }
 }
