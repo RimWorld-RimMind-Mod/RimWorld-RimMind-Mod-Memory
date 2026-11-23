@@ -20,6 +20,8 @@ namespace RimMind.Memory.Triggers
         private static readonly FieldInfo? PawnField = AccessTools.Field(typeof(Pawn_HealthTracker), "pawn");
         private static readonly KeyedCooldownGate<int> LastInjuryTickByPawn = new KeyedCooldownGate<int>(256);
 
+        internal static void ClearCooldowns() => LastInjuryTickByPawn.Clear();
+
         public static bool ShouldRecordHediff(
             bool isBad,
             bool isTendable,
@@ -91,31 +93,22 @@ namespace RimMind.Memory.Triggers
                     hediff.Part?.Label));
 
                 float importance = EstimateImportance(hediff);
-                string content = BuildContent(pawn, hediff, dinfo);
-                if (content.NullOrEmpty()) return;
+                string? content = BuildContent(hediff, dinfo);
+                if (string.IsNullOrEmpty(content)) return;
 
-                var wc = RimMindMemoryWorldComponent.Instance;
-                if (wc == null) return;
-                var settings = RimMindMemoryMod.Settings;
-                string? pawnId = !string.IsNullOrEmpty(pawn.ThingID) ? pawn.ThingID : pawn.thingIDNumber.ToString();
+                string pawnId = !string.IsNullOrEmpty(pawn.ThingID) ? pawn.ThingID : pawn.thingIDNumber.ToString();
                 string? targetPawnId = dinfo != null && dinfo.HasValue && dinfo.Value.Instigator is Pawn attackerPawn
                     ? (!string.IsNullOrEmpty(attackerPawn.ThingID) ? attackerPawn.ThingID : attackerPawn.thingIDNumber.ToString())
                     : null;
 
-                wc.AddPawnMemory(
+                MemoryTriggerHelper.WriteMemory(
                     pawn,
-                    MemoryEntry.Create(content, MemoryType.Event, now, importance, pawnId, targetPawnId),
-                    settings.maxActive,
-                    settings.maxArchive);
-
-                if (importance >= settings.pawnToNarratorThreshold)
-                {
-                    string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
-                    wc.AddNarratorMemory(
-                        MemoryEntry.Create($"[{pawnName}] {content}", MemoryType.Event, now, importance, pawnId, targetPawnId),
-                        settings.narratorMaxActive,
-                        settings.narratorMaxArchive);
-                }
+                    content!,
+                    MemoryType.Event,
+                    importance,
+                    upgradeNarrator: true,
+                    pawnId: pawnId,
+                    targetPawnId: targetPawnId);
             }
             catch (System.Exception ex)
             {
@@ -132,26 +125,38 @@ namespace RimMind.Memory.Triggers
             return 0.5f;
         }
 
-        private static string BuildContent(Pawn pawn, Hediff hediff, DamageInfo? dinfo)
+        private static string? BuildContent(Hediff hediff, DamageInfo? dinfo)
         {
             try
             {
                 string label = hediff.def.LabelCap.RawText.NullOrEmpty() ? hediff.def.defName : hediff.def.LabelCap.RawText;
-                string part = hediff.Part?.Label ?? "RimMind.Memory.Trigger.FullBody".Translate();
+                string part = hediff.Part?.Label ?? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.FullBody", "Whole Body");
 
                 if (dinfo != null && dinfo.HasValue && dinfo.Value.Instigator != null && !dinfo.Value.Instigator.Destroyed)
                 {
                     var instigator = dinfo.Value.Instigator;
                     string attacker = instigator is Pawn p && p.Name != null
                         ? p.Name.ToStringShort
-                        : (!instigator.Label.NullOrEmpty() ? instigator.Label : "RimMind.Memory.Trigger.UnknownSource".Translate());
-                    return "RimMind.Memory.Trigger.AttackedBy".Translate(attacker, label, part);
+                        : (!instigator.Label.NullOrEmpty()
+                            ? instigator.Label
+                            : RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.UnknownSource", "Unknown Source"));
+                    return RimMindAPI.Text.TrOr(
+                        "RimMind.Memory.Trigger.AttackedBy",
+                        "Attacked by {0}, causing {1} ({2})",
+                        attacker,
+                        label,
+                        part);
                 }
-                return "RimMind.Memory.Trigger.Contracted".Translate(label, part);
+                return RimMindAPI.Text.TrOr(
+                    "RimMind.Memory.Trigger.Contracted",
+                    "Contracted {0} ({1})",
+                    label,
+                    part);
             }
-            catch
+            catch (System.Exception ex)
             {
-                return null!;
+                RimMindErrors.Warn($"[RimMind-Memory] Patch_AddHediff.BuildContent error: {ex.Message}");
+                return null;
             }
         }
     }

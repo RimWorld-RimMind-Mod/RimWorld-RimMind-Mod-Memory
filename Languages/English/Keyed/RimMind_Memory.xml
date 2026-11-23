@@ -156,7 +156,7 @@
   <RimMind.Memory.Trigger.Contracted>Contracted {0} ({1})</RimMind.Memory.Trigger.Contracted>
   <!-- Patch_PawnKill.cs - Trigger -->
   <RimMind.Memory.Trigger.Unknown>Unknown</RimMind.Memory.Trigger.Unknown>
-  <RimMind.Memory.Trigger.RelationDeath>{0}{1} died</RimMind.Memory.Trigger.RelationDeath>
+  <RimMind.Memory.Trigger.RelationDeath>{0} {1} died</RimMind.Memory.Trigger.RelationDeath>
   <RimMind.Memory.Trigger.Death>{0} died</RimMind.Memory.Trigger.Death>
   <RimMind.Memory.Trigger.ColonistDeath>Colonist {0} died</RimMind.Memory.Trigger.ColonistDeath>
   <RimMind.Memory.Trigger.KilledBy>(killed by {0})</RimMind.Memory.Trigger.KilledBy>

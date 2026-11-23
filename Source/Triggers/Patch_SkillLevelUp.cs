@@ -33,10 +33,15 @@ namespace RimMind.Memory.Triggers
 
                 float importance = __instance.Level >= 15 ? 0.7f : 0.5f;
                 string skillLabel = (__instance.def?.LabelCap.RawText.NullOrEmpty() ?? true)
-                    ? (__instance.def?.defName ?? "RimMind.Memory.Trigger.Skill".Translate())
-                    : __instance.def.LabelCap.RawText;
-                string content = "RimMind.Memory.Trigger.SkillUp".Translate(
-                    skillLabel, __instance.Level.ToString(), prevLevel.ToString(), __instance.Level.ToString());
+                    ? (__instance.def?.defName ?? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.Skill", "Skill"))
+                    : __instance.def!.LabelCap.RawText;
+                string content = RimMindAPI.Text.TrOr(
+                    "RimMind.Memory.Trigger.SkillUp",
+                    "{0} skill increased to level {1} ({2}→{3})",
+                    skillLabel,
+                    __instance.Level.ToString(),
+                    prevLevel.ToString(),
+                    __instance.Level.ToString());
                 MemoryTriggerHelper.WriteMemory(pawn, content, MemoryType.Event, importance);
             }
             catch (System.Exception ex)

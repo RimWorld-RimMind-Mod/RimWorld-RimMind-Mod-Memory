@@ -4,7 +4,6 @@ using LudeonTK;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using RimMind.Presentation.Api;
-using RimWorld;
 using Verse;
 
 namespace RimMind.Memory.Debug
@@ -36,20 +35,29 @@ namespace RimMind.Memory.Debug
                 try
                 {
                     var store = comp.GetOrCreatePawnStore(pawn);
-                    context.Assert(store != null, $"PawnMemoryStore retrieved for {pawn.Name.ToStringShort}");
+                    context.Assert(store != null, $"PawnMemoryStore retrieved for {pawn.Name?.ToStringShort ?? pawn.LabelShort}");
 
                     if (store != null)
                     {
                         var testEntry = MemoryEntry.Create("Completed a test in laboratory", MemoryType.Event, Find.TickManager.TicksGame, 0.75f, pawn.thingIDNumber.ToString());
                         testEntry.id = "autotest_mem_001";
-                        int beforeCount = store.active.Count;
+                        int beforeCount;
+                        lock (store.SyncRoot)
+                        {
+                            beforeCount = store.active.Count;
+                        }
 
                         store.AddActive(testEntry, 50, 100);
-                        context.Assert(store.active.Any(m => m.id == "autotest_mem_001"), "Active memory entry added successfully to PawnMemoryStore");
-
-                        // Self-cleanup
-                        store.active.RemoveAll(m => m.id == "autotest_mem_001");
-                        context.Assert(store.active.Count == beforeCount, "Test memory entry cleaned up without state pollution");
+                        bool added;
+                        int afterCleanupCount;
+                        lock (store.SyncRoot)
+                        {
+                            added = store.active.Any(m => m.id == "autotest_mem_001");
+                            store.active.RemoveAll(m => m.id == "autotest_mem_001");
+                            afterCleanupCount = store.active.Count;
+                        }
+                        context.Assert(added, "Active memory entry added successfully to PawnMemoryStore");
+                        context.Assert(afterCleanupCount == beforeCount, "Test memory entry cleaned up without state pollution");
                     }
                 }
                 catch (Exception ex)

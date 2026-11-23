@@ -89,11 +89,19 @@ namespace RimMind.Memory.Data
                 var version = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
-                    var result = await RimMindAPI.RemoteSync.EnqueuePushAsync(
-                        "rimmind:memory:full",
-                        json,
-                        version);
-                    if (result.IsErr && result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Memory] Remote push failed: {result.Error}");
+                    try
+                    {
+                        var result = await RimMindAPI.RemoteSync.EnqueuePushAsync(
+                            "rimmind:memory:full",
+                            json,
+                            version);
+                        if (result.IsErr && result.Error.Code != RimMindErrorCode.Cancelled)
+                            RimMindErrors.Warn($"[RimMind-Memory] Remote push failed: {result.Error}");
+                    }
+                    catch (Exception ex)
+                    {
+                        RimMindErrors.Warn($"[RimMind-Memory] Remote push exception: {ex.Message}");
+                    }
                 });
             }
             catch (Exception ex) { RimMindErrors.Warn($"[RimMind-Memory] SaveAllEntriesToStorage failed: {ex.Message}"); }
@@ -105,16 +113,24 @@ namespace RimMind.Memory.Data
 
             Task.Run(async () =>
             {
-                await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
-                    () => RimMindAPI.RemoteSync.SyncOnLoadAsync("rimmind:memory:full", 0),
-                    RimMindAPI.MainThread.Post,
-                    MergeFromSnapshot,
-                    message => RimMindErrors.Warn($"[RimMind-Memory] {message}"));
+                try
+                {
+                    await MemoryRemoteSyncCoordinator.PullAndMergeAsync(
+                        () => RimMindAPI.RemoteSync.SyncOnLoadAsync("rimmind:memory:full", 0),
+                        RimMindAPI.MainThread.Post,
+                        MergeFromSnapshot,
+                        message => RimMindErrors.Warn($"[RimMind-Memory] {message}"));
+                }
+                catch (Exception ex)
+                {
+                    RimMindErrors.Warn($"[RimMind-Memory] Remote load exception: {ex.Message}");
+                }
             });
         }
 
         private void MergeFromSnapshot(string? json)
         {
+            if (!ReferenceEquals(this, Instance)) return;
             var settings = RimMindMemoryMod.Settings;
             lock (_storesLock)
             {
@@ -147,9 +163,17 @@ namespace RimMind.Memory.Data
                 int tick = Find.TickManager.TicksGame;
                 Task.Run(async () =>
                 {
-                    var key = "rimmind:memory:narrator";
-                    var result = await RimMindAPI.RemoteSync.EnqueuePushAsync(key, e.content, tick);
-                    if (result.IsErr && result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Memory] Remote push narrator failed: {result.Error}");
+                    try
+                    {
+                        var key = "rimmind:memory:narrator";
+                        var result = await RimMindAPI.RemoteSync.EnqueuePushAsync(key, e.content, tick);
+                        if (result.IsErr && result.Error.Code != RimMindErrorCode.Cancelled)
+                            RimMindErrors.Warn($"[RimMind-Memory] Remote push narrator failed: {result.Error}");
+                    }
+                    catch (Exception ex)
+                    {
+                        RimMindErrors.Warn($"[RimMind-Memory] Remote push narrator exception: {ex.Message}");
+                    }
                 });
             }
         }
@@ -176,9 +200,14 @@ namespace RimMind.Memory.Data
 
         public void ClearWorkingMemory(Pawn pawn)
         {
+            bool removed;
             lock (_storesLock)
             {
-                _workingMemories.Remove(pawn.thingIDNumber);
+                removed = _workingMemories.Remove(pawn.thingIDNumber);
+            }
+            if (removed)
+            {
+                RimMind.Memory.Injection.MemoryChangedEvent.Publish(pawn.thingIDNumber);
             }
         }
 

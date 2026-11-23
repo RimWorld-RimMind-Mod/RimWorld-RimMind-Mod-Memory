@@ -1,7 +1,5 @@
-using System;
 using RimMind.Domain.Common;
 using RimMind.Presentation.Api;
-using Verse;
 
 namespace RimMind.Memory.Core
 {
@@ -37,7 +35,7 @@ namespace RimMind.Memory.Core
             if (days <= 3)
                 return Tr("RimMind.Memory.Time.DaysAgo", days);
 
-            return FormatGameDate(nowTick);
+            return FormatGameDate(eventTick);
         }
 
         public static string FormatGameDate(int tick)

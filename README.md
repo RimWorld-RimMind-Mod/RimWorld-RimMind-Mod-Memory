@@ -8,7 +8,7 @@
 <p>
   <a href="https://rimworldgame.com/"><img src="https://img.shields.io/badge/RimWorld-1.6%20%7C%201.7-brightgreen.svg" alt="RimWorld 1.6 | 1.7"></a>
   <a href="https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core"><img src="https://img.shields.io/badge/Dependency-RimMind--Core-blue.svg" alt="Dependency: RimMind-Core"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Unit%20Tests-10%2B%20Passing-success.svg" alt="Unit Tests"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Unit%20Tests-Passing-success.svg" alt="Unit Tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 
@@ -23,9 +23,9 @@
 **RimMind-Memory** implements a biologically inspired, multi-tiered cognitive memory system for RimWorld. Rather than overwhelming LLM prompts with unfiltered event dumps, memories are structured, filtered, and consolidated across distinct cognitive layers.
 
 ### 3-Tier Architecture
-1. **Sensory & Working Buffer (L1)**: Captures immediate environmental sensations and short-lived interactions. Automatically decays after several hours.
-2. **Episodic Daily Chronicle (L2)**: Records daily milestones, battle triumphs, tragic losses, and relationship shifts in concise narrative entries.
-3. **Reflective & Dark Memories (L3)**: Enduring convictions, traumas, and life philosophy shaped by major colony events (e.g., witnessing cannibalism, surviving a betrayal, or falling in love).
+1. **Active Memory (Tier 1)**: Chronological record of recent work sessions, combat/medical milestones, social relations, injuries, and colony incidents (`maxActive`, default 30).
+2. **Archive Memory (Tier 2)**: Importance-ranked episodic store retaining overflowed milestones while pruning lowest-importance noise (`maxArchive`, default 50).
+3. **Deep / Dark Memory (Tier 3)**: Pinned long-term psychological impressions synthesized daily via staggered AI consolidation (`DarkMemoryUpdater`, under 50 characters each) and aligned with Core's KV-cache-friendly context layers.
 
 ---
 
@@ -40,13 +40,14 @@
 
 ```mermaid
 flowchart TD
-    RawEvent["In-Game Event (Raid / Wedding / Trauma)"] --> L1["Sensory Buffer (Immediate Context)"]
-    L1 --> Filter{"Importance Filter"}
-    Filter -- Low Significance --> Decay["Natural Forgetting & Pruning"]
-    Filter -- High Significance --> L2["Episodic Memory Consolidation"]
-    L2 --> Synthesis["Sleep / Meditation Synthesis"]
-    Synthesis --> L3["Deep Reflection & Permanent Personality Imprint"]
-    L3 --> Prompt["Injected into Core Zone 2 Context"]
+    RawEvent["In-Game Event (Work / Combat / Relations / Incidents)"] --> Policy["JobMemoryPolicy & Event Triggers"]
+    Policy --> Active["Active Tier (Chronological Recent Events)"]
+    Active --> Overflow{"Capacity Overflow or Daily Decay"}
+    Overflow -- Low Importance --> Decay["Natural Importance Decay & Pruning"]
+    Overflow -- High Importance --> Archive["Archive Tier (Importance-Ranked Episodes)"]
+    Active --> DailyConsolidation["Daily Staggered AI Consolidation (DarkMemoryUpdater)"]
+    DailyConsolidation --> Dark["Deep / Dark Tier (Pinned Long-Term Impressions)"]
+    Dark --> Prompt["Injected into Core Context (memory_pawn / memory_narrator)"]
 ```
 
 ---

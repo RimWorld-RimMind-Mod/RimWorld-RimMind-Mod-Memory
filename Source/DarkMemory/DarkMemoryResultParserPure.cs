@@ -10,6 +10,10 @@ namespace RimMind.Memory.DarkMemory
     /// </summary>
     public static class DarkMemoryResultParserPure
     {
+        public const string SchemaKey = "DarkMemoryOutput";
+        public const string DarkMemoryOutputSchema =
+            "{\"type\":\"object\",\"properties\":{\"dark\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"dark\"],\"additionalProperties\":false}";
+
         public class DarkMemoryResultDto
         {
             public string[] dark = Array.Empty<string>();

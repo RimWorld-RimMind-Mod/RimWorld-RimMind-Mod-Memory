@@ -1,9 +1,9 @@
-using HarmonyLib;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Presentation;
 using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
 using RimMind.Memory.Core;
+using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Injection;
 using RimMind.Memory.UI;
 using UnityEngine;
@@ -20,6 +20,9 @@ namespace RimMind.Memory
             Settings = base.Settings;
             InitializeHarmony();
 
+            RimMindAPI.Context.RegisterSchema(
+                DarkMemoryResultParserPure.SchemaKey,
+                DarkMemoryResultParserPure.DarkMemoryOutputSchema);
             MemoryContextProvider.Register();
             WorkingMemoryProvider.Register();
             RimMindAPI.Memory.RegisterBridge(new RimMindMemoryBridge());

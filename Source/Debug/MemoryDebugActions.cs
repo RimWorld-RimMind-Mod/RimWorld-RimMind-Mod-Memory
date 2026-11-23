@@ -5,7 +5,7 @@ using RimMind.Presentation.Api;
 using RimMind.Memory.Data;
 using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Decay;
-using RimWorld;
+using RimMind.Memory.Injection;
 using Verse;
 
 namespace RimMind.Memory.Debug
@@ -13,6 +13,8 @@ namespace RimMind.Memory.Debug
     [StaticConstructorOnStartup]
     public static class MemoryDebugActions
     {
+        private static string PawnName(Pawn pawn) => pawn.Name?.ToStringShort ?? pawn.LabelShort;
+
         [DebugAction("RimMind Memory", "Force Add Memory (selected)", actionType = DebugActionType.Action)]
         public static void ForceAddMemory()
         {
@@ -28,7 +30,7 @@ namespace RimMind.Memory.Debug
                 MemoryEntry.Create("[Debug] Test memory entry", MemoryType.Manual, now, 0.6f),
                 settings.maxActive, settings.maxArchive);
 
-            Log.Message($"[RimMind-Memory] Added test memory for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Memory] Added test memory for {PawnName(pawn)}.");
         }
 
         [DebugAction("RimMind Memory", "Show Memory State (selected)", actionType = DebugActionType.Action)]
@@ -42,7 +44,7 @@ namespace RimMind.Memory.Debug
 
             var store = wc.GetPawnStore(pawn);
             var sb = new StringBuilder();
-            sb.AppendLine($"=== {pawn.Name.ToStringShort} Memory State ===");
+            sb.AppendLine($"=== {PawnName(pawn)} Memory State ===");
             sb.AppendLine($"[Diag] Memory system enabled: {RimMindMemoryMod.Settings.enableMemory}");
             sb.AppendLine($"[Diag] API configured: {RimMindAPI.Settings.IsConfigured()}");
 
@@ -79,7 +81,7 @@ namespace RimMind.Memory.Debug
             if (wc == null) return;
 
             wc.ClearPawnStore(pawn);
-            Log.Message($"[RimMind-Memory] Cleared all memories for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Memory] Cleared all memories for {PawnName(pawn)}.");
         }
 
         [DebugAction("RimMind Memory", "Force Add Narrator Memory", actionType = DebugActionType.Action)]
@@ -94,7 +96,8 @@ namespace RimMind.Memory.Debug
                 MemoryEntry.Create("[Debug] Test narrator entry", MemoryType.Event, now, 0.7f),
                 settings.narratorMaxActive, settings.narratorMaxArchive);
 
-            Log.Message($"[RimMind-Memory] Added test narrator memory. Active count: {wc.NarratorStore.active.Count}");
+            var (activeList, _, _) = wc.NarratorStore.GetSnapshots();
+            Log.Message($"[RimMind-Memory] Added test narrator memory. Active count: {activeList.Count}");
         }
 
         [DebugAction("RimMind Memory", "Show Narrator Memory", actionType = DebugActionType.Action)]
@@ -103,19 +106,19 @@ namespace RimMind.Memory.Debug
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
-            var store = wc.NarratorStore;
+            var (activeList, archiveList, darkList) = wc.NarratorStore.GetSnapshots();
             var sb = new StringBuilder("=== Narrator Memory ===\n");
 
-            sb.AppendLine($"[Active Narratives] {store.active.Count} entries");
-            foreach (var e in store.active)
+            sb.AppendLine($"[Active Narratives] {activeList.Count} entries");
+            foreach (var e in activeList)
                 sb.AppendLine($"  {e.content} (imp={e.importance:F2})");
 
-            sb.AppendLine($"\n[Archived Narratives] {store.archive.Count} entries");
-            foreach (var e in store.archive)
+            sb.AppendLine($"\n[Archived Narratives] {archiveList.Count} entries");
+            foreach (var e in archiveList)
                 sb.AppendLine($"  {e.content} (imp={e.importance:F2})");
 
-            sb.AppendLine($"\n[Dark Narratives] {store.dark.Count} entries");
-            foreach (var d in store.dark)
+            sb.AppendLine($"\n[Dark Narratives] {darkList.Count} entries");
+            foreach (var d in darkList)
                 sb.AppendLine($"  {d.content}");
 
             Log.Message(sb.ToString());
@@ -138,7 +141,7 @@ namespace RimMind.Memory.Debug
 
             var settings = RimMindMemoryMod.Settings;
             DarkMemoryUpdater.Instance?.TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
-            Log.Message($"[RimMind-Memory] Triggered dark memory update for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Memory] Triggered dark memory update for {PawnName(pawn)}.");
         }
 
         [DebugAction("RimMind Memory", "Force Narrator Dark Memory", actionType = DebugActionType.Action)]
@@ -170,15 +173,14 @@ namespace RimMind.Memory.Debug
 
             foreach (var store in wc.AllPawnStores)
             {
-                int before = store.archive.Count;
-                ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
-                removed += before - store.archive.Count;
-                decayed += store.active.Count + store.archive.Count;
+                removed += ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                var (activeList, archiveList, _) = store.GetSnapshots();
+                decayed += activeList.Count + archiveList.Count;
             }
 
-            int narratorBefore = wc.NarratorStore.archive.Count;
-            ImportanceDecayManager.ApplyDecay(wc.NarratorStore, settings.decayRate, settings.minImportanceThreshold);
-            removed += narratorBefore - wc.NarratorStore.archive.Count;
+            removed += ImportanceDecayManager.ApplyDecay(wc.NarratorStore, settings.decayRate, settings.minImportanceThreshold);
+            if (removed > 0)
+                MemoryChangedEvent.Publish(0);
 
             Log.Message($"[RimMind-Memory] Decay complete: {decayed} memories decayed, {removed} below threshold removed.");
         }
@@ -199,7 +201,7 @@ namespace RimMind.Memory.Debug
                 return;
             }
             var sb = new StringBuilder();
-            sb.AppendLine($"=== {pawn.Name.ToStringShort} Working Memory ({wm.Entries.Count}/{wm.Capacity}) ===");
+            sb.AppendLine($"=== {PawnName(pawn)} Working Memory ({wm.Entries.Count}/{wm.Capacity}) ===");
             foreach (var e in wm.Entries)
                 sb.AppendLine($"  {e.Content} | src={e.Source} | rel={e.Relevance:F2}");
 
@@ -216,7 +218,7 @@ namespace RimMind.Memory.Debug
             if (wc == null) { RimMindErrors.Warn("[RimMind-Memory] WorldComponent not initialized."); return; }
 
             wc.ClearWorkingMemory(pawn);
-            Log.Message($"[RimMind-Memory] Cleared working memory for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Memory] Cleared working memory for {PawnName(pawn)}.");
         }
 
         [DebugAction("RimMind Memory", "Show Memory Settings Summary", actionType = DebugActionType.Action)]
@@ -249,11 +251,11 @@ namespace RimMind.Memory.Debug
                 var store = wc.GetPawnStore(pawn);
                 if (store == null)
                 {
-                    sb.AppendLine($"  {pawn.Name.ToStringShort}: active=0 archive=0 dark=0");
+                    sb.AppendLine($"  {PawnName(pawn)}: active=0 archive=0 dark=0");
                     continue;
                 }
                 var (activeList, archiveList, darkList) = store.GetSnapshots();
-                sb.AppendLine($"  {pawn.Name.ToStringShort}: active={activeList.Count} archive={archiveList.Count} dark={darkList.Count}");
+                sb.AppendLine($"  {PawnName(pawn)}: active={activeList.Count} archive={archiveList.Count} dark={darkList.Count}");
             }
             Log.Message(sb.ToString());
         }

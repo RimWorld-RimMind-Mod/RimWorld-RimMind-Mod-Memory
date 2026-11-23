@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Linq;
+using RimMind.Memory.Aggregation;
 using RimMind.Memory.Core;
 using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Data;
@@ -62,6 +64,12 @@ namespace RimMind.Memory.Tests.Contracts
                         3);
 
                     Assert.Equal(new[] { "first memory", "second memory" }, result);
+                }),
+                ("dark memory schema metadata is valid JSON targeting the dark string array", () =>
+                {
+                    Assert.Equal("DarkMemoryOutput", DarkMemoryResultParserPure.SchemaKey);
+                    var schema = JObject.Parse(DarkMemoryResultParserPure.DarkMemoryOutputSchema);
+                    Assert.Equal("array", schema["properties"]?["dark"]?["type"]?.Value<string>());
                 }));
         }
 
@@ -79,16 +87,19 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.False(ImportanceDecayCalculator.ShouldRemove(0.05f, 0.05f));
                     Assert.True(ImportanceDecayCalculator.ShouldRemove(0.049f, 0.05f));
                 }),
-                ("manager decays active and archive entries", () =>
+                ("manager decays active and archive entries and reports removed count", () =>
                 {
                     var store = new PawnMemoryStore();
                     store.active.Add(Entry("active", 0.8f));
+                    store.active.Add(Entry("active-drop", 0.06f));
                     store.archive.Add(Entry("archive", 0.6f));
+                    store.archive.Add(Entry("archive-drop", 0.05f));
 
-                    ImportanceDecayManager.ApplyDecay(store, 0.25f, 0.05f);
+                    int removed = ImportanceDecayManager.ApplyDecay(store, 0.25f, 0.05f);
 
-                    Assert.Equal(0.6f, store.active[0].importance, 3);
-                    Assert.Equal(0.45f, store.archive[0].importance, 3);
+                    Assert.Equal(2, removed);
+                    Assert.Equal(0.6f, Assert.Single(store.active).importance, 3);
+                    Assert.Equal(0.45f, Assert.Single(store.archive).importance, 3);
                 }),
                 ("pinned and dark state survives decay", () =>
                 {
@@ -96,10 +107,58 @@ namespace RimMind.Memory.Tests.Contracts
                     store.active.Add(Entry("pinned", 0.01f, pinned: true));
                     store.dark.Add(Entry("dark", 0.01f, pinned: true));
 
-                    ImportanceDecayManager.ApplyDecay(store, 0.5f, 0.05f);
+                    int removed = ImportanceDecayManager.ApplyDecay(store, 0.5f, 0.05f);
 
+                    Assert.Equal(0, removed);
                     Assert.Equal(0.01f, Assert.Single(store.active).importance);
                     Assert.Equal(0.01f, Assert.Single(store.dark).importance);
+                }));
+        }
+
+        [Fact]
+        public void Job_memory_policy_classifies_significant_aggregatable_ignored_and_custom_jobs()
+        {
+            ContractCaseRunner.Run(
+                ("significant combat, medical, animal, and social jobs resolve as SignificantSingle", () =>
+                {
+                    var attack = JobMemoryPolicy.Resolve("AttackMelee");
+                    Assert.Equal(JobMemoryKind.SignificantSingle, attack.Kind);
+                    Assert.Equal(0.9f, attack.Importance, 3);
+
+                    var rescue = JobMemoryPolicy.Resolve("Rescue");
+                    Assert.Equal(JobMemoryKind.SignificantSingle, rescue.Kind);
+                    Assert.Equal(0.8f, rescue.Importance, 3);
+
+                    var tend = JobMemoryPolicy.Resolve("TendPatient");
+                    Assert.Equal(JobMemoryKind.SignificantSingle, tend.Kind);
+                    Assert.Equal(0.8f, tend.Importance, 3);
+
+                    var recruit = JobMemoryPolicy.Resolve("PrisonerAttemptRecruit");
+                    Assert.Equal(JobMemoryKind.SignificantSingle, recruit.Kind);
+                    Assert.Equal(0.7f, recruit.Importance, 3);
+                }),
+                ("repetitive work jobs resolve as Aggregatable and idle movement jobs as Ignored", () =>
+                {
+                    Assert.Equal(JobMemoryKind.Aggregatable, JobMemoryPolicy.Resolve("Sow").Kind);
+                    Assert.Equal(JobMemoryKind.Aggregatable, JobMemoryPolicy.Resolve("Mine").Kind);
+                    Assert.Equal(JobMemoryKind.Aggregatable, JobMemoryPolicy.Resolve("DoBill").Kind);
+                    Assert.Equal(JobMemoryKind.Aggregatable, JobMemoryPolicy.Resolve("HaulToCell").Kind);
+
+                    Assert.Equal(JobMemoryKind.Ignored, JobMemoryPolicy.Resolve("Wait").Kind);
+                    Assert.Equal(JobMemoryKind.Ignored, JobMemoryPolicy.Resolve("Goto").Kind);
+                    Assert.Equal(JobMemoryKind.Ignored, JobMemoryPolicy.Resolve("Wait_Asleep").Kind);
+
+                    Assert.Equal(JobMemoryKind.Unknown, JobMemoryPolicy.Resolve("UnregisteredJobXYZ").Kind);
+                    Assert.Equal(JobMemoryKind.Unknown, JobMemoryPolicy.Resolve(null).Kind);
+                }),
+                ("custom job rules can be registered dynamically", () =>
+                {
+                    string customJob = "CustomRitual_" + Guid.NewGuid().ToString("N");
+                    JobMemoryPolicy.RegisterRule(customJob, new JobMemoryRule(JobMemoryKind.SignificantSingle, 0.75f));
+
+                    var resolved = JobMemoryPolicy.Resolve(customJob);
+                    Assert.Equal(JobMemoryKind.SignificantSingle, resolved.Kind);
+                    Assert.Equal(0.75f, resolved.Importance, 3);
                 }));
         }
 
@@ -127,12 +186,14 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.Contains("public const int InjuryCoalesceWindowTicks = 2500;", hediffSource, StringComparison.Ordinal);
                     Assert.Contains("ShouldRecordHediff(", hediffSource, StringComparison.Ordinal);
                 }),
-                ("relation trigger populates targetPawnId on both forward and reverse memories", () =>
+                ("relation trigger writes forward and reverse memories with targetPawnId", () =>
                 {
                     string relSource = ReadMemorySource("Triggers/Patch_AddRelation.cs");
+                    string helperSource = ReadMemorySource("Triggers/MemoryTriggerHelper.cs");
                     Assert.Contains("WriteRelationMemory(pawn, otherPawn, content, importance, upgradeNarrator: true);", relSource, StringComparison.Ordinal);
                     Assert.Contains("WriteRelationMemory(otherPawn, pawn, reverseContent, importance, upgradeNarrator: false);", relSource, StringComparison.Ordinal);
-                    Assert.Contains("MemoryEntry.Create(content, MemoryType.Event, now, importance, pawnId, targetPawnId)", relSource, StringComparison.Ordinal);
+                    Assert.Contains("MemoryTriggerHelper.WriteMemory(", relSource, StringComparison.Ordinal);
+                    Assert.Contains("MemoryEntry.Create(content, type, now, importance, pawnId, targetPawnId)", helperSource, StringComparison.Ordinal);
                 }),
                 ("world component and work session aggregator prune inactive pawns daily", () =>
                 {
@@ -146,10 +207,11 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.Contains("RimMindPawnLookup.GetSpawnedColonistsSafe(map)", workSource, StringComparison.Ordinal);
                     Assert.DoesNotContain("FreeColonistsSpawned", workSource, StringComparison.Ordinal);
                 }),
-                ("dark memory requests attach coalesce key, 1-day TTL, TickStagger, and non-starving mod cooldown", () =>
+                ("dark memory requests attach coalesce key, 1-day TTL, TickStagger, and clean Core extension metadata", () =>
                 {
                     string darkSource = ReadMemorySource("DarkMemory/DarkMemoryUpdater.cs");
                     string cooldownSource = ReadMemorySource("Extensions/MemoryModCooldown.cs");
+                    string skipSource = ReadMemorySource("Extensions/MemoryActionSkipCheck.cs");
                     string parserSource = ReadMemorySource("DarkMemory/DarkMemoryResultParserPure.cs");
                     string bioTabSource = ReadMemorySource("UI/BioTabMemoryPatch.cs");
                     string drawerSource = ReadMemorySource("Settings/MemorySettingsDrawer.cs");
@@ -161,7 +223,9 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.DoesNotContain("0x7feb352du", darkSource, StringComparison.Ordinal);
 
                     Assert.Contains("BaseModCooldownTicks = 3000", cooldownSource, StringComparison.Ordinal);
-                    Assert.Contains("OwnerModId => DarkMemoryUpdater.RequestModId", cooldownSource, StringComparison.Ordinal);
+                    Assert.Contains("Id => DarkMemoryUpdater.RequestModId", cooldownSource, StringComparison.Ordinal);
+                    Assert.Contains("OwnerModId => RimMindOwnerConsts.MemoryModId", cooldownSource, StringComparison.Ordinal);
+                    Assert.Contains("ShouldSkip(in SkipCheckArgs args) => false;", skipSource, StringComparison.Ordinal);
 
                     Assert.DoesNotContain("using RimMind.Application.Features.Json", parserSource, StringComparison.Ordinal);
                     Assert.Contains("RimMindAPI.Json.TryDeserializeWithRepair", parserSource, StringComparison.Ordinal);
@@ -242,7 +306,7 @@ namespace RimMind.Memory.Tests.Contracts
                 "public static class MemoryContextProvider",
                 "public static void Register()");
             Assert.Contains(
-                "private const string PublicProviderOwner = \"RimMind.Memory\";",
+                "private const string PublicProviderOwner = RimMindOwnerConsts.MemoryModId;",
                 providerFields,
                 StringComparison.Ordinal);
             Assert.Contains(
@@ -277,14 +341,14 @@ namespace RimMind.Memory.Tests.Contracts
                 pawnBrief,
                 StringComparison.Ordinal);
             Assert.Contains(
+                "if(!RimMindMemoryMod.Settings.enableMemory)returnstring.Empty;",
+                compactPawnBrief,
+                StringComparison.Ordinal);
+            Assert.Contains(
                 "if(store==null||store.IsEmpty)returnstring.Empty;",
                 compactPawnBrief,
                 StringComparison.Ordinal);
-            AssertSeparatedOnlyByWhitespace(
-                pawnBrief,
-                "var sb = new StringBuilder(TrOrFallback(\"RimMind.Memory.Context.BriefHeader\", \"[RimMind Memory]\"));",
-                "foreach (var memory in activeList.Take(5))");
-            Assert.DoesNotContain("sb.AppendLine();", pawnBrief, StringComparison.Ordinal);
+            Assert.Contains("sb.AppendLine(TrOrFallback(\"RimMind.Memory.Context.BriefHeader\"", pawnBrief, StringComparison.Ordinal);
             Assert.Equal(2, CountOccurrences(pawnBrief, "Take(5)"));
             Assert.Equal(
                 2,
@@ -303,14 +367,14 @@ namespace RimMind.Memory.Tests.Contracts
                 "private static string BuildNarratorBrief()");
             string compactNarratorBrief = RemoveWhitespace(narratorBrief);
             Assert.Contains(
+                "if(!RimMindMemoryMod.Settings.enableMemory)returnstring.Empty;",
+                compactNarratorBrief,
+                StringComparison.Ordinal);
+            Assert.Contains(
                 "if(store==null||store.IsEmpty)returnstring.Empty;",
                 compactNarratorBrief,
                 StringComparison.Ordinal);
-            AssertSeparatedOnlyByWhitespace(
-                narratorBrief,
-                "var sb = new StringBuilder(TrOrFallback(\"RimMind.Memory.Context.NarratorBriefHeader\", \"[RimMind Storyteller]\"));",
-                "foreach (var memory in activeList.Take(5))");
-            Assert.DoesNotContain("sb.AppendLine();", narratorBrief, StringComparison.Ordinal);
+            Assert.Contains("sb.AppendLine(TrOrFallback(\"RimMind.Memory.Context.NarratorBriefHeader\"", narratorBrief, StringComparison.Ordinal);
             Assert.Equal(1, CountOccurrences(narratorBrief, "Take(5)"));
             Assert.Equal(
                 1,
@@ -350,24 +414,6 @@ namespace RimMind.Memory.Tests.Contracts
             }
 
             throw new InvalidOperationException("Unbalanced source method braces.");
-        }
-
-        private static void AssertSeparatedOnlyByWhitespace(
-            string source,
-            string first,
-            string second)
-        {
-            int firstStart = source.IndexOf(first, StringComparison.Ordinal);
-            Assert.True(firstStart >= 0, $"Source fragment was not found: {first}");
-
-            int gapStart = firstStart + first.Length;
-            int secondStart = source.IndexOf(second, gapStart, StringComparison.Ordinal);
-            Assert.True(secondStart >= gapStart, $"Source fragment was not found after {first}: {second}");
-
-            string gap = source.Substring(gapStart, secondStart - gapStart);
-            Assert.True(
-                gap.All(char.IsWhiteSpace),
-                $"Only formatting whitespace may separate {first} from {second}.");
         }
 
         private static string SliceSource(string source, string startMarker, string endMarker)
@@ -477,8 +523,11 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.Equal("Today", TimeFormatter.FormatTimeAgo(0, 59999))),
                 ("three days remains relative", () =>
                     Assert.Equal("3 days ago", TimeFormatter.FormatTimeAgo(0, 180000))),
-                ("older history uses a stable game date", () =>
-                    Assert.Equal("Day 5 00:00", TimeFormatter.FormatTimeAgo(0, 240000))),
+                ("older history uses the event's own game date rather than nowTick", () =>
+                {
+                    Assert.Equal("Day 1 00:00", TimeFormatter.FormatTimeAgo(0, 240000));
+                    Assert.Equal("Day 2 06:00", TimeFormatter.FormatTimeAgo(75000, 360000));
+                }),
                 ("game date preserves day and hour", () =>
                     Assert.Equal("Day 2 06:00", TimeFormatter.FormatGameDate(75000))));
         }

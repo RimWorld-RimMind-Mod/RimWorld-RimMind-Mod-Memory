@@ -6,15 +6,16 @@ namespace RimMind.Memory.Decay
 {
     public static class ImportanceDecayManager
     {
-        public static void ApplyDecay(MemoryStoreBase store, float decayRate, float minThreshold)
+        public static int ApplyDecay(MemoryStoreBase store, float decayRate, float minThreshold)
         {
-            if (store == null) return;
+            if (store == null) return 0;
             lock (store.SyncRoot)
             {
                 DecayList(store.active, decayRate);
                 DecayList(store.archive, decayRate);
-                store.active.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
-                store.archive.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
+                int removed = store.active.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
+                removed += store.archive.RemoveAll(e => !e.isPinned && ImportanceDecayCalculator.ShouldRemove(e.importance, minThreshold));
+                return removed;
             }
         }
 

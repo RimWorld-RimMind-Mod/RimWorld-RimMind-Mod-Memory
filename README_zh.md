@@ -8,7 +8,7 @@
 <p>
   <a href="https://rimworldgame.com/"><img src="https://img.shields.io/badge/RimWorld-1.6%20%7C%201.7-brightgreen.svg" alt="RimWorld 1.6 | 1.7"></a>
   <a href="https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core"><img src="https://img.shields.io/badge/核心依赖-RimMind--Core-blue.svg" alt="依赖: RimMind-Core"></a>
-  <a href="#"><img src="https://img.shields.io/badge/单元测试-10%2B%20通过-success.svg" alt="单元测试"></a>
+  <a href="#"><img src="https://img.shields.io/badge/单元测试-通过-success.svg" alt="单元测试"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/开源协议-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 
@@ -22,10 +22,10 @@
 
 **RimMind-Memory** 为 RimWorld 引入了受生物认知心理学启发的三层记忆体系。它拒绝将未经清洗的事件全量丢给大模型，而是通过分层聚合、自然遗忘衰减与重点固定，让小人的记忆既丰富又高效。
 
-### 三层认知架构
-1. **感知与工作记忆 (L1)**：捕获当下的即时感知与琐碎交流，随时间推移数小时内平滑衰减。
-2. **情节记忆编年史 (L2)**：记录战役胜利、惨痛牺牲、重要婚礼等关键里程碑，以简明摘要方式沉淀。
-3. **反思与暗记忆 (L3)**：重大人生挫折（目睹同类相食、遭遇背叛、痛失挚友）形成的根深蒂固信念与人生哲学，永久性重塑其心理防御机制。
+### 三层记忆架构
+1. **活跃记忆（Active 层）**：按时间顺序记录近期工作会话、战斗/医疗节点、社交关系变化、伤病与殖民地重大事件（默认上限 `maxActive=30`）。
+2. **归档记忆（Archive 层）**：按重要度排序承接活跃层溢出的情节里程碑，自动淘汰最低重要度的日常噪音（默认上限 `maxArchive=50`）。
+3. **暗记忆（Dark 层）**：每日按交错槽位由 AI 提炼（`DarkMemoryUpdater`，每条 ≤50 字）的固定长期心理烙印，与 Core 的前缀缓存上下文层级对齐。
 
 ---
 
@@ -40,14 +40,14 @@
 
 ```mermaid
 flowchart TD
-    RawEvent["游戏内突发事件 (袭击 / 婚礼 / 绝望)"] --> L1["瞬时感知层 (即时上下文)"]
-    L1 --> Filter{"重要度评估过滤"}
-    Filter -- 低重要度 --> Decay["自然遗忘与修剪"]
-    Filter -- 高重要度 --> L2["情节记忆凝聚与编年史"]
-    L2 --> Synthesis["睡眠与冥想状态整理反思"]
-    L3["深度反思层与永久心理烙印"]
-    Synthesis --> L3
-    L3 --> Prompt["安全注入 Core 核心 Zone 2 上下文"]
+    RawEvent["游戏内事件 (工作会话 / 战斗 / 关系 / 袭击)"] --> Policy["JobMemoryPolicy 与事件触发器"]
+    Policy --> Active["活跃层 Active (按时间记录近期事件)"]
+    Active --> Overflow{"容量溢出与每日重要度衰减"}
+    Overflow -- 低重要度 --> Decay["自然遗忘与修剪"]
+    Overflow -- 高重要度 --> Archive["归档层 Archive (按重要度保留情节里程碑)"]
+    Active --> DailyConsolidation["每日交错槽位 AI 暗记忆提炼 (DarkMemoryUpdater)"]
+    DailyConsolidation --> Dark["暗记忆层 Dark (固定长期心理烙印)"]
+    Dark --> Prompt["安全注入 Core 上下文 (memory_pawn / memory_narrator)"]
 ```
 
 ---

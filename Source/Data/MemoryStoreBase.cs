@@ -27,11 +27,28 @@ namespace RimMind.Memory.Data
                 if (active.Count >= maxActive && active.All(x => x.isPinned))
                 {
                     archive.Insert(0, e);
-                    EnforceLimit(archive, maxArchive, dark, int.MaxValue);
+                    TrimToLimit(archive, maxArchive);
                     return;
                 }
                 active.Insert(0, e);
                 EnforceLimit(active, maxActive, archive, maxArchive);
+            }
+        }
+
+        public static void TrimToLimit(List<MemoryEntry> list, int max)
+        {
+            while (list.Count > max)
+            {
+                var least = list.LastOrDefault(x => !x.isPinned);
+                if (least != null)
+                {
+                    list.Remove(least);
+                }
+                else
+                {
+                    RimMindErrors.Warn($"[RimMind-Memory] Cannot trim list: all {list.Count} entries are pinned (max={max})");
+                    break;
+                }
             }
         }
 

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using RimMind.Memory.Data;
-using RimMind.Memory.Core;
+using RimMind.Memory.Injection;
+using RimMind.Memory.Triggers;
 using RimMind.Presentation.Api;
-using RimWorld;
 using Verse;
 using Verse.AI;
 
@@ -22,8 +22,19 @@ namespace RimMind.Memory.Aggregation
 
         public WorkSessionAggregator(Game game) { _instance = this; }
 
-        public override void StartedNewGame() { _sessions.Clear(); _lastPruneTick = 0; }
-        public override void LoadedGame() { _sessions.Clear(); _lastPruneTick = 0; }
+        public override void StartedNewGame()
+        {
+            _sessions.Clear();
+            _lastPruneTick = 0;
+            Patch_AddHediff.ClearCooldowns();
+        }
+
+        public override void LoadedGame()
+        {
+            _sessions.Clear();
+            _lastPruneTick = 0;
+            Patch_AddHediff.ClearCooldowns();
+        }
 
         public override void GameComponentTick()
         {
@@ -82,17 +93,18 @@ namespace RimMind.Memory.Aggregation
             int pawnId = pawn.thingIDNumber;
             string jobDefName = job.def.defName;
 
-            if (IsBlacklisted(jobDefName))
+            JobMemoryRule rule = JobMemoryPolicy.Resolve(jobDefName);
+            if (rule.Kind == JobMemoryKind.Ignored)
+                return;
+
+            if (rule.Kind == JobMemoryKind.SignificantSingle)
             {
-                if (IsSignificantSingleJob(jobDefName))
-                {
-                    RecordSignificantJob(pawn, jobDefName, now, maxActive, maxArchive);
-                    UpdateLastMeaningfulJob(pawnId, now);
-                }
+                RecordSignificantJob(pawn, jobDefName, rule.Importance, now, maxActive, maxArchive);
+                UpdateLastMeaningfulJob(pawnId, now);
                 return;
             }
 
-            if (!IsWhitelisted(jobDefName))
+            if (rule.Kind != JobMemoryKind.Aggregatable)
             {
                 CheckIdleGap(pawn, pawnId, now, idleGapThresholdTicks, maxActive, maxArchive);
                 return;
@@ -141,8 +153,12 @@ namespace RimMind.Memory.Aggregation
 
             float hours = session.totalTicks / 2500f;
             float importance = session.totalTicks > 15000 ? 0.5f : 0.4f;
-            string content = "RimMind.Memory.Work.Session".Translate(
-                JobLabel(session.currentJobDef), session.count.ToString(), $"{hours:F1}");
+            string content = RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Work.Session",
+                "{0} x{1}  ~{2} game hours",
+                JobLabel(session.currentJobDef),
+                session.count.ToString(),
+                $"{hours:F1}");
 
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) { session.Reset(); return; }
@@ -154,9 +170,8 @@ namespace RimMind.Memory.Aggregation
             session.Reset();
         }
 
-        private void RecordSignificantJob(Pawn pawn, string jobDefName, int now, int maxActive, int maxArchive)
+        private void RecordSignificantJob(Pawn pawn, string jobDefName, float importance, int now, int maxActive, int maxArchive)
         {
-            float importance = GetSignificantJobImportance(jobDefName);
             string content = JobLabel(jobDefName);
 
             var wc = RimMindMemoryWorldComponent.Instance;
@@ -176,21 +191,22 @@ namespace RimMind.Memory.Aggregation
             if (gap > idleGapThresholdTicks)
             {
                 float hours = gap / 2500f;
-                string content = "RimMind.Memory.Work.Idle".Translate($"{hours:F1}");
+                string content = RimMindAPI.Text.TrOr(
+                    "RimMind.Memory.Work.Idle",
+                    "Idle/Standby ~{0} game hours",
+                    $"{hours:F1}");
                 var wc = RimMindMemoryWorldComponent.Instance;
                 if (wc != null)
                 {
                     var store = wc.GetPawnStore(pawn);
-                    string idlePrefix = RimMindAPI.Text.TrOr("RimMind.Memory.Work.Idle", "Idle", "{0}")
-                        .Split(new[] { "{0}" }, StringSplitOptions.None)[0]
-                        .Trim();
                     bool updatedExisting = false;
-                    if (store != null)
+                    if (store != null && !string.IsNullOrEmpty(session.lastIdleEntryId))
                     {
                         lock (store.SyncRoot)
                         {
-                            if (store.active.Count > 0 && store.active[0].type == MemoryType.Work &&
-                                (!string.IsNullOrEmpty(idlePrefix) && store.active[0].content.Contains(idlePrefix)))
+                            if (store.active.Count > 0
+                                && store.active[0].type == MemoryType.Work
+                                && store.active[0].id == session.lastIdleEntryId)
                             {
                                 store.active[0].content = content;
                                 store.active[0].tick = now;
@@ -198,9 +214,16 @@ namespace RimMind.Memory.Aggregation
                             }
                         }
                     }
-                    if (!updatedExisting)
+
+                    if (updatedExisting)
                     {
-                        wc.AddPawnMemory(pawn, MemoryEntry.Create(content, MemoryType.Work, now, 0.1f), maxActive, maxArchive);
+                        MemoryChangedEvent.Publish(pawnId);
+                    }
+                    else
+                    {
+                        var idleEntry = MemoryEntry.Create(content, MemoryType.Work, now, 0.1f);
+                        session.lastIdleEntryId = idleEntry.id;
+                        wc.AddPawnMemory(pawn, idleEntry, maxActive, maxArchive);
                     }
                 }
                 session.lastMeaningfulJobTick = now;
@@ -209,8 +232,13 @@ namespace RimMind.Memory.Aggregation
 
         private void UpdateLastMeaningfulJob(int pawnId, int now)
         {
-            if (!_sessions.TryGetValue(pawnId, out var session)) return;
+            if (!_sessions.TryGetValue(pawnId, out var session))
+            {
+                session = new PawnSession();
+                _sessions[pawnId] = session;
+            }
             session.lastMeaningfulJobTick = now;
+            session.lastIdleEntryId = null;
         }
 
         private void TryUpgradeToNarrator(Pawn pawn, string content, int now, float importance, RimMindMemoryWorldComponent wc)
@@ -226,66 +254,6 @@ namespace RimMind.Memory.Aggregation
             }
         }
 
-        private static readonly HashSet<string> BlacklistedJobs = new HashSet<string>
-        {
-            "Wait", "Wait_MaintainPosture", "Wait_Asleep", "Wait_Downed",
-            "Wait_SafeTemperature", "Wait_Wander", "Wait_Combat",
-            "Goto", "GotoWander", "GotoSafeTemperature",
-            "AttackMelee", "AttackStatic", "SocialFight",
-            "MarryAdjacentPawn", "Lovin", "StandAndStare",
-            "IdleWhileDespawned",
-        };
-
-        private static readonly HashSet<string> SignificantJobs = new HashSet<string>
-        {
-            "AttackMelee", "AttackStatic",
-            "Rescue", "TendPatient", "FeedPatient", "DeliverFood",
-            "Slaughter", "Tame", "Train", "Milk", "Shear",
-            "PrisonerAttemptRecruit",
-        };
-
-        private static readonly HashSet<string> WhitelistedJobs = new HashSet<string>
-        {
-            "Sow", "PlantSeed", "Replant",
-            "Harvest", "HarvestDesignated",
-            "CutPlant", "CutPlantDesignated",
-            "FinishFrame", "PlaceNoCostFrame",
-            "Deconstruct", "Uninstall",
-            "Repair", "FixBrokenDownBuilding",
-            "Mine", "Clean",
-            "HaulToCell", "HaulToContainer",
-            "HaulToTransporter", "HaulToPortal",
-            "HaulCorpseToPublicPlace",
-            "DoBill", "Research", "Hunt",
-            "BeatFire", "ExtinguishSelf",
-            "SmoothFloor", "RemoveFloor", "SmoothWall",
-            "BuildRoof", "RemoveRoof",
-            "PaintBuilding", "PaintFloor",
-            "RemovePaintBuilding", "RemovePaintFloor",
-            "OperateDeepDrill", "OperateScanner",
-            "ExtractTree", "Refuel", "RearmTurret",
-            "ClearSnow", "ManTurret",
-        };
-
-        private static readonly Dictionary<string, float> SignificantJobImportanceMap = new Dictionary<string, float>
-        {
-            { "AttackMelee", 0.9f }, { "AttackStatic", 0.9f },
-            { "Rescue", 0.8f }, { "TendPatient", 0.8f },
-            { "FeedPatient", 0.7f }, { "DeliverFood", 0.6f },
-            { "Slaughter", 0.6f }, { "Tame", 0.7f },
-            { "Train", 0.6f }, { "Milk", 0.5f }, { "Shear", 0.5f },
-            { "PrisonerAttemptRecruit", 0.7f },
-        };
-
-        private static bool IsBlacklisted(string defName) => BlacklistedJobs.Contains(defName);
-
-        private static bool IsWhitelisted(string defName) => WhitelistedJobs.Contains(defName);
-
-        private static bool IsSignificantSingleJob(string defName) => SignificantJobs.Contains(defName);
-
-        private static float GetSignificantJobImportance(string defName)
-            => SignificantJobImportanceMap.TryGetValue(defName, out var v) ? v : 0.6f;
-
         private static string JobLabel(string defName)
         {
             return RimMindAPI.Text.TrOr($"RimMind.Memory.Work.{defName}", defName);
@@ -299,6 +267,7 @@ namespace RimMind.Memory.Aggregation
             public int count;
             public int totalTicks;
             public int lastMeaningfulJobTick;
+            public string? lastIdleEntryId;
 
             public void Reset()
             {

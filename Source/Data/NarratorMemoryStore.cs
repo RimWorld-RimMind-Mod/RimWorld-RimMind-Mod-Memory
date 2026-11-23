@@ -1,5 +1,3 @@
-using Verse;
-
 namespace RimMind.Memory.Data
 {
     public class NarratorMemoryStore : MemoryStoreBase
