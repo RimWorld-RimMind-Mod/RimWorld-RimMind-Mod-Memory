@@ -1,8 +1,6 @@
 using System.Reflection;
 using HarmonyLib;
-using RimMind.Memory.Aggregation;
 using RimMind.Presentation.Api;
-using RimWorld;
 using Verse;
 using Verse.AI;
 

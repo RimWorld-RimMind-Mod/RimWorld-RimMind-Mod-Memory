@@ -22,6 +22,7 @@ namespace RimMind.Memory.UI
         public BioTabBadgeDescriptor? TryGetBadge(Pawn pawn)
         {
             if (pawn == null) return null;
+            if (!pawn.IsColonist && RimMindMemoryWorldComponent.Instance?.GetPawnStore(pawn) == null) return null;
 
             string label = RimMindAPI.Text.TrOr("RimMind.Memory.UI.MemoryTab", "Memory");
             return new BioTabBadgeDescriptor(

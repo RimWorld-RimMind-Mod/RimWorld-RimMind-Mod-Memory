@@ -1,11 +1,8 @@
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
-using RimMind.Memory.Core;
 using RimMind.Memory.Data;
 using Verse;
 
@@ -23,7 +20,7 @@ namespace RimMind.Memory.Injection
                 "working_memory", ContextLayer.L3_State, 0.3f,
                 async (ctx, ct) =>
                 {
-                    if (ctx.PawnId <= 0) return null;
+                    if (ctx.PawnId <= 0 || !RimMindMemoryMod.Settings.enableMemory) return null;
                     return await RimMindAPI.MainThreadSnapshot.GetAsync<string?>(() =>
                     {
                         var pawn = RimMindPawnLookup.FindPawnByNumber(ctx.PawnId);

@@ -1,3 +1,4 @@
+using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Memory.DarkMemory;
 using RimMind.Presentation.Api;
@@ -13,8 +14,8 @@ namespace RimMind.Memory
         public const int BaseModCooldownTicks = 3000;
         public const int MinModCooldownTicks = 600;
 
-        public string Id => "DarkMemory";
-        public string OwnerModId => DarkMemoryUpdater.RequestModId;
+        public string Id => DarkMemoryUpdater.RequestModId;
+        public string OwnerModId => RimMindOwnerConsts.MemoryModId;
         public int CooldownTicks => RimMindAPI.Settings.ScaleCooldown(BaseModCooldownTicks, MinModCooldownTicks);
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Context;
@@ -18,7 +17,7 @@ namespace RimMind.Memory.Injection
 {
     public static class MemoryContextProvider
     {
-        private const string PublicProviderOwner = "RimMind.Memory";
+        private const string PublicProviderOwner = RimMindOwnerConsts.MemoryModId;
         private const int PublicProviderPriority = 100;
 
         private static string Tr(string key, params object[] args)
@@ -33,7 +32,7 @@ namespace RimMind.Memory.Injection
             // to a real event (unknown names never fall back to the base bus event).
             MemoryChangedEvent.Register();
 
-            ScenarioRegistry.Register(new ScenarioDescriptor
+            RimMindAPI.Context.RegisterScenario(new ScenarioDescriptor
             {
                 Id = ScenarioIds.Memory,
                 DefaultBaseRounds = 0,
@@ -62,7 +61,7 @@ namespace RimMind.Memory.Injection
                 "memory_pawn", ContextLayer.L3_State, 0.25f,
                 async (ctx, ct) =>
                 {
-                    if (ctx.PawnId <= 0) return null;
+                    if (ctx.PawnId <= 0 || !RimMindMemoryMod.Settings.enableMemory) return null;
                     return await RimMindAPI.MainThreadSnapshot.GetAsync<string?>(() =>
                     {
                         try
@@ -143,6 +142,7 @@ namespace RimMind.Memory.Injection
                 "memory_narrator", ContextLayer.L4_History, 0.6f,
                 async (ctx, ct) =>
                 {
+                    if (!RimMindMemoryMod.Settings.enableMemory) return null;
                     return await RimMindAPI.MainThreadSnapshot.GetAsync<string?>(() =>
                     {
                         try
@@ -232,6 +232,7 @@ namespace RimMind.Memory.Injection
         {
             try
             {
+                if (!RimMindMemoryMod.Settings.enableMemory) return string.Empty;
                 if (pawn == null || Current.Game == null) return string.Empty;
                 var store = RimMindMemoryWorldComponent.Instance?.GetPawnStore(pawn);
                 if (store == null || store.IsEmpty) return string.Empty;
@@ -239,7 +240,8 @@ namespace RimMind.Memory.Injection
                 var (activeList, _, darkList) = store.GetSnapshots();
                 if (activeList.Count == 0 && darkList.Count == 0) return string.Empty;
 
-                var sb = new StringBuilder(TrOrFallback("RimMind.Memory.Context.BriefHeader", "[RimMind Memory]"));
+                var sb = new StringBuilder();
+                sb.AppendLine(TrOrFallback("RimMind.Memory.Context.BriefHeader", "[RimMind Memory]"));
                 foreach (var memory in activeList.Take(5))
                     sb.AppendLine($"- {memory.content}");
 
@@ -262,6 +264,7 @@ namespace RimMind.Memory.Injection
         {
             try
             {
+                if (!RimMindMemoryMod.Settings.enableMemory) return string.Empty;
                 if (Current.Game == null) return string.Empty;
                 var store = RimMindMemoryWorldComponent.Instance?.NarratorStore;
                 if (store == null || store.IsEmpty) return string.Empty;
@@ -269,7 +272,8 @@ namespace RimMind.Memory.Injection
                 var (activeList, _, _) = store.GetSnapshots();
                 if (activeList.Count == 0) return string.Empty;
 
-                var sb = new StringBuilder(TrOrFallback("RimMind.Memory.Context.NarratorBriefHeader", "[RimMind Storyteller]"));
+                var sb = new StringBuilder();
+                sb.AppendLine(TrOrFallback("RimMind.Memory.Context.NarratorBriefHeader", "[RimMind Storyteller]"));
                 foreach (var memory in activeList.Take(5))
                     sb.AppendLine($"- {memory.content}");
                 return sb.ToString().TrimEnd();

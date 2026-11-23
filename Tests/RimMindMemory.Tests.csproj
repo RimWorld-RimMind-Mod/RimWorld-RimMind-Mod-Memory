@@ -21,6 +21,7 @@
     <Compile Include="VerseStubs.cs" />
     <Compile Include="RimMindCoreStubs.cs" />
     <Compile Include="Contracts\**\*.cs" />
+    <Compile Include="../Source/Aggregation/JobMemoryPolicy.cs" />
     <Compile Include="../Source/Core/TimeFormatter.cs" />
     <Compile Include="../Source/Core/ImportanceDecayCalculator.cs" />
     <Compile Include="../Source/Core/MemoryRetrievalScorer.cs" />

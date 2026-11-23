@@ -16,10 +16,10 @@
 
 | 项 | 值 |
 |----|-----|
-| Target | net48, C#9.0, Nullable enable |
-| Output | `../1.6/Assemblies/` |
+| Target | `net48` (1.6) / `net10.0` (1.7), C#9.0, Nullable enable |
+| Output | `../$(GameVersion)/Assemblies/` |
 | Assembly | RimMindMemory, RootNS: RimMind.Memory |
-| 依赖 | RimMindCore.dll, Krafs.Rimworld.Ref, Lib.Harmony.Ref, Newtonsoft.Json |
+| 依赖 | 0_RimMindDomain.dll, 1_RimMindApplication.dll, 2_RimMindCore.dll (`Private=false`), Krafs.Rimworld.Ref, Lib.Harmony.Ref, Newtonsoft.Json |
 
 ## 源码结构
 
@@ -42,17 +42,19 @@ Source/
 ├── Injection/MemoryContextProvider.cs           注册ContextKey(memory_pawn/memory_narrator，主线程快照 + MemoryRetrievalScorer)与公开Brief Provider
 │       WorkingMemoryProvider.cs                 只读旧工作记忆ContextKey(working_memory，主线程快照读取)
 ├── Aggregation/
+│   ├── JobMemoryPolicy.cs                       数据驱动的工作记忆分类策略(Ignored/SignificantSingle/Aggregatable + RegisterRule)
 │   ├── WorkSessionAggregator.cs                 GameComponent工作聚合(不持久化, 每日清理非活跃Pawn会话)
 │   └── Patch_StartJob_Memory.cs                 JobTracker Postfix
 ├── Triggers/                                    5个Patch(AddHediff/Kill/MentalBreak/SkillLevelUp/AddRelation)
 │       MemoryTriggerHelper.cs                   触发器辅助(ShouldProcess+WriteMemory+TryUpgradeToNarrator)
-├── Narrator/Patch_IncidentWorker.cs             叙事者事件Postfix
-├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(ScenarioIds.Memory, LlmRequestEnvelopeBuilder + RimMindAPI.Request.Send)
-│                 DarkMemoryResultParserPure.cs    纯逻辑解析器(生产+测试共用,JSON修复+解析)
-├── Decay/ImportanceDecayManager.cs              衰减管理(默认关闭,单MemoryStoreBase重载)
-├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs + MemoryRetrievalScorer.cs + PawnLookup.cs
+├── Narrator/Patch_IncidentWorker.cs             叙事者事件Postfix(元数据分类+词元表评分)
+├── DarkMemory/DarkMemoryUpdater.cs              每日暗记忆生成(250tick槽位交错+ScenarioIds.Memory+DarkMemoryOutput Schema)
+│                 DarkMemoryResultParserPure.cs    纯逻辑解析器+DarkMemoryOutput Schema(生产+测试共用,JSON修复+解析)
+├── Decay/ImportanceDecayManager.cs              衰减管理(默认开启 enableDecay=true, 返回清理条数)
+├── Core/TimeFormatter.cs + ImportanceDecayCalculator.cs + MemoryRetrievalScorer.cs + RimMindMemoryBridge.cs
+├── Extensions/                                  Core扩展适配器(ActionSkipCheck/ModCooldown/SettingsTab/ToggleBehavior)
 ├── UI/BioTabMemoryPatch.cs + Dialog_MemoryLog.cs
-└── Debug/MemoryDebugActions.cs
+└── Debug/MemoryDebugActions.cs + MemoryBehaviorAutotestSuite.cs
 ```
 
 ## 记忆触发来源
@@ -83,7 +85,7 @@ Source/
 |-----|------|------|
 | ContextKeyRegistry.Register | 注入记忆上下文 | ✅ 使用中 |
 | LlmRequestEnvelopeBuilder + RimMindAPI.Request.Send | 暗记忆AI生成 | ✅ 使用中 |
-| SchemaRegistry.DarkMemoryOutput | 暗记忆JSON Schema | ✅ 使用中 |
+| RimMindAPI.Context.RegisterSchema / FindSchema | 暗记忆JSON Schema(`DarkMemoryOutput`) | ✅ 使用中 |
 | RimMindAPI.RegisterSettingsTab | 设置页标签 | ✅ 使用中 |
 | RimMindAPI.RegisterModCooldown | 冷却注册 | ✅ 使用中 |
 | RimMindAPI.IsConfigured | API可用性检查 | ✅ 使用中 |
@@ -119,7 +121,7 @@ Source/
 
 ### ✅ 必须做
 - 新触发器在Settings添加开关 + UI暴露控件
-- 新工作类型在对应HashSet添加 + 翻译XML添加 `RimMind.Memory.Work.{defName}`
+- 新工作类型通过 `JobMemoryPolicy.RegisterRule`（或在 `JobMemoryPolicy` 默认表）注册，并在翻译XML添加 `RimMind.Memory.Work.{defName}`
 - 记忆写入用try-catch
 
 ### ⚠️ 先询问

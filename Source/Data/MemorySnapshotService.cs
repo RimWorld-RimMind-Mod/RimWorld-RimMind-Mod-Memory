@@ -133,11 +133,9 @@ namespace RimMind.Memory.Data
                     limits.NarratorActive,
                     narratorStore.archive,
                     limits.NarratorArchive);
-                MemoryStoreBase.EnforceLimit(
+                MemoryStoreBase.TrimToLimit(
                     narratorStore.archive,
-                    limits.NarratorArchive,
-                    narratorStore.dark,
-                    int.MaxValue);
+                    limits.NarratorArchive);
             }
         }
 
@@ -178,11 +176,9 @@ namespace RimMind.Memory.Data
                 limits.PawnActive,
                 store.archive,
                 limits.PawnArchive);
-            MemoryStoreBase.EnforceLimit(
+            MemoryStoreBase.TrimToLimit(
                 store.archive,
-                limits.PawnArchive,
-                store.dark,
-                int.MaxValue);
+                limits.PawnArchive);
         }
     }
 

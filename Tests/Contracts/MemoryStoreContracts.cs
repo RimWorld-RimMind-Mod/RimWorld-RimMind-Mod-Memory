@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RimMind.Memory.Core;
 using RimMind.Memory.Data;
@@ -53,6 +54,15 @@ namespace RimMind.Memory.Tests.Contracts
 
                     Assert.Equal("active", Assert.Single(store.active).id);
                     Assert.Equal("archive", Assert.Single(store.archive).id);
+                }),
+                ("null content degrades to empty string and oversized content truncates safely", () =>
+                {
+                    var empty = MemoryEntry.Create(null!, MemoryType.Event, 50, 0.5f);
+                    Assert.Equal(string.Empty, empty.content);
+
+                    var oversized = MemoryEntry.Create(new string('x', 2500), MemoryType.Event, 51, 0.5f);
+                    Assert.Equal(2003, oversized.content.Length);
+                    Assert.EndsWith("...", oversized.content, StringComparison.Ordinal);
                 }));
         }
 
@@ -88,16 +98,21 @@ namespace RimMind.Memory.Tests.Contracts
                         entry => Assert.Equal("high", entry.id),
                         entry => Assert.Equal("medium", entry.id));
                 }),
-                ("pinned active entries send overflow directly to archive", () =>
+                ("pinned active entries send overflow directly to archive without spilling into dark", () =>
                 {
                     var store = new PawnMemoryStore();
                     var pinned = Entry("pinned", 1, 1.0f, pinned: true);
                     store.AddActive(pinned, maxActive: 1, maxArchive: 2);
 
-                    store.AddActive(Entry("overflow", 2, 0.4f), maxActive: 1, maxArchive: 2);
+                    store.AddActive(Entry("overflow-1", 2, 0.4f), maxActive: 1, maxArchive: 2);
+                    store.AddActive(Entry("overflow-2", 3, 0.7f), maxActive: 1, maxArchive: 2);
+                    store.AddActive(Entry("overflow-3", 4, 0.9f), maxActive: 1, maxArchive: 2);
 
                     Assert.Same(pinned, Assert.Single(store.active));
-                    Assert.Equal("overflow", Assert.Single(store.archive).id);
+                    Assert.Equal(2, store.archive.Count);
+                    Assert.Empty(store.dark);
+                    Assert.Contains(store.archive, e => e.id == "overflow-3");
+                    Assert.Contains(store.archive, e => e.id == "overflow-2");
                 }));
         }
 
@@ -221,12 +236,15 @@ namespace RimMind.Memory.Tests.Contracts
                     Assert.Empty(existing.active);
                     Assert.Equal("same", Assert.Single(existing.archive).id);
                 }),
-                ("merge enforces active and archive limits", () =>
+                ("merge enforces active and archive limits without spilling archive into dark", () =>
                 {
                     var source = new Dictionary<int, PawnMemoryStore>();
                     var incoming = new PawnMemoryStore();
                     incoming.active.Add(Entry("new", 3, 0.9f));
                     incoming.active.Add(Entry("old", 1, 0.2f));
+                    incoming.archive.Add(Entry("arch-a", 1, 0.8f));
+                    incoming.archive.Add(Entry("arch-b", 2, 0.3f));
+                    incoming.archive.Add(Entry("arch-c", 3, 0.6f));
                     source[9] = incoming;
 
                     var target = new Dictionary<int, PawnMemoryStore>();
@@ -234,10 +252,11 @@ namespace RimMind.Memory.Tests.Contracts
                         MemorySnapshotService.Serialize(source, new NarratorMemoryStore()),
                         target,
                         new NarratorMemoryStore(),
-                        new MemorySnapshotLimits(1, 1, 1, 1));
+                        new MemorySnapshotLimits(1, 2, 1, 1));
 
                     Assert.Single(target[9].active);
-                    Assert.Single(target[9].archive);
+                    Assert.Equal(2, target[9].archive.Count);
+                    Assert.Empty(target[9].dark);
                 }));
         }
 

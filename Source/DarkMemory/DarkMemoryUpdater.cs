@@ -1,16 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RimMind.Application.Common.Helpers;
-using RimMind.Application.Common.Interfaces.Client;
 using RimMind.Application.Features.Llm;
-using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
-using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Memory.Data;
 using RimMind.Memory.Decay;
+using RimMind.Memory.Injection;
 using RimWorld;
 using Verse;
 
@@ -21,7 +18,8 @@ namespace RimMind.Memory.DarkMemory
         public const string RequestModId = "RimMind.Memory";
         public const int DailyInterval = 60000;
         public const int DarkMemoryMaxQueueWaitTicks = DailyInterval;
-        private const int JitterRange = 3000;
+        private const int StaggerStepTicks = 250;
+        private const int DailyStaggerSlots = DailyInterval / StaggerStepTicks;
 
         private static DarkMemoryUpdater? _instance;
         public static DarkMemoryUpdater? Instance => Current.Game != null ? _instance : null;
@@ -31,22 +29,11 @@ namespace RimMind.Memory.DarkMemory
         public DarkMemoryUpdater(Game game)
         {
             _instance = this;
-            _narratorOffset = new System.Random().Next(0, DailyInterval);
+            _narratorOffset = new System.Random().Next(0, DailyStaggerSlots);
         }
 
         public static string BuildCoalesceKey(string npcId)
             => $"{RequestModId}:dark_memory:{npcId}";
-
-        public static int GetPawnJitter(int thingID)
-        {
-            int span = JitterRange * 2 + 1;
-            return TickStagger.PhaseOffset(thingID, span) - JitterRange;
-        }
-
-        public static void CleanupPawnJitter(int thingID)
-        {
-            // Jitter is computed deterministically from thingIDNumber via TickStagger; no per-pawn state to prune.
-        }
 
         public override void GameComponentTick()
         {
@@ -54,26 +41,30 @@ namespace RimMind.Memory.DarkMemory
             var wc = RimMindMemoryWorldComponent.Instance;
             if (wc == null) return;
 
-            var settings = RimMindMemoryMod.Settings;
             int now = Find.TickManager.TicksGame;
-            if (now <= 0) return;
+            if (now <= 0 || (now % StaggerStepTicks) != 0) return;
 
-            foreach (var map in Find.Maps)
+            int slot = now / StaggerStepTicks;
+            var settings = RimMindMemoryMod.Settings;
+
+            if (Find.Maps != null)
             {
-                var colonists = RimMindPawnLookup.GetSpawnedColonistsSafe(map);
-                if (colonists.Count == 0) continue;
-                for (int i = 0; i < colonists.Count; i++)
+                for (int m = 0; m < Find.Maps.Count; m++)
                 {
-                    var pawn = colonists[i];
-                    if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
-                    if (!TickStagger.IsDue(now, pawn.thingIDNumber, DailyInterval)) continue;
-                    TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
-
-                    if (settings.enableDecay)
+                    var colonists = RimMindPawnLookup.GetSpawnedColonistsSafe(Find.Maps[m]);
+                    for (int i = 0; i < colonists.Count; i++)
                     {
-                        var store = wc.GetPawnStore(pawn);
-                        if (store != null)
-                            ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                        var pawn = colonists[i];
+                        if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
+                        if (!TickStagger.IsDue(slot, pawn.thingIDNumber, DailyStaggerSlots)) continue;
+                        TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
+
+                        if (settings.enableDecay)
+                        {
+                            var store = wc.GetPawnStore(pawn);
+                            if (store != null && ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold) > 0)
+                                MemoryChangedEvent.Publish(pawn.thingIDNumber);
+                        }
                     }
                 }
             }
@@ -90,25 +81,28 @@ namespace RimMind.Memory.DarkMemory
                     {
                         var pawn = caravanPawns[i];
                         if (pawn == null || !pawn.IsFreeNonSlaveColonist || pawn.Faction != Faction.OfPlayer || pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) continue;
-                        if (!TickStagger.IsDue(now, pawn.thingIDNumber, DailyInterval)) continue;
+                        if (!TickStagger.IsDue(slot, pawn.thingIDNumber, DailyStaggerSlots)) continue;
                         TriggerPawnDarkMemoryUpdate(pawn, wc, settings);
 
                         if (settings.enableDecay)
                         {
                             var store = wc.GetPawnStore(pawn);
-                            if (store != null)
-                                ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold);
+                            if (store != null && ImportanceDecayManager.ApplyDecay(store, settings.decayRate, settings.minImportanceThreshold) > 0)
+                                MemoryChangedEvent.Publish(pawn.thingIDNumber);
                         }
                     }
                 }
             }
 
-            if (TickStagger.IsDue(now, _narratorOffset, DailyInterval))
+            if (TickStagger.IsDue(slot, _narratorOffset, DailyStaggerSlots))
             {
                 TriggerNarratorDarkMemoryUpdate(wc, settings);
 
-                if (settings.enableDecay)
-                    ImportanceDecayManager.ApplyDecay(wc.NarratorStore, settings.decayRate, settings.minImportanceThreshold);
+                if (settings.enableDecay
+                    && ImportanceDecayManager.ApplyDecay(wc.NarratorStore, settings.decayRate, settings.minImportanceThreshold) > 0)
+                {
+                    MemoryChangedEvent.Publish(0);
+                }
             }
         }
 
@@ -135,21 +129,31 @@ namespace RimMind.Memory.DarkMemory
             if (todayEntries.Count == 0) return;
 
             var sb = new StringBuilder();
-            sb.AppendLine("RimMind.Memory.Prompt.PawnTodayMemory".Translate(pawn.Name?.ToStringShort ?? pawn.LabelShort));
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.PawnTodayMemory",
+                "{0}'s memories today:",
+                pawn.Name?.ToStringShort ?? pawn.LabelShort));
             foreach (var e in todayEntries)
                 sb.AppendLine($"- {e.content}");
             sb.AppendLine();
-            sb.AppendLine("RimMind.Memory.Prompt.ExistingImpression".Translate());
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.ExistingImpression",
+                "Existing long-term impressions (each <=50 chars, evolvable):"));
             foreach (var d in darkList)
                 sb.AppendLine($"- {d.content}");
             sb.AppendLine();
-            sb.AppendLine("RimMind.Memory.Prompt.MergeInstruction".Translate(settings.darkCount));
-            sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.MergeInstruction",
+                "Merge today's memories into existing impressions, output JSON (keep {0} entries, each <=50 chars):",
+                settings.darkCount));
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.JsonTemplate",
+                "{{\"dark\":[\"...\",\"...\"]}}"));
 
             var npcId = $"NPC-{pawn.thingIDNumber}";
             var currentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString());
-
-            var schema = RimMindAPI.Context.SchemaDarkMemoryOutput;
+            var schema = RimMindAPI.Context.FindSchema(DarkMemoryResultParserPure.SchemaKey)
+                ?? DarkMemoryResultParserPure.DarkMemoryOutputSchema;
 
             var envelope = LlmRequestEnvelopeBuilder
                 .ForScenario(RimMindAPI.Context.ScenarioMemory)
@@ -166,8 +170,13 @@ namespace RimMind.Memory.DarkMemory
             RimMindAPI.Request.Send(envelope, result =>
             {
                 if (result.IsErr) return;
-                if (pawn.Dead || pawn.Destroyed || pawn.IsKidnapped()) return;
-                ApplyPawnDarkMemory(result.Value.Content, store, settings.darkCount, now);
+                if (!ReferenceEquals(wc, RimMindMemoryWorldComponent.Instance)) return;
+                if (pawn.Dead || pawn.Destroyed || pawn.IsKidnapped() || pawn.Faction != Faction.OfPlayer) return;
+                if (!pawn.Spawned && !RimWorld.Planet.CaravanUtility.IsCaravanMember(pawn)) return;
+                if (ApplyDarkMemory(result.Value.Content, settings.darkCount, now, store))
+                {
+                    MemoryChangedEvent.Publish(pawn.thingIDNumber);
+                }
             });
         }
 
@@ -184,21 +193,30 @@ namespace RimMind.Memory.DarkMemory
             if (todayEntries.Count == 0) return;
 
             var sb = new StringBuilder();
-            sb.AppendLine("RimMind.Memory.Prompt.ColonyTodayEvents".Translate());
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.ColonyTodayEvents",
+                "Colony events today:"));
             foreach (var e in todayEntries)
                 sb.AppendLine($"- {e.content}");
             sb.AppendLine();
-            sb.AppendLine("RimMind.Memory.Prompt.ExistingNarrative".Translate());
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.ExistingNarrative",
+                "Existing long-term narratives (each <=50 chars, evolvable):"));
             foreach (var d in darkList)
                 sb.AppendLine($"- {d.content}");
             sb.AppendLine();
-            sb.AppendLine("RimMind.Memory.Prompt.MergeNarrativeInstruction".Translate(settings.narratorDarkCount));
-            sb.AppendLine("RimMind.Memory.Prompt.JsonTemplate".Translate());
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.MergeNarrativeInstruction",
+                "Merge today's events into existing narratives, output JSON (keep {0} entries, each <=50 chars):",
+                settings.narratorDarkCount));
+            sb.AppendLine(RimMindAPI.Text.TrOr(
+                "RimMind.Memory.Prompt.JsonTemplate",
+                "{{\"dark\":[\"...\",\"...\"]}}"));
 
             var npcId = "NPC-storyteller";
             var currentQuery = RimMindAPI.Prompt.Sanitize(sb.ToString());
-
-            var schema = RimMindAPI.Context.SchemaDarkMemoryOutput;
+            var schema = RimMindAPI.Context.FindSchema(DarkMemoryResultParserPure.SchemaKey)
+                ?? DarkMemoryResultParserPure.DarkMemoryOutputSchema;
 
             var envelope = LlmRequestEnvelopeBuilder
                 .ForScenario(RimMindAPI.Context.ScenarioMemory)
@@ -215,26 +233,20 @@ namespace RimMind.Memory.DarkMemory
             RimMindAPI.Request.Send(envelope, result =>
             {
                 if (result.IsErr) return;
-                ApplyNarratorDarkMemory(result.Value.Content, store, settings.narratorDarkCount, now);
+                if (!ReferenceEquals(wc, RimMindMemoryWorldComponent.Instance)) return;
+                if (ApplyDarkMemory(result.Value.Content, settings.narratorDarkCount, now, store))
+                {
+                    MemoryChangedEvent.Publish(0);
+                }
             });
         }
 
-        private void ApplyPawnDarkMemory(string jsonContent, PawnMemoryStore store, int darkCount, int now)
-        {
-            ApplyDarkMemory(jsonContent, darkCount, now, store);
-        }
-
-        private void ApplyNarratorDarkMemory(string jsonContent, NarratorMemoryStore store, int darkCount, int now)
-        {
-            ApplyDarkMemory(jsonContent, darkCount, now, store);
-        }
-
-        private static void ApplyDarkMemory(string json, int darkCount, int now, MemoryStoreBase store)
+        private static bool ApplyDarkMemory(string json, int darkCount, int now, MemoryStoreBase store)
         {
             try
             {
                 var entries = DarkMemoryResultParserPure.Parse(json, darkCount);
-                if (entries == null || entries.Count == 0) return;
+                if (entries == null || entries.Count == 0) return false;
 
                 lock (store.SyncRoot)
                 {
@@ -244,10 +256,12 @@ namespace RimMind.Memory.DarkMemory
                         store.dark.Add(MemoryEntry.Create(text, MemoryType.Dark, now, 1.0f));
                     }
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 RimMindErrors.Warn($"[RimMind-Memory] Failed to parse dark memory response: {ex.Message}");
+                return false;
             }
         }
     }

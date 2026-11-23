@@ -22,6 +22,7 @@ namespace RimMind.Memory.Data
 
         public static MemoryEntry Create(string content, MemoryType type, int tick, float importance, string? pawnId = null, string? targetPawnId = null)
         {
+            content ??= string.Empty;
             if (content.Length > 2000)
             {
                 var originalLength = content.Length;

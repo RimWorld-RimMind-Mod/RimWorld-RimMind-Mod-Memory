@@ -2,8 +2,8 @@ using RimMind.Domain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
-using RimMind.Memory.DarkMemory;
 using RimMind.Memory.Data;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -23,11 +23,12 @@ namespace RimMind.Memory.Triggers
                 if (wc == null) return;
 
                 if (__instance == null) return;
-                DarkMemoryUpdater.CleanupPawnJitter(__instance.thingIDNumber);
 
                 var settings = RimMindMemoryMod.Settings;
                 int now = Find.TickManager.TicksGame;
-                string deadName = __instance.Name?.ToStringShort ?? __instance.def?.label ?? "RimMind.Memory.Trigger.Unknown".Translate();
+                string deadName = __instance.Name?.ToStringShort
+                    ?? __instance.def?.label
+                    ?? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.Unknown", "Unknown");
                 string deadTargetId = !string.IsNullOrEmpty(__instance.ThingID)
                     ? __instance.ThingID
                     : __instance.thingIDNumber.ToString();
@@ -40,8 +41,8 @@ namespace RimMind.Memory.Triggers
                     {
                         string relation = GetRelationLabel(colonist, __instance);
                         string content = relation != null
-                            ? "RimMind.Memory.Trigger.RelationDeath".Translate(relation, deadName)
-                            : "RimMind.Memory.Trigger.Death".Translate(deadName);
+                            ? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.RelationDeath", "{0} {1} died", relation, deadName)
+                            : RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.Death", "{0} died", deadName);
 
                         float importance = relation != null ? 1.0f : 0.85f;
                         string colonistPawnId = !string.IsNullOrEmpty(colonist.ThingID)
@@ -54,15 +55,18 @@ namespace RimMind.Memory.Triggers
                             settings.maxActive,
                             settings.maxArchive);
                     }
-                    catch { }
+                    catch (System.Exception ex)
+                    {
+                        RimMindErrors.Warn($"[RimMind-Memory] Patch_PawnKill related colonist memory error: {ex.Message}");
+                    }
                 }
 
                 if (!ShouldRecordNarratorDeath(__instance, hadRelatedColonist))
                     return;
 
                 string narratorContent = __instance.IsFreeNonSlaveColonist
-                    ? "RimMind.Memory.Trigger.ColonistDeath".Translate(deadName)
-                    : "RimMind.Memory.Trigger.Death".Translate(deadName);
+                    ? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.ColonistDeath", "Colonist {0} died", deadName)
+                    : RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.Death", "{0} died", deadName);
 
                 string attackerStr = "";
                 string? killerPawnId = null;
@@ -76,8 +80,10 @@ namespace RimMind.Memory.Triggers
                             : killerPawn.thingIDNumber.ToString();
                     }
                     attackerStr = inst is Pawn p && p.Name != null
-                        ? "RimMind.Memory.Trigger.KilledBy".Translate(p.Name.ToStringShort)
-                        : (!inst.Label.NullOrEmpty() ? "RimMind.Memory.Trigger.KilledBy".Translate(inst.Label) : "");
+                        ? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.KilledBy", "(killed by {0})", p.Name.ToStringShort)
+                        : (!inst.Label.NullOrEmpty()
+                            ? RimMindAPI.Text.TrOr("RimMind.Memory.Trigger.KilledBy", "(killed by {0})", inst.Label)
+                            : "");
                 }
 
                 wc.AddNarratorMemory(

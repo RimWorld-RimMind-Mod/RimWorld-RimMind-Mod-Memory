@@ -27,7 +27,11 @@ namespace RimMind.Memory.Triggers
 
                 float importance = EstimateImportance(stateDef);
                 string label = stateDef.LabelCap.RawText.NullOrEmpty() ? stateDef.defName : stateDef.LabelCap.RawText;
-                string content = "RimMind.Memory.Trigger.MentalBreak".Translate(pawn.Name.ToStringShort, label);
+                string content = RimMindAPI.Text.TrOr(
+                    "RimMind.Memory.Trigger.MentalBreak",
+                    "{0} had a mental break: {1}",
+                    pawn.Name.ToStringShort,
+                    label);
                 MemoryTriggerHelper.WriteMemory(pawn, content, MemoryType.Event, importance);
             }
             catch (System.Exception ex)

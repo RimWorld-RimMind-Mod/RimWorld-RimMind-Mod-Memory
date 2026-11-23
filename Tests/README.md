@@ -2,8 +2,8 @@
 
 Active contract sources are `Contracts/*.cs`. The compact suite contains:
 
-- `MemoryStoreContracts` — entry identity, layer routing, limits, importance ordering and legacy working-memory save compatibility.
-- `MemoryParsingContextContracts` — dark-memory parsing, decay boundaries and time context.
+- `MemoryStoreContracts` — entry identity, layer routing, limits (without archive->dark spill), importance ordering, retrieval scoring and legacy working-memory save compatibility.
+- `MemoryParsingContextContracts` — dark-memory schema & parsing, decay boundaries and removed counts, `JobMemoryPolicy` classification/extensibility, Core extension contracts, and time context.
 - `RemoteSyncBoundaryContracts` — remote failure isolation, main-thread scheduling and successful merge boundaries.
 
 Count actual discovered cases with the root test-budget script; all projects per mod must total fewer than 1000. Add behavior and failure-boundary tests, not private-shape assertions or unrelated aggregate scenarios.
@@ -19,8 +19,8 @@ Count actual discovered cases with the root test-budget script; all projects per
   ```
 
 - Required retained stub include: `VerseStubs.cs`
-- Required production includes: `TimeFormatter.cs`, `ImportanceDecayCalculator.cs`,
-  `MemoryEntry.cs`, `MemoryStoreBase.cs`, `PawnMemoryStore.cs`,
+- Required production includes: `JobMemoryPolicy.cs`, `TimeFormatter.cs`, `ImportanceDecayCalculator.cs`,
+  `MemoryRetrievalScorer.cs`, `MemoryEntry.cs`, `MemoryStoreBase.cs`, `PawnMemoryStore.cs`,
   `NarratorMemoryStore.cs`, `MemorySnapshotService.cs`,
   `ImportanceDecayManager.cs`, `WorkingMemory.cs`,
   `WorkingMemoryEntry.cs`, and `DarkMemoryResultParserPure.cs`
